@@ -1,7 +1,7 @@
 {
-    "name": "@osmoweb/nestjs-microservice",
+    "name": "@osmoweb/backend-core",
     "version": "1.0.0",
-    "description": "This is a NestJS microservice for OsmoWeb",
+    "description": "This is the core backend package for OsmoWeb",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "scripts": {
@@ -14,7 +14,6 @@
     "license": "ISC",
     "type": "module",
     "dependencies": {
-        "@osmoweb/backend-core": "^1.0.0",
         "@osmoweb/core": "^1.0.0",
         "ws": "^8.18.3"
     },
