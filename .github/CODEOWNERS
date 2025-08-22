@@ -1,0 +1,19 @@
+# Global code owners
+* @dtv-comp
+
+# Core package - requires special attention
+packages/core/ @dtv-comp
+
+# Configuration files
+*.json @dtv-comp
+*.yml @dtv-comp
+*.yaml @dtv-comp
+.github/ @dtv-comp
+
+# Documentation
+*.md @dtv-comp
+docs/ @dtv-comp
+
+# Test files
+**/*.test.ts @dtv-comp
+**/*.spec.ts @dtv-comp

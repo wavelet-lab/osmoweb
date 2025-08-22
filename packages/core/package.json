@@ -1,0 +1,40 @@
+{
+    "name": "@osmoweb/core",
+    "version": "1.0.0",
+    "description": "This is the core package for OsmoWeb",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "test:coverage": "vitest run --coverage"
+    },
+    "keywords": [],
+    "author": "dtv.comp@gmail.com",
+    "license": "ISC",
+    "type": "module",
+    "devDependencies": {
+        "@types/node": "^24.2.1",
+        "@vitest/coverage-v8": "^3.2.4",
+        "typescript": "^5.9.2",
+        "vitest": "^3.2.4"
+    },
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "require": "./dist/index.js"
+        },
+        "./radio": {
+            "types": "./dist/radio/index.d.ts",
+            "import": "./dist/radio/index.js",
+            "require": "./dist/radio/index.js"
+        },
+        "./utils": {
+            "types": "./dist/utils/index.d.ts",
+            "import": "./dist/utils/index.js",
+            "require": "./dist/utils/index.js"
+        }
+    }
+}

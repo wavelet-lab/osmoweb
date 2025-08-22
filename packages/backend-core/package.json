@@ -1,0 +1,26 @@
+{
+    "name": "@osmoweb/backend-core",
+    "version": "1.0.0",
+    "description": "This is the core backend package for OsmoWeb",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "test": "vitest run",
+        "test:watch": "vitest"
+    },
+    "keywords": [],
+    "author": "dtv.comp@gmail.com",
+    "license": "ISC",
+    "type": "module",
+    "dependencies": {
+        "@osmoweb/core": "^1.0.0",
+        "ws": "^8.18.3"
+    },
+    "devDependencies": {
+        "@types/ws": "^8.18.1",
+        "@vitest/coverage-v8": "^3.2.4",
+        "typescript": "^5.9.2",
+        "vitest": "^3.2.4"
+    }
+}
