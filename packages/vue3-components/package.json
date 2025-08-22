@@ -1,0 +1,27 @@
+{
+    "name": "@osmoweb/vue3-components",
+    "version": "1.0.0",
+    "description": "This is a Vue 3 components package for OsmoWeb",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "test": "vitest run",
+        "test:watch": "vitest"
+    },
+    "keywords": [],
+    "author": "dtv.comp@gmail.com",
+    "license": "ISC",
+    "type": "module",
+    "dependencies": {
+        "@osmoweb/core": "^1.0.0",
+        "vue": "^3.5.19"
+    },
+    "devDependencies": {
+        "@vitest/coverage-v8": "^3.2.4",
+        "@vue/cli-plugin-typescript": "^5.0.9",
+        "@vue/cli-service": "^5.0.9",
+        "typescript": "^5.9.2",
+        "vitest": "^3.2.4"
+    }
+}

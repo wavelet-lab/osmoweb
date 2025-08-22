@@ -1,0 +1,46 @@
+{
+    "name": "osmoweb",
+    "version": "1.0.0",
+    "description": "OsmoWeb package",
+    "private": true,
+    "workspaces": [
+        "./packages/core",
+        "./packages/backend-core",
+        "./packages/nestjs-microservice",
+        "./packages/frontend-core",
+        "./packages/vue3-components"
+    ],
+    "scripts": {
+        "build": "npm run build --workspaces",
+        "test": "npm run test --workspaces",
+        "test:all": "vitest run",
+        "test:watch": "vitest",
+        "test:coverage": "vitest run --coverage",
+        "test:ui": "vitest --ui"
+    },
+    "keywords": [
+        "osmoweb",
+        "osmo",
+        "osmocom",
+        "libosmocom",
+        "2g",
+        "gsm",
+        "sms",
+        "phone",
+        "communication",
+        "basestation",
+        "network",
+        "telecommunications",
+        "infrastructure",
+        "wavelet"
+    ],
+    "author": "dtv.comp@gmail.com",
+    "license": "ISC",
+    "type": "module",
+    "devDependencies": {
+        "@types/node": "^24.2.1",
+        "@vitest/coverage-v8": "^3.2.4",
+        "typescript": "^5.9.2",
+        "vitest": "^3.2.4"
+    }
+}
