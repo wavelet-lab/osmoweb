@@ -134,9 +134,9 @@ coverage/
 .svelte-kit
 
 # Package manager lock files
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
 
 # Turborepo cache
 .turbo/
