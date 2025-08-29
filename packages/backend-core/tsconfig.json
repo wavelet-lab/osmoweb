@@ -18,6 +18,7 @@
         "target": "esnext",
         "moduleResolution": "bundler",
         "types": [
+            "node",
             "vitest/globals"
         ],
         // Other Outputs

@@ -1,8 +1,11 @@
+# OsmoWeb
+[OsmoWeb](https://github.com/wavelet-lab/osmoweb) is an open-source TypeScript library that brings Osmocom's mobile communication capabilities to the web.
+
 ## Description
 
-[OsmoWeb](https://github.com/wavelet-dev/osmoweb) is an open-source TypeScript library that brings Osmocom's mobile communication capabilities to the web.
 
-## Project setup
+
+## Setup the project
 
 ```bash
 npm install
@@ -39,4 +42,4 @@ npm run test:coverage
 
 ## License
 
-OsmoWeb is [MIT licensed](https://github.com/wavelet-dev/osmoweb/blob/main/LICENSE).
+OsmoWeb is [MIT licensed](https://github.com/wavelet-lab/osmoweb/blob/main/LICENSE).

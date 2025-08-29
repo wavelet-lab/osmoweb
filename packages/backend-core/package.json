@@ -18,9 +18,22 @@
         "ws": "^8.18.3"
     },
     "devDependencies": {
+        "@types/node": "^24.3.0",
         "@types/ws": "^8.18.1",
         "@vitest/coverage-v8": "^3.2.4",
         "typescript": "^5.9.2",
         "vitest": "^3.2.4"
+    },
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "require": "./dist/index.js"
+        },
+        "./osmo": {
+            "types": "./dist/osmo/index.d.ts",
+            "import": "./dist/osmo/index.js",
+            "require": "./dist/osmo/index.js"
+        }
     }
 }

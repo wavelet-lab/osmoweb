@@ -1,6 +1,6 @@
 import { ControlController } from '@/osmo/controllers/control.controller';
-import { AbisRslController } from '@/osmo/controllers/abis_rsl.controller';
-import { AbisOmlController } from '@/osmo/controllers/abis_oml.controller';
+import { AbisRslController } from '@/osmo/controllers/abis-rsl.controller';
+import { AbisOmlController } from '@/osmo/controllers/abis-oml.controller';
 import { MediaController } from '@/osmo/controllers/media.controller';
 import type { OsmoController, OsmoControllerClass } from '@/osmo/controllers/controller.type';
 import { DefaultController } from '@/osmo/controllers/default.controller';
@@ -24,20 +24,48 @@ export class Router {
         this.log = logger ?? new SimpleLogger();
     }
 
-    init = (osmoParams: OsmoParams) => {
+    /**
+     * Register a new controller class.
+     * @param token The token to identify the controller.
+     * @param cls The controller class.
+     */
+    register(token: string, cls: OsmoControllerClass) {
+        this.controllerMap.set(token, cls);
+    }
+
+    /**
+     * Initialize the router with the given Osmo parameters.
+     * @param osmoParams The Osmo parameters.
+     */
+    init(osmoParams: OsmoParams) {
         for (const [path, cls] of this.controllerMap.entries()) {
             this.instanceCtrlMap.set(path, new cls(osmoParams));
         }
     }
 
-    to = (uri: string, port: Number): OsmoController => {
-        const ctrlToken = uri.slice(uri.lastIndexOf('/') + 1);
-        const ctrl = this.instanceCtrlMap.get(ctrlToken);
+    /**
+     * Resolve a controller by its token.
+     * @param token The token to identify the controller.
+     * @returns The resolved controller instance.
+     */
+    resolve(token: string): OsmoController {
+        const ctrl = this.instanceCtrlMap.get(token);
         if (ctrl) {
-            this.log.debug?.(`(${port}) Routing to ${this.controllerMap.get(ctrlToken)!.name}`);
+            this.log.debug?.(`Routing to ${this.controllerMap.get(token)!.name}`);
             return ctrl;
         }
         return this.defaultController;
+    }
+
+    /**
+     * Route a request to the appropriate controller.
+     * @param uri The request URI.
+     * @param port The request port.
+     * @returns The resolved controller instance.
+     */
+    to(uri: string, port: Number): OsmoController {
+        const ctrlToken = uri.slice(uri.lastIndexOf('/') + 1);
+        return this.resolve(ctrlToken);
     }
 
 }
