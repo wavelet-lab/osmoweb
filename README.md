@@ -1,6 +1,8 @@
 # OsmoWeb
 [OsmoWeb](https://github.com/wavelet-lab/osmoweb) is an open-source TypeScript library that brings Osmocom's mobile communication capabilities to the web.
 
+⚠️ This project is under active development. Not all features are implemented yet and some functionality may not work.
+
 ## Description
 
 
