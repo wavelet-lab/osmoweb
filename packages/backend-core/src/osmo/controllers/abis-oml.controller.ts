@@ -1,4 +1,5 @@
 import type WebSocket from 'ws';
+import type { IncomingMessage } from 'http';
 import type { OsmoController } from '@/osmo/controllers/controller.type';
 import { OsmoTcpClient } from '@/osmo/osmotcp.client';
 import { OsmoServices } from '@/osmo/lib/common.types';
@@ -13,7 +14,7 @@ export class AbisOmlController implements OsmoController {
         this.log = logger ?? new SimpleLogger(AbisOmlController.name);
     }
 
-    handle = async (client: WebSocket) => {
+    async handle(client: WebSocket, _request: IncomingMessage) {
         const service = this.osmoParams.services[OsmoServices.OSMO_TCP_ABIS_OML];
         if (service === undefined) {
             this.log.error('OML service not found');
@@ -42,14 +43,7 @@ export class AbisOmlController implements OsmoController {
         }
 
         osmoClient.connect();
-        let running = true;
-        // while (running) {
-        //     if (!osmoClient.connected || client.readyState === client.CLOSED) {
-        //         this.log.error('OML disconnected from WebSocket client');
-        //         running = false;
-        //     }
-        //     await sleep(0.1);
-        // }
+
         for await (const buffer of osmoClient.get()) {
             if (buffer !== undefined) {
                 client.send(buffer/* , (error) => {
@@ -59,11 +53,10 @@ export class AbisOmlController implements OsmoController {
             }
             if (!osmoClient.connected || client.readyState === client.CLOSED) {
                 this.log.error('OML disconnected from WebSocket client');
-                running = false;
+                break;
             }
-            if (!running) break;
         }
         client.close();
         osmoClient.disconnect();
-    };
+    }
 }

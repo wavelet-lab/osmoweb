@@ -3,10 +3,10 @@ import type { IncomingMessage } from 'http';
 
 // const allowedProtocols = new Set<string>([]);
 
-export const getOsmoProtocol = (req: IncomingMessage) => {
+export const getOsmoProtocol = (req: IncomingMessage): string | false => {
   const protocol = req.headers['sec-websocket-protocol'];
   // if (!allowedProtocols.has(protocol)) {
   //   throw new Error(`Unknown protocol ${protocol}`);
   // }
-  return protocol;
+  return protocol ?? false;
 }

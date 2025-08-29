@@ -3,6 +3,8 @@
 
 # Core package - requires special attention
 packages/core/ @dtv-comp
+packages/backend-core/ @dtv-comp
+packages/frontend-core/ @dtv-comp
 
 # Configuration files
 *.json @dtv-comp
