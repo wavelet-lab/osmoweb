@@ -26,6 +26,11 @@
             "import": "./dist/index.js",
             "require": "./dist/index.js"
         },
+        "./osmo": {
+            "types": "./dist/osmo/index.d.ts",
+            "import": "./dist/osmo/index.js",
+            "require": "./dist/osmo/index.js"
+        },
         "./radio": {
             "types": "./dist/radio/index.d.ts",
             "import": "./dist/radio/index.js",

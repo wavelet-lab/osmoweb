@@ -2,10 +2,13 @@
     "name": "@osmoweb/vue3-components",
     "version": "1.0.0",
     "description": "This is a Vue 3 components package for OsmoWeb",
-    "main": "dist/index.js",
+    "main": "dist/index.cjs.js",
+    "module": "dist/index.es.js",
     "types": "dist/index.d.ts",
     "scripts": {
-        "build": "tsc",
+        "build": "vue-tsc && vite build && npm run build:styles && npm run build:types",
+        "build:styles": "mkdir -p dist/styles && sass src/styles:dist/styles --no-source-map && cp -n src/styles/*.css dist/styles/ 2>/dev/null || true",
+        "build:types": "vue-tsc --emitDeclarationOnly",
         "test": "vitest run",
         "test:watch": "vitest"
     },
@@ -18,10 +21,30 @@
         "vue": "^3.5.20"
     },
     "devDependencies": {
+        "@vitejs/plugin-vue": "^6.0.1",
         "@vitest/coverage-v8": "^3.2.4",
         "@vue/cli-plugin-typescript": "^5.0.9",
         "@vue/cli-service": "^5.0.9",
+        "@vue/test-utils": "^2.4.6",
+        "happy-dom": "^18.0.1",
+        "sass": "^1.91.0",
         "typescript": "^5.9.2",
-        "vitest": "^3.2.4"
+        "vite": "^7.1.4",
+        "vite-plugin-css-injected-by-js": "^3.5.2",
+        "vitest": "^3.2.4",
+        "vue-tsc": "^3.0.6"
+    },
+    "sideEffects": [
+        "**/*.css",
+        "**/*.scss",
+        "**/*.sass"
+    ],
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.es.js",
+            "require": "./dist/index.cjs.js"
+        },
+        "./styles/*": "./dist/styles/*"
     }
 }

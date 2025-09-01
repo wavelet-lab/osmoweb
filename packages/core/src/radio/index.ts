@@ -1,4 +1,4 @@
-// Re-export types and enums
+// Re-export radio functions and types
 export {
   RadioTechnology,
   GSMBand,

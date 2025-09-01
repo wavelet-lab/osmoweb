@@ -20,3 +20,27 @@ export enum OsmoServices {
     OSMO_TCP_HLR = 3,
     OSMO_TCP_BSC = 4,
 }
+
+export const osmoServiceAddrMap: { [key in OsmoServices]: ServiceAddr } = {
+    [OsmoServices.OSMO_UDP_MEDIA]: { serviceUri: 'localhost', servicePort: 1984 },
+    [OsmoServices.OSMO_TCP_ABIS_OML]: { serviceUri: 'localhost', servicePort: 3002 },
+    [OsmoServices.OSMO_TCP_ABIS_RSL]: { serviceUri: 'localhost', servicePort: 3003 },
+    [OsmoServices.OSMO_TCP_HLR]: { serviceUri: 'localhost', servicePort: 4258 },
+    [OsmoServices.OSMO_TCP_BSC]: { serviceUri: 'localhost', servicePort: 4242 },
+}
+
+export const osmoDefaultParams: OsmoParams = {
+    port: 8800,
+    services: [
+        osmoServiceAddrMap[OsmoServices.OSMO_UDP_MEDIA],
+        osmoServiceAddrMap[OsmoServices.OSMO_TCP_ABIS_OML],
+        osmoServiceAddrMap[OsmoServices.OSMO_TCP_ABIS_RSL],
+        osmoServiceAddrMap[OsmoServices.OSMO_TCP_HLR],
+        osmoServiceAddrMap[OsmoServices.OSMO_TCP_BSC],
+    ],
+    controlUri: '/wsdr/osmo/control',
+    abisOmlUri: '/wsdr/osmo/abis_oml',
+    abisRslUri: '/wsdr/osmo/abis_rsl',
+    mediaUri: '/wsdr/osmo/media',
+    poolSize: 4
+}

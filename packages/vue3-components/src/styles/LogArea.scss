@@ -1,0 +1,195 @@
+:root {
+    --log-fatal-color: darkred;
+    --log-error-color: red;
+    --log-warning-color: rgb(190, 124, 0);
+    --log-info-color: black;
+    --log-debug-color: blue;
+
+    /* Visual tokens for LogArea (external/theming) */
+    --logarea-border: #dee2e6;
+    --logarea-filter-bg: #f8f9fa;
+    --logarea-text-muted: #6c757d;
+    --logarea-filter-padding: 0.5rem;
+    --logarea-filter-gap: 1rem;
+    --logarea-filter-gap-mobile: 0.5rem;
+
+    /* Log item typography (can be adjusted by theme) */
+    --logarea-item-font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --logarea-item-font-size: medium;
+    --logarea-item-line-height: 1rem;
+    --logarea-item-padding: 0.5rem;
+}
+
+/* Dark theme */
+[data-theme="dark"],
+.theme-dark {
+    --log-fatal-color: rgb(201, 0, 0);
+    --log-error-color: rgb(255, 78, 78);
+    --log-warning-color: rgb(238, 155, 0);
+    --log-info-color: lightgray;
+    --log-debug-color: rgb(0, 191, 255);
+
+    /* LogArea visual overrides */
+    --logarea-border: #2a2f3a;
+    --logarea-filter-bg: #1f232b;
+    --logarea-text-muted: #9aa4b2;
+}
+
+/* Internal structural/layout styles for LogArea */
+.log-area {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+
+    /* Sticky header */
+    .filter {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        width: calc(100% - 2 * var(--logarea-filter-padding, 0.5rem));
+        min-height: 3rem;
+
+        padding: var(--logarea-filter-padding, 0.5rem);
+        gap: var(--logarea-filter-gap, 1rem);
+        flex-shrink: 0;
+        border: 0.0625rem solid var(--logarea-border, #dee2e6);
+        background-color: var(--logarea-filter-bg, #f8f9fa);
+
+        .subsystem-container,
+        .level-container,
+        .search-container,
+        .clear-container {
+            display: flex;
+            flex-direction: row;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-size: medium;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        select,
+        input {
+            min-width: 8rem;
+        }
+
+        button {
+            margin-left: auto;
+
+            .icon {
+                font-size: 1rem;
+            }
+        }
+    }
+
+    .logarea {
+        position: relative;
+        width: calc(100% - 2 * var(--logarea-item-padding, 0.5rem));
+        flex: 1;
+        overflow: auto;
+        min-height: 0;
+        border: 0.0625rem solid var(--logarea-border, #dee2e6);
+        border-top: none;
+        padding: 0;
+        padding: var(--logarea-item-padding, 0.5rem);
+    }
+
+    /* Virtual scroll element */
+    .scroll-spacer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 0.0625rem;
+        pointer-events: none;
+        opacity: 0;
+        z-index: -1;
+    }
+
+    .items-window {
+        position: sticky;
+        top: 0;
+        left: 0;
+        width: 100%;
+        overflow: hidden;
+        padding: 0;
+        margin: 0;
+    }
+
+    .empty-state {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--logarea-text-muted, #6c757d);
+        font-style: italic;
+        padding: 2rem;
+        z-index: 1;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 46rem) {
+        .filter {
+            flex-wrap: wrap;
+            gap: var(--logarea-filter-gap-mobile, 0.5rem);
+
+            label {
+                min-width: fit-content;
+            }
+
+            select,
+            input {
+                min-width: 6rem;
+                flex: 1;
+            }
+        }
+    }
+}
+
+/* Log area item adjustments for full width */
+.log-area-item {
+    font-family: var(--logarea-item-font-family);
+    font-size: var(--logarea-item-font-size);
+    line-height: var(--logarea-item-line-height);
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    align-content: flex-start;
+
+    p {
+        margin: 0;
+    }
+
+    .fatal {
+        color: var(--log-fatal-color);
+    }
+
+    .error {
+        color: var(--log-error-color);
+    }
+
+    .warning {
+        color: var(--log-warning-color);
+    }
+
+    .info {
+        color: var(--log-info-color);
+    }
+
+    .debug {
+        color: var(--log-debug-color);
+    }
+}
