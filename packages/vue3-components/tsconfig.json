@@ -13,11 +13,16 @@
             ]
         },
         // Environment Settings
-        "module": "esnext",
         "target": "esnext",
+        "module": "esnext",
         "moduleResolution": "bundler",
         "types": [
             "vitest/globals"
+        ],
+        "lib": [
+            "ESNext",
+            "DOM",
+            "DOM.Iterable"
         ],
         // Other Outputs
         "sourceMap": true,
@@ -36,15 +41,19 @@
         // Recommended Options
         "strict": true,
         "esModuleInterop": true,
+        // "noEmit": true,
         "jsx": "preserve",
         "verbatimModuleSyntax": true,
+        // "allowImportingTsExtensions": true,
+        "resolveJsonModule": true,
         "isolatedModules": true,
         "noUncheckedSideEffectImports": true,
         "moduleDetection": "force",
         "skipLibCheck": true,
     },
     "include": [
-        "src/**/*"
+        "src/**/*",
+        "src/**/*.vue"
     ],
     "exclude": [
         "node_modules",

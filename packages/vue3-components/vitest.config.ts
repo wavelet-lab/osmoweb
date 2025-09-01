@@ -1,12 +1,17 @@
 import { defineConfig } from 'vitest/config';
-import path from 'path';
+import vue from '@vitejs/plugin-vue';
+import { resolve } from 'path';
 
 export default defineConfig({
+    plugins: [vue()],
     test: {
         name: 'vue3-components',
+        environment: 'happy-dom',
         globals: true,
-        environment: 'node',
-        include: ['src/tests/**/*.test.ts'],
+        include: [
+            'src/tests/**/*.test.ts',
+        ],
+        setupFiles: ['src/tests/test-setup.ts'],
         coverage: {
             provider: 'v8',
             reporter: ['text', 'json', 'html'],
@@ -25,7 +30,7 @@ export default defineConfig({
     },
     resolve: {
         alias: {
-            '@': path.resolve(__dirname, './src')
+            '@': resolve(__dirname, './src')
         }
     }
 });
