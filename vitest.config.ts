@@ -18,13 +18,6 @@ export default defineConfig({
             reportsDirectory: './coverage'
         },
         projects: [
-            // this project
-            defineProject({
-                test: {
-                    name: 'osmoweb',
-                },
-                root: '.',
-            }),
             // workspace projects
             'packages/core/vitest.config.ts',
             'packages/backend-core/vitest.config.ts',
