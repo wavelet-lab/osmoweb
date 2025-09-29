@@ -1,16 +1,10 @@
 import { NRBand } from '@/radio/types';
-import type { FrequencyResult } from '@/radio/types';
+import type { BandConfig, FrequencyResult } from '@/radio/types';
 
 /**
  * NR band configuration
  */
-interface NRBandConfig {
-    uplinkStart: number; // in kHz
-    uplinkEnd: number; // in kHz
-    downlinkStart: number; // in kHz
-    downlinkEnd: number; // in kHz
-    arfcnStart: number;
-    arfcnEnd: number;
+interface NRBandConfig extends BandConfig {
     stepSize: number; // in kHz
 }
 
@@ -312,6 +306,23 @@ export function detectNRBandFromArfcn(arfcn: number): NRBand[] {
 }
 
 /**
+ * Get NR band ARFCN range
+ */
+export function getNRBandArfcnRange(band: NRBand): {
+    arfcnStart: number;
+    arfcnEnd: number;
+} | undefined {
+    const config = NR_BANDS[band];
+    if (!config)
+        return undefined;
+
+    return {
+        arfcnStart: config.arfcnStart,
+        arfcnEnd: config.arfcnEnd
+    };
+}
+
+/**
  * Get NR band frequency range
  */
 export function getNRBandFrequencyRange(band: NRBand): {
@@ -319,8 +330,11 @@ export function getNRBandFrequencyRange(band: NRBand): {
     uplinkEnd: number;
     downlinkStart: number;
     downlinkEnd: number;
-} {
+} | undefined {
     const config = NR_BANDS[band];
+    if (!config)
+        return undefined;
+
     return {
         uplinkStart: config.uplinkStart,
         uplinkEnd: config.uplinkEnd,
@@ -332,6 +346,6 @@ export function getNRBandFrequencyRange(band: NRBand): {
 /**
  * Get all NR bands
  */
-export function getAllNRBands(): string[] {
+export function getAllNRBands(): NRBand[] {
     return Object.values(NRBand);
 }

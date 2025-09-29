@@ -17,6 +17,7 @@ import {
     gsmFrequencyToArfcn,
     detectGSMBandFromFrequency,
     detectGSMBandFromArfcn,
+    getGSMBandArfcnRange,
     getGSMBandFrequencyRange,
     getAllGSMBands
 } from '@/radio/gsm';
@@ -26,6 +27,7 @@ import {
     lteFrequencyToArfcn,
     detectLTEBandFromFrequency,
     detectLTEBandFromArfcn,
+    getLTEBandArfcnRange,
     getLTEBandFrequencyRange,
     getAllLTEBands
 } from '@/radio/lte';
@@ -35,6 +37,7 @@ import {
     nrFrequencyToArfcn,
     detectNRBandFromFrequency,
     detectNRBandFromArfcn,
+    getNRBandArfcnRange,
     getNRBandFrequencyRange,
     getAllNRBands
 } from '@/radio/nr';
@@ -219,7 +222,7 @@ export function configureARFCN(input: ARFCNConfigInput): ARFCNConfig {
 /**
  * Utility function to get all supported bands for a technology
  */
-export function getSupportedBands(technology: RadioTechnology): string[] {
+export function getSupportedBands(technology: RadioTechnology): MobileBand[] {
     switch (technology) {
         case RadioTechnology.GSM:
             return getAllGSMBands();
@@ -233,6 +236,25 @@ export function getSupportedBands(technology: RadioTechnology): string[] {
 }
 
 /**
+ * Utility function to get ARFCN range for a band
+ */
+export function getBandArfcnRange(technology: RadioTechnology, band: MobileBand): {
+    arfcnStart: number;
+    arfcnEnd: number;
+} | undefined {
+    switch (technology) {
+        case RadioTechnology.GSM:
+            return getGSMBandArfcnRange(band as GSMBand);
+        case RadioTechnology.LTE:
+            return getLTEBandArfcnRange(band as LTEBand);
+        case RadioTechnology.NR:
+            return getNRBandArfcnRange(band as NRBand);
+        default:
+            throw new Error(`Unsupported technology: ${technology}`);
+    }
+}
+
+/**
  * Utility function to get frequency range for a band
  */
 export function getBandFrequencyRange(technology: RadioTechnology, band: MobileBand): {
@@ -240,7 +262,7 @@ export function getBandFrequencyRange(technology: RadioTechnology, band: MobileB
     uplinkEnd: number;
     downlinkStart: number;
     downlinkEnd: number;
-} {
+} | undefined {
     switch (technology) {
         case RadioTechnology.GSM:
             return getGSMBandFrequencyRange(band as GSMBand);

@@ -1,17 +1,11 @@
 import { GSMBand } from '@/radio/types';
-import type { FrequencyResult } from '@/radio/types';
+import type { BandConfig, FrequencyResult } from '@/radio/types';
 
 /**
  * GSM band configuration
  */
-interface GSMBandConfig {
-    uplinkStart: number;
-    uplinkEnd: number;
-    downlinkStart: number;
-    downlinkEnd: number;
-    arfcnStart: number;
-    arfcnEnd: number;
-    channelSpacing: number;
+interface GSMBandConfig extends BandConfig {
+    channelSpacing: number; // in kHz
 }
 
 /**
@@ -171,6 +165,23 @@ export function detectGSMBandFromArfcn(arfcn: number): GSMBand[] {
 }
 
 /**
+ * Get GSM band ARFCN range
+ */
+export function getGSMBandArfcnRange(band: GSMBand): {
+    arfcnStart: number;
+    arfcnEnd: number;
+} | undefined {
+    const config = GSM_BANDS[band];
+    if (!config)
+        return undefined;
+
+    return {
+        arfcnStart: config.arfcnStart,
+        arfcnEnd: config.arfcnEnd
+    };
+}
+
+/**
  * Get GSM band frequency range
  */
 export function getGSMBandFrequencyRange(band: GSMBand): {
@@ -178,8 +189,11 @@ export function getGSMBandFrequencyRange(band: GSMBand): {
     uplinkEnd: number;
     downlinkStart: number;
     downlinkEnd: number;
-} {
+} | undefined {
     const config = GSM_BANDS[band];
+    if (!config)
+        return undefined;
+
     return {
         uplinkStart: config.uplinkStart,
         uplinkEnd: config.uplinkEnd,
@@ -191,6 +205,6 @@ export function getGSMBandFrequencyRange(band: GSMBand): {
 /**
  * Get all GSM bands
  */
-export function getAllGSMBands(): string[] {
+export function getAllGSMBands(): GSMBand[] {
     return Object.values(GSMBand);
 }

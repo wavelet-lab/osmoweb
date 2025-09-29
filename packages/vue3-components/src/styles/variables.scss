@@ -1,0 +1,55 @@
+@use './_mixins' as *;
+@use './_colors';
+
+:root {
+    /* === FORM ELEMENT VARIABLES === */
+    --input-padding: 0.75rem;
+    --input-border-radius: 0.375rem;
+    --input-font-size: 0.875rem;
+    --input-border: 1px solid var(--border);
+    --input-focus-border: var(--primary-color);
+    --input-focus-shadow: 0 0 0 0.125rem var(--primary-shadow);
+    --input-transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+
+    /* === BUTTON VARIABLES === */
+    --button-padding: 0.75rem 1.5rem;
+    --button-border-radius: 0.375rem;
+    --button-font-size: 0.875rem;
+    --button-font-weight: 600;
+    --button-transition: background-color 0.15s ease-in-out;
+
+    /* === SHADOW VARIABLES === */
+    --shadow-sm: 0 0.125rem 0.25rem var(--shadow-color);
+    --shadow-md: 0 0.125rem 0.625rem var(--shadow-color);
+    --shadow-lg: 0 0.625rem 1.875rem var(--shadow-color-strong);
+    --shadow: var(--shadow-md);
+
+    /* === TOUCH & ACCESSIBILITY === */
+    --touch-target-size: 2.75rem;
+    --touch-spacing: 0.5rem;
+
+    /* === DROPDOWN SPACING === */
+    --dropdown-panel-gap: 0.0625rem;
+    --dropdown-content-gap: 0.5rem;
+    --status-indicator-margin: 0.25rem;
+    --dropdown-option-padding: 0.75rem;
+    --dropdown-option-font-size: 0.875rem;
+
+    /* === Z-INDEX LEVELS === */
+    --z-dropdown: 1000;
+    --z-modal: 1050;
+
+    /* === ANIMATION TIMING === */
+    --transition-fast: 0.15s ease-in-out;
+    --transition-normal: 0.2s ease;
+    --transition-slow: 0.3s ease;
+}
+
+/* === RESPONSIVE VARIABLES === */
+@include mobile-device {
+    :root {
+        --input-padding: 1rem;
+        --button-padding: 1rem 1.5rem;
+        --dropdown-option-padding: 1rem 0.75rem;
+    }
+}

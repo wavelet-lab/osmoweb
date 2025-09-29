@@ -2,22 +2,8 @@
     "name": "osmoweb",
     "version": "1.0.0",
     "description": "OsmoWeb package",
-    "private": true,
-    "workspaces": [
-        "./packages/core",
-        "./packages/backend-core",
-        "./packages/nestjs-microservice",
-        "./packages/frontend-core",
-        "./packages/vue3-components"
-    ],
-    "scripts": {
-        "build": "npm run build --workspaces",
-        "test": "npm run test --workspaces",
-        "test:all": "vitest run",
-        "test:watch": "vitest",
-        "test:coverage": "vitest run --coverage",
-        "test:ui": "vitest --ui"
-    },
+    "author": "Timur <dtv.comp@gmail.com>",
+    "license": "MIT",
     "keywords": [
         "osmoweb",
         "osmo",
@@ -34,13 +20,29 @@
         "infrastructure",
         "wavelet"
     ],
-    "author": "dtv.comp@gmail.com",
-    "license": "ISC",
     "type": "module",
+    "workspaces": [
+        "./packages/core",
+        "./packages/backend-core",
+        "./packages/nestjs-microservice",
+        "./packages/frontend-core",
+        "./packages/vue3-components"
+    ],
+    "scripts": {
+        "build": "npm run build --workspaces",
+        "test": "npm run test --workspaces",
+        "test:all": "vitest run",
+        "test:watch": "vitest",
+        "test:coverage": "vitest run --coverage",
+        "test:ui": "vitest --ui"
+    },
     "devDependencies": {
-        "@types/node": "^24.2.1",
+        "@types/node": "^24.5.2",
         "@vitest/coverage-v8": "^3.2.4",
+        "tsc-alias": "^1.8.16",
+        "tsc-esm-fix": "^3.1.2",
         "typescript": "^5.9.2",
+        "vite": "^7.1.7",
         "vitest": "^3.2.4"
     }
 }

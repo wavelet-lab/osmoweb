@@ -1,14 +1,14 @@
-import { resolve } from 'path'
+import path from 'path'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
     plugins: [
-        vue(),
+        vue()
     ],
     build: {
         lib: {
-            entry: resolve(__dirname, 'src/index.ts'),
+            entry: path.resolve(__dirname, 'src/index.ts'),
             name: 'OsmoWebVue3Components',
             fileName: (format) => `index.${format}.js`,
             formats: ['es', 'cjs']
@@ -24,7 +24,7 @@ export default defineConfig({
     },
     resolve: {
         alias: {
-            '@': resolve(__dirname, 'src')
+            '@': path.resolve(__dirname, './src')
         }
     }
 })

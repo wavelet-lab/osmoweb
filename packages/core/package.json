@@ -2,23 +2,20 @@
     "name": "@osmoweb/core",
     "version": "1.0.0",
     "description": "This is the core package for OsmoWeb",
-    "main": "./dist/index.js",
-    "types": "./dist/index.d.ts",
+    "author": "Timur <dtv.comp@gmail.com>",
+    "license": "MIT",
+    "keywords": [],
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "type": "module",
     "scripts": {
-        "build": "tsc",
+        "build": "tsc && tsc-alias && tsc-esm-fix",
         "test": "vitest run",
         "test:watch": "vitest",
         "test:coverage": "vitest run --coverage"
     },
-    "keywords": [],
-    "author": "dtv.comp@gmail.com",
-    "license": "ISC",
-    "type": "module",
     "devDependencies": {
-        "@types/node": "^24.2.1",
-        "@vitest/coverage-v8": "^3.2.4",
-        "typescript": "^5.9.2",
-        "vitest": "^3.2.4"
+        "@types/node": "^24.2.1"
     },
     "exports": {
         ".": {

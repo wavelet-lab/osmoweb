@@ -1,0 +1,19 @@
+{
+    "name": "@osmoweb/test-apps",
+    "version": "1.0.0",
+    "type": "module",
+    "scripts": {
+        "test:bsc": "tsx bsc-test.ts",
+        "test:hlr": "tsx hlr-test.ts",
+        "test:msc": "tsx msc-test.ts",
+        "test:mgw": "tsx mgw-test.ts"
+    },
+    "dependencies": {
+        "@osmoweb/backend-core": "file:../packages/backend-core"
+    },
+    "devDependencies": {
+        "@types/node": "^24.3.0",
+        "tsx": "^4.7.0",
+        "typescript": "^5.9.2"
+    }
+}

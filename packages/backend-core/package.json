@@ -2,27 +2,24 @@
     "name": "@osmoweb/backend-core",
     "version": "1.0.0",
     "description": "This is the core backend package for OsmoWeb",
+    "author": "Timur <dtv.comp@gmail.com>",
+    "license": "MIT",
+    "keywords": [],
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
+    "type": "module",
     "scripts": {
-        "build": "tsc",
+        "build": "tsc && tsc-alias && tsc-esm-fix",
         "test": "vitest run",
         "test:watch": "vitest"
     },
-    "keywords": [],
-    "author": "dtv.comp@gmail.com",
-    "license": "ISC",
-    "type": "module",
     "dependencies": {
         "@osmoweb/core": "^1.0.0",
         "ws": "^8.18.3"
     },
     "devDependencies": {
         "@types/node": "^24.3.0",
-        "@types/ws": "^8.18.1",
-        "@vitest/coverage-v8": "^3.2.4",
-        "typescript": "^5.9.2",
-        "vitest": "^3.2.4"
+        "@types/ws": "^8.18.1"
     },
     "exports": {
         ".": {
@@ -34,6 +31,16 @@
             "types": "./dist/osmo/index.d.ts",
             "import": "./dist/osmo/index.js",
             "require": "./dist/osmo/index.js"
+        },
+        "./osmoctrl": {
+            "types": "./dist/osmoctrl/index.d.ts",
+            "import": "./dist/osmoctrl/index.js",
+            "require": "./dist/osmoctrl/index.js"
+        },
+        "./osmorouter": {
+            "types": "./dist/osmorouter/index.d.ts",
+            "import": "./dist/osmorouter/index.js",
+            "require": "./dist/osmorouter/index.js"
         }
     }
 }

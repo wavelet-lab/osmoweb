@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig, defineProject } from 'vitest/config';
 
 export default defineConfig({
     test: {
@@ -17,6 +17,13 @@ export default defineConfig({
             ],
             reportsDirectory: './coverage'
         },
-        workspace: './vitest.workspace.config.ts',
+        projects: [
+            // workspace projects
+            'packages/core/vitest.config.ts',
+            'packages/backend-core/vitest.config.ts',
+            'packages/nestjs-microservice/vitest.config.ts',
+            'packages/frontend-core/vitest.config.ts',
+            'packages/vue3-components/vitest.config.ts',
+        ]
     }
 });
