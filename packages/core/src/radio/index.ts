@@ -7,6 +7,7 @@ export {
 } from './types';
 
 export type {
+  MobileBand,
   ARFCNConfigInput,
   ARFCNConfig,
   FrequencyResult
@@ -16,6 +17,7 @@ export type {
 export {
   configureARFCN,
   getSupportedBands,
+  getBandArfcnRange,
   getBandFrequencyRange
 } from './arfcn';
 
@@ -25,6 +27,7 @@ export {
   gsmFrequencyToArfcn,
   detectGSMBandFromFrequency,
   detectGSMBandFromArfcn,
+  getGSMBandArfcnRange,
   getGSMBandFrequencyRange,
   getAllGSMBands
 } from './gsm';
@@ -35,6 +38,7 @@ export {
   lteFrequencyToArfcn,
   detectLTEBandFromFrequency,
   detectLTEBandFromArfcn,
+  getLTEBandArfcnRange,
   getLTEBandFrequencyRange,
   getAllLTEBands
 } from './lte';
@@ -45,6 +49,7 @@ export {
   nrFrequencyToArfcn,
   detectNRBandFromFrequency,
   detectNRBandFromArfcn,
+  getNRBandArfcnRange,
   getNRBandFrequencyRange,
   getAllNRBands
 } from './nr';

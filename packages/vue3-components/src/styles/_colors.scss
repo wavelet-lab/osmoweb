@@ -1,0 +1,182 @@
+:root {
+    /* === PRIMARY COLOR PALETTE === */
+    --primary-color: #007bff;
+    --primary-hover: #0056b3;
+    --primary-light: #cce7ff;
+    --secondary-color: #6c757d;
+    --secondary-hover: #545b62;
+    --undefined-color: #a4a4a4;
+    --undefined-hover: #808380;
+    --success-color: #28a745;
+    --success-hover: #218838;
+    --warning-color: #c07c00;
+    --warning-hover: #a47317;
+    --error-color: #ff0000;
+    --error-hover: #ee0018;
+    --danger-color: #b50012;
+    --danger-hover: #b70012;
+    --info-color: #17a2b8;
+
+    /* === NEUTRAL COLORS === */
+    --white: #ffffff;
+    --light: #f8f9fa;
+    --dark: #495057;
+    --muted: #6c757d;
+    --border: #ced4da;
+    --border-light: #dee2e6;
+    --border-dark: #495057;
+    --disabled-bg: #e9ecef;
+    --text-muted: #6c757d;
+    --text-light: #9ca3af;
+
+    /* === SHADOW COLORS === */
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --shadow-color-strong: rgba(0, 0, 0, 0.3);
+
+    /* === STATUS COLORS WITH OPACITY === */
+    --undefined-bg-light: rgba(164, 164, 164, 0.1);
+    --undefined-bg-medium: rgba(168, 168, 168, 0.15);
+    --success-bg-light: rgba(40, 167, 69, 0.1);
+    --success-bg-medium: rgba(40, 167, 69, 0.15);
+    --success-shadow: rgba(40, 167, 69, 0.1);
+    --warning-bg-light: rgba(230, 168, 0, 0.1);
+    --warning-bg-medium: rgba(230, 168, 0, 0.15);
+    --warning-shadow: rgba(230, 168, 0, 0.1);
+    --danger-bg-light: rgba(220, 53, 69, 0.1);
+    --danger-bg-medium: rgba(220, 53, 69, 0.15);
+    --danger-shadow: rgba(220, 53, 69, 0.1);
+    --primary-bg-light: rgba(0, 123, 255, 0.1);
+    --primary-shadow: rgba(0, 123, 255, 0.1);
+
+    /* === LOGGING LEVEL COLORS (for log area component) === */
+    --log-fatal: var(--danger-color, darkred);
+    --log-error: var(--error-color, red);
+    --log-warning: var(--warning-color, #c07c00);
+    --log-info: var(--dark, black);
+    --log-debug: var(--info-color, blue);
+}
+
+/* === DARK THEME OVERRIDES === */
+[data-theme="dark"],
+.theme-dark {
+    /* === PRIMARY COLOR PALETTE - optimized for dark backgrounds === */
+    --primary-color: #4dabf7;
+    --primary-hover: #74c0fc;
+    --primary-light: #1c2541;
+    --secondary-color: #868e96;
+    --secondary-hover: #adb5bd;
+    --undefined-color: #a4a4a4;
+    --undefined-hover: #808380;
+    --success-color: #51cf66;
+    --success-hover: #69db7c;
+    --warning-color: #ffcc02;
+    --warning-hover: #ffe066;
+    --error-color: #ff0000;
+    --error-hover: #ee0018;
+    --danger-color: #ff6e6e;
+    --danger-hover: #ff7777;
+    --info-color: #22b8cf;
+
+    /* === NEUTRAL COLORS - high contrast for dark theme === */
+    --white: #1a1d23;
+    --light: #25282e;
+    --dark: #f1f3f5;
+    --muted: #adb5bd;
+    --border: #343a46;
+    --border-light: #2c3035;
+    --border-dark: #495057;
+    --disabled-bg: #2c3035;
+    --text-muted: #868e96;
+    --text-light: #ced4da;
+
+    /* === SHADOW COLORS - stronger for dark theme === */
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    --shadow-color-strong: rgba(0, 0, 0, 0.6);
+
+    /* === STATUS COLORS WITH OPACITY - adjusted for dark backgrounds === */
+    --undefined-bg-light: rgba(164, 164, 164, 0.1);
+    --undefined-bg-medium: rgba(168, 168, 168, 0.15);
+    --success-bg-light: rgba(81, 207, 102, 0.15);
+    --success-bg-medium: rgba(81, 207, 102, 0.2);
+    --success-shadow: rgba(81, 207, 102, 0.15);
+    --warning-bg-light: rgba(255, 204, 2, 0.15);
+    --warning-bg-medium: rgba(255, 204, 2, 0.2);
+    --warning-shadow: rgba(255, 204, 2, 0.15);
+    --danger-bg-light: rgba(255, 107, 107, 0.15);
+    --danger-bg-medium: rgba(255, 107, 107, 0.2);
+    --danger-shadow: rgba(255, 107, 107, 0.15);
+    --primary-bg-light: rgba(77, 171, 247, 0.15);
+    --primary-shadow: rgba(77, 171, 247, 0.15);
+}
+
+/* === SYSTEM DARK THEME DETECTION === */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        /* === Automatically apply dark theme if no explicit theme is set === */
+        --primary-color: #4dabf7;
+        --primary-hover: #74c0fc;
+        --primary-light: #1c2541;
+        --secondary-color: #868e96;
+        --secondary-hover: #adb5bd;
+        --undefined-color: #a4a4a4;
+        --undefined-hover: #808380;
+        --success-color: #51cf66;
+        --success-hover: #69db7c;
+        --warning-color: #ffcc02;
+        --warning-hover: #ffe066;
+        --error-color: #ff0000;
+        --error-hover: #ee0018;
+        --danger-color: #ff6b6b;
+        --danger-hover: #ff8787;
+        --info-color: #22b8cf;
+
+        --white: #1a1d23;
+        --light: #25282e;
+        --dark: #f1f3f5;
+        --muted: #adb5bd;
+        --border: #343a46;
+        --border-light: #2c3035;
+        --border-dark: #495057;
+        --disabled-bg: #2c3035;
+        --text-muted: #868e96;
+        --text-light: #ced4da;
+
+        --shadow-color: rgba(0, 0, 0, 0.3);
+        --shadow-color-strong: rgba(0, 0, 0, 0.6);
+
+        --undefined-bg-light: rgba(164, 164, 164, 0.1);
+        --undefined-bg-medium: rgba(168, 168, 168, 0.15);
+        --success-bg-light: rgba(81, 207, 102, 0.15);
+        --success-bg-medium: rgba(81, 207, 102, 0.2);
+        --success-shadow: rgba(81, 207, 102, 0.15);
+        --warning-bg-light: rgba(255, 204, 2, 0.15);
+        --warning-bg-medium: rgba(255, 204, 2, 0.2);
+        --warning-shadow: rgba(255, 204, 2, 0.15);
+        --danger-bg-light: rgba(255, 107, 107, 0.15);
+        --danger-bg-medium: rgba(255, 107, 107, 0.2);
+        --danger-shadow: rgba(255, 107, 107, 0.15);
+        --primary-bg-light: rgba(77, 171, 247, 0.15);
+        --primary-shadow: rgba(77, 171, 247, 0.15);
+    }
+}
+
+/* === HIGH CONTRAST THEME === */
+@media (prefers-contrast: high) {
+    :root {
+        --border: #000000;
+        --text-muted: var(--dark);
+        --warning-color: #b8860b;
+    }
+
+    [data-theme="dark"],
+    .theme-dark {
+        --border: #ffffff;
+        --text-muted: var(--dark);
+        --primary-color: #ffffff;
+        --undefined-color: #a4a4a4;
+        --success-color: #00ff00;
+        --warning-color: #ffff00;
+        --error-color: #ff0000;
+        --danger-color: #c70000;
+    }
+}

@@ -1,0 +1,166 @@
+/* === RESPONSIVE MIXINS === */
+
+// Helper: convert px to rem using a base font size (default 16px).
+// Use px(24) -> 1.5rem. This keeps source values readable and consistent.
+@function px($px, $base: 16) {
+    @return ($px / $base) * 1rem;
+}
+
+// Breakpoint values
+$mobile-max: 767px;
+$tablet-min: 768px;
+$tablet-max: 1023px;
+$desktop-min: 1024px;
+$small-mobile-max: 480px;
+
+// Basic responsive mixins
+@mixin mobile {
+    @media (max-width: #{$mobile-max}) {
+        @content;
+    }
+}
+
+@mixin small-mobile {
+    @media (max-width: #{$small-mobile-max}) {
+        @content;
+    }
+}
+
+@mixin tablet {
+    @media (min-width: #{$tablet-min}) and (max-width: #{$tablet-max}) {
+        @content;
+    }
+}
+
+@mixin tablet-up {
+    @media (min-width: #{$tablet-min}) {
+        @content;
+    }
+}
+
+@mixin desktop {
+    @media (min-width: #{$desktop-min}) {
+        @content;
+    }
+}
+
+// Touch device mixins
+@mixin touch-device {
+    @media (pointer: coarse) {
+        @content;
+    }
+}
+
+@mixin hover-device {
+    @media (hover: hover) and (pointer: fine) {
+        @content;
+    }
+}
+
+// Mobile device detection (combination approach)
+@mixin mobile-device {
+
+    @media (max-width: #{$mobile-max}),
+    (pointer: coarse) and (hover: none) {
+        @content;
+    }
+}
+
+// Accessibility mixins
+@mixin high-contrast {
+    @media (prefers-contrast: high) {
+        @content;
+    }
+}
+
+@mixin reduced-motion {
+    @media (prefers-reduced-motion: reduce) {
+        @content;
+    }
+}
+
+@mixin dark-theme {
+    @media (prefers-color-scheme: dark) {
+        @content;
+    }
+}
+
+// Orientation mixins
+@mixin portrait {
+    @media (orientation: portrait) {
+        @content;
+    }
+}
+
+@mixin landscape {
+    @media (orientation: landscape) {
+        @content;
+    }
+}
+
+// Custom breakpoint mixin
+@mixin breakpoint($size) {
+    @media (max-width: #{$size}) {
+        @content;
+    }
+}
+
+@mixin breakpoint-min($size) {
+    @media (min-width: #{$size}) {
+        @content;
+    }
+}
+
+@mixin breakpoint-between($min, $max) {
+    @media (min-width: #{$min}) and (max-width: #{$max}) {
+        @content;
+    }
+}
+
+/* === COMPONENT MIXINS === */
+
+// Touch-friendly elements
+@mixin touch-target {
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+}
+
+// Focus styles
+@mixin focus-ring($color: var(--input-focus-border)) {
+    outline: 2px solid #{$color};
+    outline-offset: 0.125rem;
+}
+
+// Button styles
+@mixin button-base {
+    padding: var(--button-padding);
+    border-radius: var(--button-border-radius);
+    font-size: var(--button-font-size);
+    font-weight: var(--button-font-weight);
+    transition: var(--button-transition);
+    cursor: pointer;
+    border: none;
+
+    @include touch-device {
+        @include touch-target;
+    }
+}
+
+// Input styles
+@mixin input-base {
+    padding: var(--input-padding);
+    border: var(--input-border);
+    border-radius: var(--input-border-radius);
+    font-size: var(--input-font-size);
+    transition: var(--input-transition);
+
+    &:focus {
+        outline: none;
+        border-color: var(--input-focus-border);
+        box-shadow: var(--input-focus-shadow);
+    }
+
+    @include touch-device {
+        @include touch-target;
+    }
+}

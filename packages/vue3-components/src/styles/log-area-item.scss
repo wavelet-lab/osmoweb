@@ -1,0 +1,72 @@
+@use './_mixins' as *;
+@use './dropdown';
+@use './list';
+
+:root {
+    /* === LOG LEVEL COLORS (customizable) === */
+    --log-fatal-color: var(--log-fatal, darkred);
+    --log-error-color: var(--log-error, red);
+    --log-warning-color: var(--log-warning, #c07c00);
+    --log-info-color: var(--log-info, black);
+    --log-debug-color: var(--log-debug, blue);
+
+    /* === TYPOGRAPHY VARIABLES (customizable) === */
+    --logarea-item-font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --logarea-item-font-size: var(--input-font-size, 0.875rem);
+    --logarea-item-line-height: 1rem;
+}
+
+/* === DARK THEME OVERRIDES === */
+[data-theme="dark"],
+.theme-dark {
+    --log-fatal-color: var(--log-fatal, #c90000);
+    --log-error-color: var(--log-error, #ff4e4e);
+    --log-warning-color: var(--log-warning, #c07c00);
+    --log-info-color: var(--log-info, lightgray);
+    --log-debug-color: var(--log-debug, #00bfff);
+}
+
+/* Log level styling - uses customizable color variables */
+.log-area-item {
+    font-family: var(--logarea-item-font-family);
+    font-size: var(--logarea-item-font-size);
+    line-height: var(--logarea-item-line-height);
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    align-content: flex-start;
+    word-break: break-word;
+    overflow-wrap: break-word;
+
+    p {
+        margin: 0;
+        // word-break: break-word;
+        // overflow-wrap: break-word;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .fatal {
+        color: var(--log-fatal-color);
+    }
+
+    .error {
+        color: var(--log-error-color);
+    }
+
+    .warning {
+        color: var(--log-warning-color);
+    }
+
+    .info {
+        color: var(--log-info-color);
+    }
+
+    .debug {
+        color: var(--log-debug-color);
+    }
+}

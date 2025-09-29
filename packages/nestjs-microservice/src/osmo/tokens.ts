@@ -1,0 +1,1 @@
+export const OSMO_PARAMS = Symbol('OSMO_PARAMS');

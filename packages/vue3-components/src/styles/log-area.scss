@@ -1,0 +1,264 @@
+@use './_mixins' as *;
+@use './list';
+@use './dropdown';
+@use './log-area-item';
+
+:root {
+    /* === LAYOUT VARIABLES (customizable) === */
+    --logarea-border: var(--border-light, #dee2e6);
+    --logarea-filter-bg: var(--light, #f8f9fa);
+    --logarea-filter-padding: var(--input-padding, 0.75rem);
+    --logarea-filter-gap: 1rem;
+    --logarea-filter-gap-mobile: 0.5rem;
+    --logarea-filter-gap-container: 0.5rem;
+    --logarea-item-padding: 0.5rem;
+
+    /* === New / adjusted variables */
+    --logarea-filter-radius: var(--input-border-radius);
+    --logarea-filter-shadow: 0 1px 4px rgba(16, 24, 40, 0.04);
+    --logarea-filter-border: var(--logarea-border);
+    --logarea-filter-label-color: var(--muted, #6c757d);
+
+    /* === COLOR VARIABLES (customizable) === */
+    --logarea-text-muted: var(--muted, #6c757d);
+}
+
+/* === DARK THEME OVERRIDES === */
+[data-theme="dark"],
+.theme-dark {
+    --logarea-text-muted: var(--muted, #d9e4ed);
+    --logarea-filter-bg: rgba(255, 255, 255, 0.03);
+    --logarea-filter-border: rgba(255, 255, 255, 0.06);
+    --logarea-filter-label-color: rgba(255, 255, 255, 0.75);
+}
+
+.log-area {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+
+    .filter {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        width: 100%;
+        max-width: 100%;
+        min-height: 3.25rem;
+        padding: var(--logarea-filter-padding);
+        gap: var(--logarea-filter-gap);
+        flex-shrink: 0;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        border: 1px solid var(--logarea-filter-border);
+        background-color: var(--logarea-filter-bg);
+        box-shadow: var(--logarea-filter-shadow);
+        border-radius: var(--logarea-filter-radius) var(--logarea-filter-radius) 0 0;
+        box-sizing: border-box;
+
+        /* left side groups */
+        .subsystem-container,
+        .level-container,
+        .search-container {
+            display: flex;
+            flex-direction: row;
+            gap: var(--logarea-filter-gap-container);
+            align-items: center;
+            min-width: 0;
+            flex: 1 1 auto;
+        }
+
+        /* right side clear button */
+        .clear-container {
+            display: flex;
+            flex-direction: row;
+            gap: var(--logarea-filter-gap-container);
+            align-items: center;
+            flex: 0 0 auto;
+            margin-left: auto;
+        }
+
+        .label {
+            font-size: var(--input-font-size);
+            font-weight: 600;
+            white-space: nowrap;
+            color: var(--logarea-filter-label-color);
+            flex-shrink: 0;
+            margin-left: 0.25rem;
+            margin-right: 0.5rem;
+        }
+
+        .dropdown {
+            min-width: 12.5rem;
+            width: 100%;
+            max-width: none;
+            box-sizing: border-box;
+            flex: 1 1 auto;
+        }
+
+        .input {
+            min-width: 12.5rem;
+            width: 100%;
+            max-width: none;
+            padding: var(--input-padding);
+            border: 1px solid var(--logarea-border);
+            border-radius: var(--input-border-radius);
+            font-size: var(--input-font-size);
+            transition: var(--input-transition);
+            background: var(--white);
+            color: var(--dark);
+            box-sizing: border-box;
+            height: 2.875rem;
+            display: inline-flex;
+            align-items: center;
+            flex: 1 1 auto;
+        }
+
+        .button {
+            padding: 0.45rem 0.6rem;
+            height: 2.875rem;
+            border: none;
+            border-radius: var(--input-border-radius);
+            cursor: pointer;
+            font-size: var(--button-font-size);
+            font-weight: var(--button-font-weight);
+            transition: var(--button-transition);
+            background: var(--secondary-color);
+            color: var(--white);
+            fill: var(--white);
+            stroke: var(--white);
+            white-space: nowrap;
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
+
+            &:hover {
+                background: var(--secondary-hover);
+            }
+
+            .icon {
+                font-size: 1rem;
+            }
+        }
+
+        /* compact danger clear button style */
+        .is-danger {
+            background: var(--danger-color);
+            color: var(--white);
+            padding: 0.45rem;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: var(--input-border-radius);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            &:hover {
+                background: var(--danger-hover);
+            }
+
+            svg {
+                display: block;
+                width: 1.125rem;
+                height: 1.125rem;
+            }
+        }
+    }
+
+    .logarea {
+        position: relative;
+        width: 100%;
+        flex: 1;
+        overflow: auto;
+        min-height: 0;
+        border: var(--input-border);
+        border-top: none;
+        border-radius: 0 0 var(--input-border-radius) var(--input-border-radius);
+        padding: var(--logarea-item-padding);
+        background: var(--white);
+        box-sizing: border-box;
+    }
+
+    .empty-state {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--logarea-text-muted);
+        font-style: italic;
+        padding: 2rem;
+        z-index: 1;
+    }
+
+    @include mobile {
+        .filter {
+            box-sizing: border-box;
+            width: 100%;
+            max-width: 100%;
+            flex-direction: column;
+            align-items: stretch;
+            gap: var(--logarea-filter-gap-mobile);
+            padding: var(--logarea-filter-padding);
+
+            /* containers should distribute space: label fixed, control fills remaining */
+            .subsystem-container,
+            .level-container,
+            .search-container {
+                display: flex;
+                align-items: center;
+                gap: var(--logarea-filter-gap-container);
+                width: 100%;
+                min-width: 0;
+                flex: 1 1 auto;
+            }
+
+            .label {
+                flex: 0 0 5.5rem;
+                min-width: 5.5rem;
+                max-width: 6.5rem;
+                font-size: 0.85rem;
+                margin-right: 0.5rem;
+                text-align: left;
+                white-space: nowrap;
+            }
+
+            .dropdown,
+            .input {
+                flex: 1 1 auto;
+                width: auto;
+                min-width: 0;
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+
+            .search-container .input {
+                flex: 1 1 auto;
+            }
+
+            .clear-container {
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                margin-left: 0;
+                flex: 0 0 auto;
+            }
+
+            .is-danger {
+                width: 2.5rem;
+                height: 2.5rem;
+                border-radius: var(--input-border-radius);
+                flex: 0 0 auto;
+            }
+        }
+    }
+}

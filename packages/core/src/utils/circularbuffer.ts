@@ -23,7 +23,6 @@ export class CircularBuffer<T = any> {
                 return true;
             },
             get: function (target: CircularBuffer<T>, name: PropertyKey) {
-                // console.log('index', typeof name)
                 const index: number = (typeof name == 'string' ? parseInt(name) : NaN);
                 if (!isNaN(index)) {
                     return target.get(index);

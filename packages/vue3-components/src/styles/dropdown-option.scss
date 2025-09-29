@@ -1,0 +1,170 @@
+@use './_mixins' as *;
+
+:root {
+    /* === DROPDOWN OPTION VARIABLES (customizable) === */
+    --dropdown-option-item-hover-bg: var(--light, #f3f4f6);
+    --dropdown-option-selected-bg: var(--primary-light, #eff6ff);
+    --dropdown-option-selected-text: var(--primary-color, #3b82f6);
+
+    /* === DROPDOWN CONTENT VARIABLES (customizable) === */
+    --dropdown-divider: var(--border-light, #e5e7eb);
+    --dropdown-option-description-text: var(--text-muted, #6b7280);
+    --dropdown-option-icon-color: var(--text-muted, #6b7280);
+    --dropdown-option-group-bg: var(--light, #f9fafb);
+    --dropdown-option-group-text: var(--text-muted, #6b7280);
+    --dropdown-option-border: var(--border-light, #e5e7eb);
+}
+
+/* ================
+   DROPDOWN OPTIONS
+   ================ */
+
+.dropdown-option {
+    display: flex;
+    align-items: center;
+    padding: var(--dropdown-option-padding);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    gap: var(--dropdown-content-gap);
+    user-select: none;
+    background-color: transparent;
+    color: var(--dropdown-text);
+
+    &:hover:not(&--disabled):not(&--selected) {
+        background-color: var(--dropdown-option-item-hover-bg);
+    }
+
+    &:active:not(&--disabled):not(&--selected) {
+        background-color: var(--dropdown-divider);
+    }
+
+    &--selected {
+        background-color: var(--dropdown-option-selected-bg);
+        color: var(--dropdown-option-selected-text);
+
+        &:hover {
+            background-color: var(--dropdown-option-selected-bg);
+            filter: brightness(0.95);
+        }
+    }
+
+    &--disabled {
+        color: var(--dropdown-disabled-text);
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+}
+
+/* Selection indicator on the left */
+.dropdown-option-check {
+    display: flex;
+    align-items: center;
+    color: var(--dropdown-option-selected-text);
+    flex-shrink: 0;
+    width: 1.25rem;
+    justify-content: center;
+
+    svg {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+}
+
+/* Icon slot */
+.dropdown-option-icon {
+    display: flex;
+    align-items: center;
+    color: var(--dropdown-option-icon-color);
+    flex-shrink: 0;
+
+    .dropdown-option--selected & {
+        color: var(--dropdown-option-selected-text);
+    }
+
+    .dropdown-option--disabled & {
+        color: var(--dropdown-disabled-text);
+    }
+}
+
+.dropdown-option-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.dropdown-option-label {
+    font-size: var(--dropdown-option-font-size);
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+}
+
+.dropdown-option-description {
+    font-size: 0.75rem;
+    color: var(--dropdown-option-description-text);
+    margin-top: 0.125rem;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+
+    .dropdown-option--selected & {
+        color: var(--dropdown-option-selected-text);
+        opacity: 0.8;
+    }
+
+    .dropdown-option--disabled & {
+        color: var(--dropdown-disabled-text);
+    }
+}
+
+/* Group header styles */
+.dropdown-option-group {
+    padding: var(--dropdown-option-padding);
+    padding-bottom: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--dropdown-option-group-text);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background-color: var(--dropdown-option-group-bg);
+    border-bottom: 1px solid var(--dropdown-option-border);
+    text-align: left;
+}
+
+/* ======================
+   MOBILE SPECIFIC STYLES
+   ====================== */
+
+@include mobile-device {
+
+    /* Mobile-optimized option styles */
+    .dropdown-option {
+        min-height: 3rem;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+
+        &:active {
+            background: var(--dropdown-option-item-hover-bg);
+        }
+    }
+}
+
+/* ==========================
+   RESPONSIVE & ACCESSIBILITY
+   ========================== */
+
+.dropdown-option:focus {
+    outline: 2px solid var(--dropdown-option-selected-text);
+    outline-offset: -2px;
+    background-color: var(--dropdown-option-selected-bg);
+}
+
+@include reduced-motion {
+    * {
+        transition: none !important;
+        animation: none !important;
+    }
+}

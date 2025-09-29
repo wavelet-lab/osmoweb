@@ -1,16 +1,11 @@
 import { LTEBand } from '@/radio/types';
-import type { FrequencyResult } from '@/radio/types';
+import type { BandConfig, FrequencyResult } from '@/radio/types';
 
 /**
  * LTE band configuration
  */
-interface LTEBandConfig {
-    uplinkStart: number;
-    uplinkEnd: number;
-    downlinkStart: number;
-    downlinkEnd: number;
-    arfcnStart: number;
-    arfcnEnd: number;
+interface LTEBandConfig extends BandConfig {
+    // no additional fields for now
 }
 
 /**
@@ -313,6 +308,23 @@ export function detectLTEBandFromArfcn(arfcn: number): LTEBand[] {
 }
 
 /**
+ * Get LTE band ARFCN range
+ */
+export function getLTEBandArfcnRange(band: LTEBand): {
+    arfcnStart: number;
+    arfcnEnd: number;
+} | undefined {
+    const config = LTE_BANDS[band];
+    if (!config)
+        return undefined;
+
+    return {
+        arfcnStart: config.arfcnStart,
+        arfcnEnd: config.arfcnEnd
+    };
+}
+
+/**
  * Get LTE band frequency range
  */
 export function getLTEBandFrequencyRange(band: LTEBand): {
@@ -320,8 +332,11 @@ export function getLTEBandFrequencyRange(band: LTEBand): {
     uplinkEnd: number;
     downlinkStart: number;
     downlinkEnd: number;
-} {
+} | undefined {
     const config = LTE_BANDS[band];
+    if (!config)
+        return undefined;
+
     return {
         uplinkStart: config.uplinkStart,
         uplinkEnd: config.uplinkEnd,
@@ -333,6 +348,6 @@ export function getLTEBandFrequencyRange(band: LTEBand): {
 /**
  * Get all LTE bands
  */
-export function getAllLTEBands(): string[] {
+export function getAllLTEBands(): LTEBand[] {
     return Object.values(LTEBand);
 }
