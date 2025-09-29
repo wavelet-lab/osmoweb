@@ -1,0 +1,180 @@
+@use './_mixins' as *;
+@use './dropdown';
+
+.bts-config {
+    max-width: 50rem;
+    margin: 0 auto;
+    padding: 1rem;
+
+    .bts-config-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+        padding: 1rem;
+        background: var(--light);
+        border-radius: var(--input-border-radius);
+        padding: 1rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .form-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        grid-template-areas:
+            "tech info"
+            "band info"
+            "arfcn info";
+        align-items: start;
+        margin-bottom: 1rem;
+        min-width: 0;
+
+        h2 {
+            margin-bottom: 1rem;
+            padding-bottom: 0.625rem;
+            border-bottom: 2px solid var(--border-light);
+            color: var(--dark);
+        }
+    }
+
+    .info-column {
+        grid-area: info;
+        background: var(--primary-bg-light, rgba(255, 255, 255, 0.8));
+        border-radius: 0.5rem;
+        padding: 0.85rem;
+        box-shadow: var(--shadow-xs);
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        min-height: 7.5rem;
+    }
+
+    .info-card h4 {
+        margin: 0;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--dark);
+    }
+
+    .info-card .muted {
+        font-size: 0.85rem;
+        color: var(--secondary-color, #6b6f73);
+        margin: 0;
+    }
+
+    /* Step badge */
+    .step-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.75rem;
+        height: 1.25rem;
+        margin-right: 0.5rem;
+        background: var(--primary-color);
+        color: var(--white);
+        border-radius: 0.25rem;
+        font-weight: 700;
+        font-size: 0.85rem;
+    }
+
+    .form-actions {
+        margin-top: 1.5rem;
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        align-items: center;
+
+        button {
+            padding: var(--button-padding);
+            border: none;
+            border-radius: var(--button-border-radius);
+            cursor: pointer;
+            font-size: var(--button-font-size);
+            font-weight: var(--button-font-weight);
+            transition: var(--button-transition);
+        }
+
+        .is-primary {
+            background: var(--primary-color);
+            color: var(--white);
+
+            &:hover {
+                background: var(--primary-hover);
+            }
+        }
+
+        .is-warning {
+            background: var(--secondary-color);
+            color: var(--white);
+
+            &:hover {
+                background: var(--secondary-hover);
+            }
+        }
+
+        .is-danger {
+            background: var(--danger-color);
+            color: var(--white);
+
+            &:hover {
+                background: var(--danger-hover);
+            }
+        }
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+        justify-self: center;
+        width: 100%;
+        min-width: 0;
+
+        & .label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        & .bts-dropdown-header {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        & .dropdown {
+            width: 100%;
+            min-width: 0;
+        }
+
+        &.tech {
+            grid-area: tech;
+        }
+
+        &.band {
+            grid-area: band;
+        }
+
+        &.arfcn {
+            grid-area: arfcn;
+        }
+    }
+
+    .button {
+        min-width: 5.5rem;
+    }
+
+    /* responsive: single column on small screens */
+    @include mobile {
+        .form-section {
+            grid-template-columns: 1fr;
+            grid-template-areas:
+                "tech"
+                "band"
+                "arfcn"
+                "info";
+        }
+
+        .info-column {
+            order: 99;
+        }
+    }
+}

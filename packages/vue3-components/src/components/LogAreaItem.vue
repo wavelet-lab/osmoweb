@@ -42,3 +42,5 @@ const formattedTime = computed(() => timestampToTimeString(props.modelValue.time
         </p>
     </div>
 </template>
+
+<style lang="scss" src="@/styles/log-area.scss" />

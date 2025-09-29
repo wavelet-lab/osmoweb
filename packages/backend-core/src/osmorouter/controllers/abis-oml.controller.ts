@@ -1,0 +1,62 @@
+import type WebSocket from 'ws';
+import type { IncomingMessage } from 'http';
+import type { OsmoController } from '@/osmorouter/controllers/controller.type';
+import { OsmoTcpClient } from '@/osmorouter/osmotcp.client';
+import { OsmoServices } from '@/osmorouter/lib/common.types';
+import type { OsmoParams } from '@/osmorouter/lib/common.types';
+import type { LoggerInterface } from '@osmoweb/core/utils';
+import { SimpleLogger } from '@osmoweb/core/utils';
+
+export class AbisOmlController implements OsmoController {
+    protected readonly logger: LoggerInterface;
+
+    constructor(private readonly osmoParams: OsmoParams, logger?: LoggerInterface) {
+        this.logger = logger ?? new SimpleLogger(AbisOmlController.name);
+    }
+
+    async handle(client: WebSocket, _request: IncomingMessage) {
+        const service = this.osmoParams.services[OsmoServices.OSMO_TCP_ABIS_OML];
+        if (service === undefined) {
+            this.logger.error('OML service not found');
+            client.close();
+            return;
+        }
+        const osmoClient = new OsmoTcpClient(service, 'OML');
+
+        // osmoClient.onData = (data: Buffer) => {
+        //     client.send(data);
+        // }
+
+        client.onmessage = (msg: WebSocket.MessageEvent) => {
+            if (msg.data instanceof Buffer) {
+                this.logger.debug?.('ABIS_OML send: ', msg.data.toString('hex'));
+                osmoClient.send(msg.data);
+            }
+        }
+
+        client.onclose = () => {
+            osmoClient.disconnect();
+        }
+
+        client.onerror = () => {
+            osmoClient.disconnect();
+        }
+
+        osmoClient.connect();
+
+        for await (const buffer of osmoClient.get()) {
+            if (buffer !== undefined) {
+                client.send(buffer/* , (error) => {
+                this.log.error('ABIS_OML send error:', error, ': disconnect from WebSocket client');
+                running = false;
+            } */);
+            }
+            if (!osmoClient.connected || client.readyState === client.CLOSED) {
+                this.logger.error('OML disconnected from WebSocket client');
+                break;
+            }
+        }
+        client.close();
+        osmoClient.disconnect();
+    }
+}

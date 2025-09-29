@@ -1,36 +1,39 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
+import type { DropdownOptionProps } from '@/components/Dropdown.vue';
+
+export type { DropdownOptionProps };
 
 export default defineComponent({
     name: 'LogArea',
 });
 
 export interface LogItemKey {
-    key: number,
-    log: JournalLogItem,
+    key: number,                        // unique key for the log item
+    log: JournalLogItem,                // the actual log item
 }
 
-export interface SelectOption {
-    value: string,
-    caption: string,
+export interface LogAreaProps {
+    modelValue?: Array<LogItemKey>,     // optional, array of log items with unique keys
+    subSystems?: Array<DropdownOptionProps>, // optional, array of available subsystem filter options
+    autoscroll?: boolean,               // optional, auto-scroll to bottom on new items
+    rowHeight?: number,                 // optional, fixed row height in px for each item
+    virtualBuffer?: number,             // optional, extra rows above/below viewport
 }
+
 </script>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick, onUnmounted, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { ComputedRef } from 'vue'
-import { JournalLogLevel } from '@osmoweb/core/utils'
+import { JournalLogLevel, containsAnySubstr } from '@osmoweb/core/utils'
 import type { JournalLogItem } from '@osmoweb/core/utils'
 import LogAreaItem from '@/components/LogAreaItem.vue';
+import List from '@/components/List.vue';
+import Dropdown from '@/components/Dropdown.vue';
 
 // Props
-const props = withDefaults(defineProps<{
-    modelValue?: Array<LogItemKey>,
-    subSystems?: Array<SelectOption>,
-    autoscroll?: boolean,
-    rowHeight?: number,        // fixed row height in px for each item
-    virtualBuffer?: number,    // extra rows above/below viewport
-}>(), {
+const props = withDefaults(defineProps<LogAreaProps>(), {
     modelValue: () => [],
     subSystems: () => [],
     autoscroll: false,
@@ -44,239 +47,68 @@ const emit = defineEmits<{
 }>()
 
 // Level options
-const levelOptions: Array<SelectOption> = [
-    { value: '', caption: 'ALL' },
-    ...Object.values(JournalLogLevel).map(level => ({ value: level, caption: level })),
-]
+const levelOptions: Array<DropdownOptionProps<JournalLogLevel>> = Object.values(JournalLogLevel).map(level => ({ value: level, caption: String(level) }));
 
 // Refs
-const logAreaRef = ref<HTMLDivElement>()
+const listRef = ref<typeof List | null>(null);
 const logItems = ref<Array<LogItemKey>>(props.modelValue || []);
 
 // Filter state
-const subSysFilter = ref('');
-const levelFilter = ref('');
+const subSysFilter = ref<Array<string>>([]);
+const levelFilter = ref<Array<JournalLogLevel>>([]);
 const searchFilter = ref('');
-
-// Virtual scroll state
-const containerHeight = ref(0);
-const scrollTop = ref(0);
-const needScroll = ref(props.autoscroll);
-const scrollToBottomProcess = ref(false);
-let rafId: number | undefined = undefined;
-
-// Internal variables
-let scrollTimer: string | number | NodeJS.Timeout | undefined = undefined;
-let resizeObserver: ResizeObserver | undefined = undefined;
-
 
 // Sync model changes
 watch(() => props.modelValue, (newValue) => {
     if (newValue) {
         logItems.value = [...newValue];
-        if (props.autoscroll && needScroll.value) {
-            scheduleScrollToBottom();
-        }
     }
 }, { deep: true });
 
-// Scroll to bottom
-async function scrollToBottom() {
-    if (!logAreaRef.value) return;
-    scrollToBottomProcess.value = true;
-    await nextTick();
-    try {
-        logAreaRef.value.scrollTop = logAreaRef.value.scrollHeight;
-    } catch (error) {
-        console.warn('Failed to scroll to bottom:', error);
-    } finally {
-        scrollToBottomProcess.value = false;
-    }
-}
-
-function scheduleScrollToBottom() {
-    if (scrollTimer) return;
-    scrollTimer = setTimeout(() => {
-        scrollToBottom();
-        scrollTimer = undefined;
-    }, 50);
-}
-
-// Throttled scroll handler using requestAnimationFrame
-function onScroll(event: Event) {
-    if (rafId !== undefined) return; // already scheduled
-
-    rafId = requestAnimationFrame(() => {
-        const logArea = event.target as HTMLDivElement;
-        if (!logArea) {
-            rafId = undefined;
-            return;
-        }
-
-        scrollTop.value = logArea.scrollTop;
-
-        // update "is at bottom" flag for autoscroll
-        const threshold = 2;
-        needScroll.value = (logArea.scrollTop + logArea.clientHeight >= logArea.scrollHeight - threshold);
-
-        rafId = undefined;
-    });
-}
-
-// Clear
-function onClear() {
+// Clear all log items (callable from parent via component ref)
+function clearAll() {
     logItems.value = [];
     emit('update:modelValue', logItems.value);
 }
 
+// Add a single log item (callable from parent via component ref)
+function addLogItem(item: JournalLogItem | LogItemKey) {
+    // Type guard to check if the passed value already has a key
+    const isKey = (obj: any): obj is LogItemKey =>
+        obj && typeof obj === 'object' && 'key' in obj && typeof obj.key === 'number' && 'log' in obj;
+
+    const newItem: LogItemKey = isKey(item)
+        ? item
+        : {
+            key: Date.now(),
+            log: item as JournalLogItem,
+        };
+
+    logItems.value.push(newItem);
+    emit('update:modelValue', logItems.value);
+}
+
+// Expose the function so parent components can call it via template ref
+defineExpose({ clearAll, addLogItem });
+
 // Filtering - cached computation
 const logItemsFiltered: ComputedRef<Array<LogItemKey>> = computed(() => {
-    const subsys = subSysFilter.value?.toLowerCase().trim();
+    const subsys = subSysFilter.value;
     const level = levelFilter.value;
     const search = searchFilter.value?.toLowerCase().trim();
 
-    if (!subsys && !level && !search) {
+    if (!subsys.length && !level.length && !search) {
         return logItems.value;
     }
 
     return logItems.value.filter((logitem: LogItemKey) => {
         const log = logitem.log;
         return (
-            (!subsys || log?.subSystem && log.subSystem.toLowerCase().includes(subsys)) &&
-            (!level || log?.logLevel && JournalLogLevel[log.logLevel] === level) &&
+            (!subsys.length || log?.subSystem && containsAnySubstr(log.subSystem, subsys)) &&
+            (!level.length || log?.logLevel && level.includes(JournalLogLevel[log.logLevel])) &&
             (!search || log?.message && log.message.toLowerCase().includes(search))
         );
     });
-});
-
-// Pre-compute constants for performance
-const rowHeight = computed(() => props.rowHeight || 25);
-const totalCount = computed(() => logItemsFiltered.value.length);
-const totalHeight = computed(() => totalCount.value * rowHeight.value);
-
-// Calculate visible window parameters
-const visibleRowsCount = computed(() => {
-    if (containerHeight.value <= 0) return 10; // fallback
-    return Math.ceil(containerHeight.value / rowHeight.value);
-});
-
-const bufferRowsCount = computed(() => props.virtualBuffer);
-const windowRowsCount = computed(() => visibleRowsCount.value + bufferRowsCount.value * 2);
-const windowHeight = computed(() => windowRowsCount.value * rowHeight.value);
-
-// Check if scrolling is needed
-const needsScrolling = computed(() => {
-    if (containerHeight.value <= 0) return false;
-    return totalCount.value > visibleRowsCount.value;
-});
-
-// Calculate start index based on scroll position
-const startIndex = computed(() => {
-    if (!needsScrolling.value || containerHeight.value <= 0) return 0;
-
-    // Simple calculation: which row should be at the top based on scroll position
-    const itemsBeforeView = Math.floor(scrollTop.value / rowHeight.value);
-    const startWithBuffer = Math.max(0, itemsBeforeView - bufferRowsCount.value);
-
-    // Make sure we don't go beyond available items
-    return Math.min(startWithBuffer, Math.max(0, totalCount.value - windowRowsCount.value));
-});
-
-const endIndex = computed(() => {
-    return Math.min(totalCount.value, startIndex.value + windowRowsCount.value);
-});
-
-const visibleItems = computed(() => {
-    return logItemsFiltered.value.slice(startIndex.value, endIndex.value);
-    // .filter(item => item && item.key && item.log); // Uncomment to filter out invalid items
-});
-
-// Create scrollable area height - fixed calculation
-const scrollableAreaHeight = computed(() => {
-    if (!needsScrolling.value) {
-        // No scrolling needed - height equals container or content, whichever is larger
-        return Math.max(containerHeight.value, totalHeight.value);
-    }
-
-    // Need scrolling - total height of all items
-    return totalHeight.value;
-});
-
-// Force recalculation of virtual scroll when container size changes significantly
-function recalculateVirtualScroll() {
-    if (!logAreaRef.value) return;
-
-    nextTick(() => {
-        if (!logAreaRef.value) return;
-
-        // Force update of current scroll position
-        scrollTop.value = logAreaRef.value.scrollTop;
-
-        // Check if current scroll position is still valid
-        const maxScrollTop = Math.max(0, totalHeight.value - containerHeight.value);
-        if (scrollTop.value > maxScrollTop) {
-            logAreaRef.value.scrollTop = maxScrollTop;
-            scrollTop.value = maxScrollTop;
-        }
-
-        // If we were at bottom and autoscroll is enabled, stay at bottom
-        if (needScroll.value && props.autoscroll) {
-            scheduleScrollToBottom();
-        }
-    });
-}
-
-// Initialize container size and observe changes
-onMounted(() => {
-    if (logAreaRef.value) {
-        // Wait for next tick to ensure proper rendering
-        nextTick(() => {
-            if (!logAreaRef.value) return;
-
-            // Initialize sizes
-            containerHeight.value = logAreaRef.value.clientHeight;
-            scrollTop.value = logAreaRef.value.scrollTop;
-
-            console.log('LogArea initialized:', {
-                containerHeight: containerHeight.value,
-                scrollTop: scrollTop.value,
-                totalCount: totalCount.value
-            });
-
-            // If autoscroll is enabled and we should be at bottom, scroll there
-            if (props.autoscroll && needScroll.value) {
-                scheduleScrollToBottom();
-            }
-        });
-
-        // observe size changes
-        resizeObserver = new ResizeObserver((entries) => {
-            if (!logAreaRef.value) return;
-
-            const oldHeight = containerHeight.value;
-
-            for (const entry of entries) {
-                const newHeight = entry.contentRect.height;
-                if (Math.abs(newHeight - containerHeight.value) > 1) {
-                    containerHeight.value = newHeight;
-                    console.log('Container height changed:', oldHeight, '->', newHeight);
-                }
-            }
-
-            // If container height changed significantly, recalculate
-            if (Math.abs(oldHeight - containerHeight.value) > 1) {
-                recalculateVirtualScroll();
-            }
-        });
-        resizeObserver.observe(logAreaRef.value);
-    }
-});
-
-// Auto-scroll when new items arrive
-watch(totalCount, () => {
-    if (props.autoscroll && needScroll.value) {
-        scheduleScrollToBottom();
-    }
 });
 
 // Determine empty state message
@@ -289,69 +121,50 @@ const emptyStateMessage = computed(() => {
     }
     return '';
 });
-
-// Cleanup
-onUnmounted(() => {
-    if (scrollTimer) {
-        clearTimeout(scrollTimer);
-    }
-    if (rafId !== undefined) {
-        cancelAnimationFrame(rafId);
-        rafId = undefined;
-    }
-    if (resizeObserver) {
-        resizeObserver.disconnect();
-        resizeObserver = undefined;
-    }
-});
 </script>
 
 <template>
     <div class="log-area">
         <div class="filter">
             <div class="subsystem-container">
-                <label>SubSystem:</label>
-                <select v-model="subSysFilter" class="select" aria-label="Filter by subsystem">
-                    <option value="">ALL</option>
-                    <option v-for="option in props.subSystems" :key="option.value" :value="option.value">
-                        {{ option.caption }}
-                    </option>
-                </select>
+                <label class="label">SubSystem:</label>
+                <Dropdown class="dropdown" v-model="subSysFilter" placeholder="Select subsystem"
+                    :options="props.subSystems" aria-label="Filter by subsystem" size="medium" clearable multiple />
             </div>
 
             <div class="level-container">
-                <label>Level:</label>
-                <select v-model="levelFilter" class="select" aria-label="Filter by log level">
-                    <option v-for="option in levelOptions" :key="option.value" :value="option.value">
-                        {{ option.caption }}
-                    </option>
-                </select>
+                <label class="label">Level:</label>
+                <Dropdown class="dropdown" v-model="levelFilter" placeholder="Select severity level"
+                    :options="levelOptions" aria-label="Filter by severity level" size="medium" clearable multiple />
             </div>
 
             <div class="search-container">
-                <label>Search:</label>
-                <input v-model="searchFilter" type="text" class="input" placeholder="Search in messages..."
+                <label class="label">Search:</label>
+                <input v-model="searchFilter" class="input" type="text" placeholder="Search in messages..."
                     aria-label="Search in log messages" />
             </div>
 
             <div class="clear-container">
-                <button class="button is-danger" title="Clear log" @click="onClear" aria-label="Clear all log entries">
-                    <span class="icon" aria-hidden="true">🗑</span>
+                <button class="button is-danger" title="Clear log" @click="clearAll" aria-label="Clear all log entries">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M5 7.5H19L18 21H6L5 7.5Z" />
+                        <path d="M15.5 9.5L15 19" />
+                        <path d="M12 9.5V19" />
+                        <path d="M8.5 9.5L9 19" />
+                        <path
+                            d="M16 5H19C20.1046 5 21 5.89543 21 7V7.5H3V7C3 5.89543 3.89543 5 5 5H8M16 5L15 3H9L8 5M16 5H8" />
+                    </svg>
                 </button>
             </div>
         </div>
 
-        <div class="logarea" @scroll="onScroll" ref="logAreaRef">
-
-            <!-- Invisible spacer to create proper scrollable height only when needed -->
-            <div v-if="needsScrolling" class="scroll-spacer" :style="{ height: scrollableAreaHeight + 'px' }">
-            </div>
-
-            <!-- Fixed size window for visible items -->
-            <div class="items-window">
-                <log-area-item v-for="logItem in visibleItems" :key="logItem.key" :model-value="logItem.log"
-                    :style="{ height: rowHeight + 'px' }" />
-            </div>
+        <div class="logarea">
+            <List v-if="logItemsFiltered.length > 0" :items="logItemsFiltered" :auto-scroll="props.autoscroll"
+                :item-height="props.rowHeight" :virtual-buffer="props.virtualBuffer" class="log-list" ref="listRef">
+                <template #default="{ item }">
+                    <LogAreaItem :model-value="item.log" />
+                </template>
+            </List>
 
             <div v-if="emptyStateMessage" class="empty-state">
                 {{ emptyStateMessage }}
@@ -359,3 +172,5 @@ onUnmounted(() => {
         </div>
     </div>
 </template>
+
+<style lang="scss" src="@/styles/log-area.scss" />

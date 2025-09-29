@@ -93,6 +93,15 @@ export enum NRBand {
  */
 export type MobileBand = GSMBand | LTEBand | NRBand;
 
+export interface BandConfig {
+    uplinkStart: number; // in kHz
+    uplinkEnd: number; // in kHz
+    downlinkStart: number; // in kHz
+    downlinkEnd: number; // in kHz
+    arfcnStart: number;
+    arfcnEnd: number;
+}
+
 /**
  * Complete ARFCN configuration output
  */
@@ -100,7 +109,7 @@ export interface ARFCNConfig {
     arfcn: number;
     technology: RadioTechnology;
     band: MobileBand;
-    channelBandwidth?: number | undefined;  // in kHz, for LTE/NR
+    channelBandwidth?: number;  // in kHz, for LTE/NR
     uplinkFrequency?: number;   // in kHz
     downlinkFrequency?: number; // in kHz
 }

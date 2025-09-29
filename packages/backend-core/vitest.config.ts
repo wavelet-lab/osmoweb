@@ -3,7 +3,7 @@ import path from 'path';
 
 export default defineConfig({
     test: {
-        name: 'nestjs-microservice',
+        name: 'backend-core',
         globals: true,
         environment: 'node',
         include: ['src/tests/**/*.test.ts'],
