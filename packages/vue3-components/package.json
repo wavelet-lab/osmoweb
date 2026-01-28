@@ -11,23 +11,25 @@
     "type": "module",
     "scripts": {
         "build": "vue-tsc && tsc-alias && tsc-esm-fix && vite build && npm run build:styles && npm run build:types",
-        "build:styles": "mkdir -p dist/styles && sass src/styles:dist/styles --no-source-map && cp -n src/styles/*.css dist/styles/ 2>/dev/null || true",
+        "build:styles": "node scripts/build-styles.js",
         "build:types": "vue-tsc --emitDeclarationOnly",
         "test": "vitest run",
-        "test:watch": "vitest"
+        "test:watch": "vitest",
+        "test:coverage": "vitest run --coverage"
     },
     "dependencies": {
         "@osmoweb/core": "^1.0.0",
-        "vue": "^3.5.22"
+        "@osmoweb/frontend-core": "^1.0.0",
+        "vue": "^3.5.27"
     },
     "devDependencies": {
-        "@vitejs/plugin-vue": "^6.0.1",
+        "@vitejs/plugin-vue": "^6.0.3",
         "@vue/cli-plugin-typescript": "^5.0.9",
         "@vue/cli-service": "^5.0.9",
         "@vue/test-utils": "^2.4.6",
-        "happy-dom": "^19.0.1",
-        "sass": "^1.93.2",
-        "vue-tsc": "^3.1.0"
+        "happy-dom": "^20.4.0",
+        "sass": "^1.97.3",
+        "vue-tsc": "^3.2.4"
     },
     "sideEffects": [
         "**/*.css",

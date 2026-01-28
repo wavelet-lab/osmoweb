@@ -59,10 +59,11 @@ export async function apiFetch<T = any>(path: string, init?: RequestInit): Promi
         let errorBody: any;
         if (contentType?.includes("application/json")) {
             errorBody = await res.json();
+            throw new Error(`API error ${res.status}`, { cause: errorBody });
         } else {
             errorBody = await res.text();
+            throw new Error(`API error ${res.status}: ${errorBody}`);
         }
-        throw new Error(`API error ${res.status}: ${errorBody}`);
     }
 
     if (contentType?.includes("application/json")) {

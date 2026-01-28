@@ -1,6 +1,7 @@
 import path from 'path'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import pkg from './package.json'
 
 export default defineConfig({
     plugins: [
@@ -14,13 +15,20 @@ export default defineConfig({
             formats: ['es', 'cjs']
         },
         rollupOptions: {
-            external: ['vue'],
+            external: (id) => {
+                if (!id || typeof id !== 'string') return false
+                if (id === 'vue') return true
+                if (id.startsWith('@osmoweb/frontend-core')) return true
+                return false
+            },
             output: {
                 globals: {
                     vue: 'Vue'
-                }
+                },
             }
-        }
+        },
+        // disable inlining of large binaries
+        assetsInlineLimit: 0
     },
     resolve: {
         alias: {

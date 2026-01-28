@@ -11,22 +11,23 @@
     "scripts": {
         "build": "tsc && tsc-alias && tsc-esm-fix",
         "test": "vitest run",
-        "test:watch": "vitest"
+        "test:watch": "vitest",
+        "test:coverage": "vitest run --coverage"
     },
     "dependencies": {
-        "@nestjs/common": "^11.1.6",
+        "@nestjs/common": "^11.1.12",
         "@nestjs/config": "^4.0.2",
-        "@nestjs/jwt": "^11.0.0",
-        "@nestjs/microservices": "^11.1.6",
+        "@nestjs/jwt": "^11.0.2",
+        "@nestjs/microservices": "^11.1.12",
         "@nestjs/passport": "^11.0.5",
-        "@nestjs/testing": "^11.1.6",
-        "@nestjs/websockets": "^11.1.6",
+        "@nestjs/testing": "^11.1.12",
+        "@nestjs/websockets": "^11.1.12",
         "@osmoweb/backend-core": "^1.0.0",
         "@osmoweb/core": "^1.0.0",
         "class-transformer": "^0.5.1",
-        "class-validator": "^0.14.2",
+        "class-validator": "^0.14.3",
         "passport-jwt": "^4.0.1",
-        "ws": "^8.18.3"
+        "ws": "^8.19.0"
     },
     "devDependencies": {
         "@types/passport-jwt": "^4.0.1",

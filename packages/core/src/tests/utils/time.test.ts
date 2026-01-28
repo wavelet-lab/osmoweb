@@ -21,7 +21,7 @@ describe('Time Utils', () => {
         });
 
         it('should convert seconds to milliseconds correctly', async () => {
-            const spy = vi.spyOn(global, 'setTimeout');
+            const spy = vi.spyOn(globalThis, 'setTimeout');
 
             sleep(1.5);
 
@@ -39,7 +39,7 @@ describe('Time Utils', () => {
         });
 
         it('should handle fractional seconds', async () => {
-            const spy = vi.spyOn(global, 'setTimeout');
+            const spy = vi.spyOn(globalThis, 'setTimeout');
 
             sleep(0.5);
 
@@ -59,7 +59,7 @@ describe('Time Utils', () => {
         });
 
         it('should use milliseconds directly', async () => {
-            const spy = vi.spyOn(global, 'setTimeout');
+            const spy = vi.spyOn(globalThis, 'setTimeout');
 
             usleep(250);
 
