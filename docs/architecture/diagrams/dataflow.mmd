@@ -1,0 +1,64 @@
+sequenceDiagram
+  participant SDR as SDR device
+  participant UI as Frontend UI
+  participant FEC as frontend-core
+  participant TRX as osmo-trx (WASM)
+
+  participant AUTH as Auth service (NestJS)
+  participant BTSAPI as BTS settings (REST) (NestJS)
+
+  participant RTS as Runtime transport (NestJS)<br/>(WebSocket ⇄ UDP)
+  participant VTYCTL as Osmocom control (NestJS)<br/>(VTY)
+  participant VTYSTAT as Osmocom stats (NestJS)<br/>(VTY)
+  participant TSDBS as Stats storage (planned)<br/>(InfluxDB)
+
+  participant BSC as osmo-bsc
+  participant MSC as osmo-msc
+  participant HLR as osmo-hlr
+  participant MGW as osmo-mgw
+  participant STP as osmo-stp
+
+  UI->>FEC: Select/configure SDR
+  FEC->>SDR: WebUSB<br/>open / control
+
+  UI->>AUTH: REST<br/>login / token
+  UI->>BTSAPI: REST<br/>read/update BTS settings
+
+  UI->>TRX: Control via JS API
+  TRX->>RTS: WebSocket (text)<br/>control / config
+  TRX->>RTS: WebSocket (binary)<br/>osmocom runtime traffic
+
+  par Runtime data plane (UDP)
+    RTS->>BSC: UDP (configured IP/port)
+  and
+    RTS->>MSC: UDP (configured IP/port)
+  and
+    RTS->>HLR: UDP (configured IP/port)
+  and
+    RTS->>MGW: UDP (configured IP/port)
+  and
+    RTS->>STP: UDP (configured IP/port)
+  end
+
+  par Runtime responses
+    BSC-->>RTS: UDP responses/data
+  and
+    MSC-->>RTS: UDP responses/data
+  and
+    HLR-->>RTS: UDP responses/data
+  and
+    MGW-->>RTS: UDP responses/data
+  and
+    STP-->>RTS: UDP responses/data
+  end
+
+  RTS-->>TRX: WebSocket frames<br/>(binary/text)
+  TRX-->>UI: Callbacks / state / events
+
+  par Operations plane (VTY)
+    VTYCTL->>BSC: VTY (telnet)<br/>configure / control
+  and
+    VTYSTAT->>BSC: VTY (telnet)<br/>read stats/state
+  end
+
+  VTYSTAT-->>TSDBS: metrics/events (planned)

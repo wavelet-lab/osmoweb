@@ -1,0 +1,208 @@
+# Platform Architecture Overview
+
+This document describes the high-level production architecture of the platform, its core components, communication model, and design decisions.
+
+The system is built around the idea of running GSM BTS/TRX components directly in the browser using WebAssembly, while preserving full compatibility with existing native Osmocom backend infrastructure.
+
+---
+
+## 1. High-Level Concept
+
+The platform is composed of two cooperating open-source projects:
+
+- **websdr** — a generic web platform providing WebUSB access, user management, authentication, shared utilities, and reusable UI components not specific to Osmocom.
+  https://github.com/wavelet-lab/websdr
+- **osmoweb** — an Osmocom-specific platform implementing browser-based BTS/TRX execution, runtime transport (WebSocket ⇄ UDP), and operational control/statistics for native Osmocom services.
+  https://github.com/wavelet-lab/osmoweb
+
+This separation allows Osmocom-specific logic to remain focused, while generic web and SDR functionality is reusable across projects.
+
+The platform consists of two major parts:
+
+* **Client-side frontend** (Browser)
+* **Server-side backend** (Linux)
+
+The frontend runs `osmo-bts` and a modified `osmo-trx` compiled to WebAssembly inside the user’s browser, and interfaces with a locally attached SDR via **WebUSB**.
+
+Because browsers cannot use raw UDP sockets, the backend provides a **WebSocket ⇄ UDP bridge** so that browser-based components can communicate with unmodified native Osmocom services.
+
+---
+
+## 2. Server-Side Architecture (Linux)
+
+The server side combines **native Osmocom network elements** with a **NestJS-based web backend** composed of multiple microservices.
+
+### 2.1 Native Osmocom Components
+
+The following Osmocom services run natively on Linux and remain unmodified:
+
+* **osmo-stp** — Signaling Transfer Point
+* **osmo-hlr** — Home Location Register
+* **osmo-mgw** — Media Gateway
+* **osmo-msc** — Mobile Switching Center
+* **osmo-bsc** — Base Station Controller
+
+These components communicate using their standard UDP- and SIGTRAN-based interfaces and expose VTY (telnet) control ports.
+
+### 2.2 Backend Implementation Model: `backend-core` + NestJS Microservices
+
+All backend logic is implemented in **`backend-core`** (shared backend module). NestJS is used to expose this functionality as a set of deployable **microservices** (REST APIs / WebSocket gateways) that depend on `backend-core`.
+
+In other words:
+
+* **`backend-core`** provides the Osmocom integration layer:
+
+  * WebSocket ⇄ UDP bridging (runtime transport)
+  * Osmocom control via VTY
+  * Osmocom statistics collection via VTY
+  * BTS configuration logic and Osmocom service management
+
+* **NestJS microservices** provide the higher-level application layers:
+
+  * transport layer (REST / WebSocket)
+  * wiring and composition of backend services
+  * deployment and scaling boundaries
+  * user management
+  * authentication
+  * statistics persistence
+
+### 2.3 NestJS Web Backend (Microservices)
+
+The web backend is deployed as a set of **NestJS microservices** that call into `backend-core`, including:
+
+1. **User database service** — user storage and management
+2. **Authentication service** — login/session/token handling
+3. **BTS settings service (REST API)** — manage base-station configuration via REST
+4. **Runtime transport service (WebSocket)** — terminates WebSocket connections from browsers and uses `backend-core` to perform WebSocket ⇄ UDP bridging
+5. **Osmocom service control service (VTY)** — operational control of `osmo-*` services via VTY (telnet)
+6. **Osmocom statistics service (VTY)** — collect runtime status/metrics via VTY (telnet)
+
+Planned (not implemented yet, but part of the target architecture):
+
+* **Statistics storage service** — persist Osmocom statistics into a time-series database (e.g., InfluxDB)
+
+### 2.4 Runtime Transport Bridge (WebSocket ⇄ UDP)
+
+Browser-based BTS/TRX components cannot use UDP directly, so the backend provides a production **WebSocket ⇄ UDP bridge** implemented in `backend-core` and used by the runtime transport microservice.
+
+* Accepts WebSocket connections from browser-based `osmo-trx`
+* Supports **binary WebSocket frames** for Osmocom data traffic
+* Supports **text WebSocket frames** for control/configuration parameters
+* Translates traffic to/from UDP sockets expected by native Osmocom services
+
+Targets are fully configurable:
+
+* Default: `localhost` with standard Osmocom ports
+* Custom IP addresses and ports supported
+* Enables integration with non-standard or distributed deployments
+
+---
+
+## 3. Client-Side Architecture (Browser)
+
+### 3.1 SDR Integration (WebUSB)
+
+* The SDR device is connected locally to the user’s machine.
+* The frontend selects and controls the SDR via **WebUSB**.
+
+### 3.2 osmo-bts (WebAssembly)
+
+* Compiled to WebAssembly
+* Runs inside the browser runtime
+* Works together with `osmo-trx` as in a classical BTS/TRX architecture
+
+### 3.3 osmo-trx (WebAssembly, Modified)
+
+`osmo-trx` is adapted for browser execution.
+
+#### Transport Layer Changes
+
+* Original **UDP transport replaced by WebSocket**
+
+#### WebSocket Channels
+
+Two logical channels are used:
+
+* **Binary WebSocket channel**
+
+  * Carries Osmocom data traffic
+* **Text WebSocket channel**
+
+  * Used for control and configuration parameters
+  * Semantics to be documented separately
+
+#### JavaScript Integration Layer
+
+* Custom **JavaScript API** for `osmo-trx`
+* Enables control from frontend code and integration with UI logic
+
+---
+
+## 4. Communication Model
+
+### 4.1 Logical Data Path (Runtime Traffic)
+
+![Logical data path](diagrams/logical-data-path.svg)
+
+### 4.2 Control & Statistics Path (Operations Plane)
+
+Operational control and statistics collection are performed via **VTY (telnet)** from dedicated backend microservices that use `backend-core`:
+
+* VTY control microservice → `osmo-*` VTY ports
+* VTY statistics microservice → `osmo-*` VTY ports
+
+Planned:
+
+* Statistics storage microservice → time-series DB (e.g., InfluxDB)
+
+### 4.3 Protocol Mapping
+
+| Segment                         | Transport                | Purpose                              |
+| ------------------------------- | ------------------------ | ------------------------------------ |
+| Frontend ↔ SDR                  | WebUSB                   | SDR access, device selection/control |
+| Browser → Backend               | WebSocket (binary)       | Osmocom runtime data traffic         |
+| Browser → Backend               | WebSocket (text)         | Control / parameters                 |
+| Bridge → Osmocom                | UDP                      | Native Osmocom runtime communication |
+| Backend control/stats → Osmocom | VTY (telnet)             | Operations: control & statistics     |
+| Stats storage (planned)         | Ingestion protocol (TBD) | Persist metrics/events to TSDB       |
+
+---
+
+## 5. Design Principles
+
+* **Browser compatibility**: WebSocket is used instead of UDP; SDR access is via WebUSB
+* **Backend compatibility**: native Osmocom services remain unmodified
+* **Clean layering**: `backend-core` contains all logic; NestJS microservices expose it via REST/WS
+* **Separation of planes**:
+
+  * Runtime data plane: WebSocket ⇄ UDP bridge
+  * Operations plane: VTY control/statistics
+* **Extensible backend**: statistics persistence (InfluxDB) is a natural additional microservice
+
+---
+
+## 6. Diagrams
+
+### Legend / Notation
+
+![Legend](diagrams/legend.svg)
+
+### Deployment / Component View
+
+![Deployment](diagrams/deployment.svg)
+
+### Runtime Data Flow
+
+![Data flow](diagrams/dataflow.svg)
+
+### Interfaces & Protocols
+
+![Interfaces](diagrams/interfaces.svg)
+
+---
+
+## 7. Summary
+
+This architecture enables a browser-native GSM BTS/TRX runtime using WebAssembly with SDR access via WebUSB, while preserving compatibility with native Osmocom services.
+
+All backend logic is implemented in `backend-core` and exposed via a set of NestJS microservices (REST/WS), including runtime transport bridging (WebSocket ⇄ UDP) and operational control/statistics via VTY, with planned statistics persistence (e.g., InfluxDB).

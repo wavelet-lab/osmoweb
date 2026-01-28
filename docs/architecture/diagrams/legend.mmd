@@ -1,0 +1,29 @@
+flowchart LR
+  %% Legend / Notation for architecture diagrams (clear version)
+
+  subgraph C["Component types"]
+    SVC["NestJS microservice"]:::svc
+    NAT["Native Osmocom service<br/>(osmo-*)"]:::native
+    PLN["Planned service<br/>(future)"]:::planned
+  end
+
+  subgraph P["Protocol labels on links"]
+    A["Browser / frontend"]:::svc
+    B["Backend service"]:::svc
+
+    A <--> |"REST"| B
+    A <--> |"WebSocket"| B
+    B <--> |"UDP"| NAT
+    B <--> |"VTY (telnet)"| NAT
+    A <--> |"WebUSB"| SDR["SDR device"]:::native
+  end
+
+  subgraph L["Planes (meaning)"]
+    DP["Data plane = runtime traffic<br/>(WS ⇄ UDP)"]:::note
+    OP["Operations plane = control & stats<br/>(VTY)"]:::note
+  end
+
+  classDef svc fill:#eef,stroke:#334,stroke-width:1px;
+  classDef native fill:#efe,stroke:#343,stroke-width:1px;
+  classDef planned fill:#fff6cc,stroke:#665,stroke-width:1px,stroke-dasharray:5 4;
+  classDef note fill:#fff,stroke:#888,stroke-width:1px,stroke-dasharray:2 2;
