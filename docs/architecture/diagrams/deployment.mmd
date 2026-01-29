@@ -30,7 +30,7 @@ flowchart TB
 
     subgraph OSMOWEB_BE["osmoweb backend<br/>(NestJS microservices)"]
       BTSAPI["BTS settings service<br/>(REST API)"]
-      RTS["Runtime transport service<br/>(WebSocket ⇄ UDP / TCP)"]
+      RTS["Runtime transport service<br/>(WebSocket ⇄ TCP/UDP)"]
       VTYCTL["Osmocom control service<br/>(VTY)"]
       VTYSTAT["Osmocom stats service<br/>(VTY)"]
       TSDBS["Stats storage service<br/>(planned: InfluxDB)"]

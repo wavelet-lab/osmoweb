@@ -29,7 +29,7 @@ flowchart TB
 
     subgraph OSMOWEB_BE["osmoweb backend"]
       BTSAPI["BTS settings<br/>(REST)"]
-      RTS["Runtime transport<br/>(WebSocket ⇄ UDP / TCP)"]
+      RTS["Runtime transport<br/>(WebSocket ⇄ TCP/UDP)"]
       VTYCTL["Osmocom control<br/>(VTY)"]
       VTYSTAT["Osmocom stats<br/>(VTY)"]
       TSDBS["InfluxDB (planned)"]

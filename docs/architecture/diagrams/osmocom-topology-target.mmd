@@ -1,0 +1,51 @@
+---
+config:
+  layout: elk
+---
+flowchart TB
+  subgraph Backend["Backend (Linux)"]
+    subgraph OSMOWEB_BE["osmoweb backend<br/>(NestJS microservices)"]
+      RTS["Runtime transport service<br/>(WebSocket ⇄ TCP/UDP)"]
+    end
+
+    subgraph RegionA["Region A backend"]
+      BSC_A["osmo-bsc (region A)"]
+    end
+
+    subgraph RegionB["Region B backend"]
+      BSC_B["osmo-bsc (region B)"]
+    end
+
+    subgraph Core["Core network"]
+      MSC["osmo-msc"]
+      HLR["osmo-hlr"]
+      STP["osmo-stp"]
+      MGW["osmo-mgw"]
+
+      MSC <--> HLR
+      MSC <--> STP
+      MSC <--> MGW
+    end
+
+    RTS <--> |"Region B traffic"| BSC_B
+    RTS <--> |"Region A traffic"| BSC_A
+
+    BSC_B <--> MSC
+    BSC_A <--> MSC
+  end
+
+  subgraph ClientsB["Web clients (region B)"]
+    BTS_B1["osmo-bts (WASM)<br/>client B1"]
+    BTS_B2["osmo-bts (WASM)<br/>client B2"]
+  end
+
+  subgraph ClientsA["Web clients (region A)"]
+    BTS_A1["osmo-bts (WASM)<br/>client A1"]
+    BTS_A2["osmo-bts (WASM)<br/>client A2"]
+  end
+
+  BTS_B2 <--> RTS
+  BTS_B1 <--> RTS
+
+  BTS_A1 <--> RTS
+  BTS_A2 <--> RTS

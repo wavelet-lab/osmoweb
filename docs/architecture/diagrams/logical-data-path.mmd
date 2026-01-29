@@ -18,7 +18,7 @@ flowchart TB
 
   subgraph Backend["Backend (Linux)"]
     RTS["Runtime transport svc (NestJS)<br/>(uses backend-core)"]
-    CORE["backend-core<br/>WebSocket ⇄ UDP / TCP bridge"]
+    CORE["backend-core<br/>WebSocket ⇄ TCP/UDP bridge"]
   end
 
   subgraph OSMO["Native Osmocom services"]

@@ -18,7 +18,7 @@ Documentation is organized by topic (architecture, operations, development, etc.
 
 ## Architecture Documentation
 
-The `architecture/` subdirectory contains the **production architecture documentation** for the OsmoWeb platform.
+The [`architecture/`](architecture/README.md) subdirectory contains the **production architecture documentation** for the OsmoWeb platform.
 
 Its goal is to explain **how the system is structured at runtime**, how browser‑based GSM components interact with native Osmocom services, and where protocol and responsibility boundaries are defined.
 

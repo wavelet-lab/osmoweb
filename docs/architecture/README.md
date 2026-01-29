@@ -16,7 +16,7 @@ Start with:
 
   * System goals and design rationale
   * Server‑side and client‑side components
-  * WebSocket ⇄ UDP bridging model
+  * WebSocket ⇄ TCP/UDP bridging model
   * Communication flows and protocol boundaries
 
 This document is intended to be read top‑to‑bottom and provides the conceptual model for the entire platform.
@@ -34,18 +34,24 @@ All diagrams are stored in the `diagrams/` subdirectory:
 * **Legend / Notation** — diagram conventions and protocol labels
 * **Voice transport comparison** — RTP vs Osmux
 * **Voice over Osmux** — chosen approach in OsmoWeb
+* **Classic Osmocom topology** — reference hierarchical model (MSC → BSC → BTS)
+* **Current OsmoWeb topology** — single backend BSC with multiple browser-based BTS instances
+* **Target topology (multi-BSC)** — region-aware, scalable topology with multiple BSC instances
 
 Diagram sources are written in **Mermaid (`.mmd`)** and rendered to **SVG** for stable display in GitHub and other Markdown renderers.
 
 ```
 diagrams/
-  deployment.mmd         → deployment.svg
-  logical-data-path.mmd  → logical-data-path.svg
-  dataflow.mmd           → dataflow.svg
-  interfaces.mmd         → interfaces.svg
-  legend.mmd             → legend.svg
-  voice-compare.mmd      → voice-compare.svg
-  voice-osmux.mmd        → voice-osmux.svg
+  deployment.mmd               → deployment.svg
+  logical-data-path.mmd        → logical-data-path.svg
+  dataflow.mmd                 → dataflow.svg
+  interfaces.mmd               → interfaces.svg
+  legend.mmd                   → legend.svg
+  voice-compare.mmd            → voice-compare.svg
+  voice-osmux.mmd              → voice-osmux.svg
+  osmocom-topology-classic.mmd → osmocom-topology-classic.svg
+  osmocom-topology-current.mmd → osmocom-topology-current.svg
+  osmocom-topology-target.mmd  → osmocom-topology-target.svg
 ```
 
 SVG files are the authoritative rendered artifacts; Mermaid files are the editable sources.
@@ -59,7 +65,7 @@ SVG files are the authoritative rendered artifacts; Mermaid files are the editab
 * Production runtime architecture
 * Browser‑based BTS/TRX execution using WebAssembly
 * Integration with native Osmocom services
-* Transport adaptation via WebSocket ⇄ UDP bridging
+* Transport adaptation via WebSocket ⇄ TCP/UDP bridging
 
 **Out of scope:**
 

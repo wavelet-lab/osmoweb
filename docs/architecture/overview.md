@@ -12,7 +12,7 @@ The platform is composed of two cooperating open-source projects:
 
 - **websdr** — a generic web platform providing WebUSB access, user management, authentication, shared utilities, and reusable UI components not specific to Osmocom.
   https://github.com/wavelet-lab/websdr
-- **osmoweb** — an Osmocom-specific platform implementing browser-based BTS/TRX execution, runtime transport (WebSocket ⇄ UDP), and operational control/statistics for native Osmocom services.
+- **osmoweb** — an Osmocom-specific platform implementing browser-based BTS/TRX execution, runtime transport (WebSocket ⇄ TCP/UDP), and operational control/statistics for native Osmocom services.
   https://github.com/wavelet-lab/osmoweb
 
 This separation allows Osmocom-specific logic to remain focused, while generic web and SDR functionality is reusable across projects.
@@ -25,15 +25,75 @@ The platform consists of two major parts:
 The browser-based runtime consists of `osmo-bts` compiled to WebAssembly, which communicates with the backend via **WebSocket**.
 `osmo-trx` is also compiled to WebAssembly and runs locally in the browser, interfacing directly with the SDR device via **WebUSB** and exposing a local API to `osmo-bts`.
 
-Because browsers cannot use raw UDP sockets, the backend provides a **WebSocket ⇄ UDP bridge** so that browser-based components can communicate with unmodified native Osmocom services.
+Because browsers cannot use raw UDP and TCP sockets, the backend provides a **WebSocket ⇄ TCP/UDP bridge** so that browser-based components can communicate with unmodified native Osmocom services.
 
 ---
 
-## 2. Server-Side Architecture (Linux)
+## 2 Osmocom Component Topology
+
+The following diagrams illustrate the evolution of Osmocom component topology
+from a classical deployment model to the current OsmoWeb setup and a possible
+future scalable architecture.
+
+### 2.1 Classical Osmocom topology (reference model)
+
+In a classical Osmocom deployment, the topology is hierarchical:
+
+- **`osmo-msc`** typically serves **multiple `osmo-bsc`** instances.
+- Each **`osmo-bsc`** serves **multiple `osmo-bts`** instances.
+- **`osmo-bsc` nodes are often geographically distributed**, placed close to the BTS sites (regional aggregation), while the MSC and other core components remain centralized.
+
+![Classic topology](diagrams/osmocom-topology-classic.svg)
+
+### 2.2 Current OsmoWeb topology
+
+In OsmoWeb, the topology is intentionally simplified:
+
+- The backend runs a **single `osmo-bsc`** (today).
+- Each web client runs its own **`osmo-bts` (WASM)** in the browser.
+
+As a result, the system forms a many-BTS → one-BSC topology.
+
+![Current topology](diagrams/osmocom-topology-current.svg)
+
+#### Implications (pros / cons)
+
+##### Advantages
+
+* **Operational simplicity:** one backend BSC reduces deployment and configuration complexity.
+* **Shared network context:** all browser-based BTS instances live in the same backend core network, which can simplify experiments and demos.
+* **Centralized observability/control:** a single BSC is a single control point for monitoring and management.
+
+##### Trade-offs
+
+* **Geography is ignored:** all BTS instances terminate on the same BSC regardless of client location, which is not ideal for latency, timing assumptions, or realistic topology modeling.
+* **Single aggregation point:** scaling and fault isolation are limited by a single BSC instance.
+* **Less realistic production mapping:** classic operator-like deployments expect BSC placement closer to BTS clusters.
+
+### 2.3 Target topology (multi-BSC, region-aware)
+
+A scalable and more realistic deployment model extends the current architecture
+by introducing **multiple `osmo-bsc` instances**, each representing a geographic
+or logical region.
+
+In this model:
+
+- Each region runs its own **`osmo-bsc`** instance.
+- Browser-based **`osmo-bts` (WASM)** instances are mapped to a specific BSC,
+  typically based on geographic proximity or deployment policy.
+- Core network components (`osmo-msc`, `osmo-hlr`, `osmo-stp`, `osmo-mgw`)
+  remain centralized or replicated as needed.
+- Backend gateways route WebSocket traffic to the appropriate regional BSC.
+
+![Target topology](diagrams/osmocom-topology-target.svg)
+
+---
+
+## 3. Server-Side Architecture (Linux)
 
 The server side combines **native Osmocom network elements** with a **NestJS-based web backend** composed of multiple microservices.
 
-### 2.1 Native Osmocom Components
+### 3.1 Native Osmocom Components
 
 The following Osmocom services run natively on Linux and remain unmodified:
 
@@ -45,7 +105,7 @@ The following Osmocom services run natively on Linux and remain unmodified:
 
 These components communicate using their standard UDP- and SIGTRAN-based interfaces and expose VTY (telnet) control ports.
 
-### 2.2 Backend Implementation Model: `backend-core` + NestJS Microservices
+### 3.2 Backend Implementation Model: `backend-core` + NestJS Microservices
 
 All backend logic is implemented in **`backend-core`** (shared backend module). NestJS is used to expose this functionality as a set of deployable **microservices** (REST APIs / WebSocket gateways) that depend on `backend-core`.
 
@@ -53,7 +113,7 @@ In other words:
 
 * **`backend-core`** provides the Osmocom integration layer:
 
-  * WebSocket ⇄ UDP bridging (runtime transport)
+  * WebSocket ⇄ TCP/UDP bridging (runtime transport and control/status)
   * Osmocom control via VTY
   * Osmocom statistics collection via VTY
   * BTS configuration logic and Osmocom service management
@@ -67,14 +127,14 @@ In other words:
   * authentication
   * statistics persistence
 
-### 2.3 NestJS Web Backend (Microservices)
+### 3.3 NestJS Web Backend (Microservices)
 
 The web backend is deployed as a set of **NestJS microservices** that call into `backend-core`, including:
 
 1. **User database service** — user storage and management
 2. **Authentication service** — login/session/token handling
 3. **BTS settings service (REST API)** — manage base-station configuration via REST
-4. **Runtime transport service (WebSocket)** — terminates WebSocket connections from browsers and uses `backend-core` to perform WebSocket ⇄ UDP bridging
+4. **Runtime transport service (WebSocket)** — terminates WebSocket connections from browsers and uses `backend-core` to perform WebSocket ⇄ TCP/UDP bridging
 5. **Osmocom service control service (VTY)** — operational control of `osmo-*` services via VTY (telnet)
 6. **Osmocom statistics service (VTY)** — collect runtime status/metrics via VTY (telnet)
 
@@ -82,14 +142,14 @@ Planned (not implemented yet, but part of the target architecture):
 
 * **Statistics storage service** — persist Osmocom statistics into a time-series database (e.g., InfluxDB)
 
-### 2.4 Runtime Transport Bridge (WebSocket ⇄ UDP)
+### 3.4 Runtime Transport Bridge (WebSocket ⇄ TCP/UDP)
 
-Browser-based BTS/TRX components cannot use UDP directly, so the backend provides a production **WebSocket ⇄ UDP bridge** implemented in `backend-core` and used by the runtime transport microservice.
+Browser-based BTS/TRX components cannot use UDP and TCP directly, so the backend provides a production **WebSocket ⇄ TCP/UDP bridge** implemented in `backend-core` and used by the runtime transport microservice.
 
-* Accepts WebSocket connections from browser-based `osmo-trx`
+* Accepts WebSocket connections from browser-based `osmo-bts`
 * Supports **binary WebSocket frames** for Osmocom data traffic
 * Supports **text WebSocket frames** for control/configuration parameters
-* Translates traffic to/from UDP sockets expected by native Osmocom services
+* Translates traffic to/from UDP and TCP sockets expected by native Osmocom services
 
 Targets are fully configurable:
 
@@ -99,26 +159,26 @@ Targets are fully configurable:
 
 ---
 
-## 3. Client-Side Architecture (Browser)
+## 4. Client-Side Architecture (Browser)
 
-### 3.1 SDR Integration (WebUSB)
+### 4.1 SDR Integration (WebUSB)
 
 * The SDR device is connected locally to the user’s machine.
 * The frontend selects and controls the SDR via **WebUSB**.
 
-### 3.2 osmo-bts (WebAssembly)
+### 4.2 osmo-bts (WebAssembly)
 
 * Compiled to WebAssembly
 * Runs inside the browser runtime
 * Works together with `osmo-trx` as in a classical BTS/TRX architecture
 
-### 3.3 osmo-trx (WebAssembly, Modified)
+### 4.3 osmo-trx (WebAssembly, Modified)
 
 `osmo-trx` is adapted for browser execution.
 
 #### Transport Layer Changes
 
-* Original **UDP transport replaced by WebSocket**
+* Original **UDP and TCP transport replaced by WebSocket**
 
 #### WebSocket Channels
 
@@ -134,18 +194,29 @@ Two logical channels are used:
 
 #### JavaScript Integration Layer
 
-* Custom **JavaScript API** for `osmo-trx`
-* Enables control from frontend code and integration with UI logic
+* **JavaScript integration for `osmo-trx`**
+  * Provides a JS-facing API for SDR device access and control via **WebUSB**
+  * Exposes hardware-related primitives to browser code
+  * Exposes runtime and device-level **logging** to JavaScript for debugging and UI integration
+
+* **JavaScript integration for `osmo-bts`**
+  * Provides a JS-facing API for network-facing data exchange
+  * Bridges BTS runtime data and control flows to **WebSocket-based transports**
+  * Exposes BTS **runtime and protocol logging** to JavaScript
+
+* **Frontend libraries**
+  * Wrap low-level JS bindings into higher-level abstractions
+  * Adapt Osmocom runtime, control, and logging semantics into WebSocket-oriented APIs consumable by frontend logic
 
 ---
 
-## 4. Communication Model
+## 5. Communication Model
 
-### 4.1 Logical Data Path (Runtime Traffic)
+### 5.1 Logical Data Path (Runtime Traffic)
 
 ![Logical data path](diagrams/logical-data-path.svg)
 
-### 4.2 Control & Statistics Path (Operations Plane)
+### 5.2 Control & Statistics Path (Operations Plane)
 
 Operational control and statistics collection are performed via **VTY (telnet)** from dedicated backend microservices that use `backend-core`:
 
@@ -156,7 +227,7 @@ Planned:
 
 * Statistics storage microservice → time-series DB (e.g., InfluxDB)
 
-### 4.3 Protocol Mapping
+### 5.3 Protocol Mapping
 
 | Segment                         | Transport                | Purpose                              |
 | ------------------------------- | ------------------------ | ------------------------------------ |
@@ -164,10 +235,11 @@ Planned:
 | Browser → Backend               | WebSocket (binary)       | Osmocom runtime data traffic         |
 | Browser → Backend               | WebSocket (text)         | Control / parameters                 |
 | Bridge → Osmocom                | UDP                      | Native Osmocom runtime communication |
+| Bridge → Osmocom                | TCP                      | Native Osmocom control and status |
 | Backend control/stats → Osmocom | VTY (telnet)             | Operations: control & statistics     |
 | Stats storage (planned)         | Ingestion protocol (TBD) | Persist metrics/events to TSDB       |
 
-### 4.4 Gateway transport mapping
+### 5.4 Gateway transport mapping
 
 The browser-facing gateway uses a single WebSocket connection with **binary** and **text** frames.  
 At the backend, the gateway translates these logical channels into native transports towards Osmocom services:
@@ -187,14 +259,14 @@ Notes:
 
 ---
 
-## 5 Voice / Audio Transport (Engineering Rationale)
+## 6 Voice / Audio Transport (Engineering Rationale)
 
 Osmocom supports two user-plane transport mechanisms for voice traffic:
 
 - **RTP (Real-time Transport Protocol)** — a classical VoIP user-plane where each call leg is transported as a separate RTP flow over UDP.
 - **Osmux (Osmocom Multiplexing Protocol)** — a purpose-built Osmocom protocol that multiplexes multiple voice channels into a single UDP flow to reduce overhead and simplify transport.
 
-### 5.1 RTP vs Osmux — Comparison
+### 6.1 RTP vs Osmux — Comparison
 
 | Aspect | RTP (classic) | Osmux (chosen) |
 |------|---------------|----------------|
@@ -206,7 +278,7 @@ Osmocom supports two user-plane transport mechanisms for voice traffic:
 | Alignment with Osmocom | Indirect (VoIP-centric) | Native Osmocom protocol |
 | Suitability for OsmoWeb | ❌ Not ideal | ✅ Best fit |
 
-### 5.2 Engineering considerations in a browser-based deployment
+### 6.2 Engineering considerations in a browser-based deployment
 
 In OsmoWeb, the BTS/TRX runtime executes inside a web browser and communicates with the backend exclusively via **WebSocket**. This imposes several practical constraints that strongly influence the choice of voice transport:
 
@@ -240,7 +312,7 @@ In OsmoWeb, the BTS/TRX runtime executes inside a web browser and communicates w
    - Osmux is a native Osmocom user-plane protocol and is directly supported by Osmocom components such as BSC and MGW.
    - Using Osmux avoids introducing a parallel VoIP-centric architecture (SIP/RTP) into a system that is otherwise fully Osmocom-native.
 
-### 5.3 Chosen approach
+### 6.3 Chosen approach
 
 For these reasons, **OsmoWeb uses Osmux as the voice user-plane protocol**, transported as part of the binary WebSocket stream between the browser-based BTS/TRX and the backend runtime transport service.
 
@@ -252,20 +324,20 @@ See diagrams:
 
 ---
 
-## 6. Design Principles
+## 7. Design Principles
 
 * **Browser compatibility**: WebSocket is used instead of UDP; SDR access is via WebUSB
 * **Backend compatibility**: native Osmocom services remain unmodified
 * **Clean layering**: `backend-core` contains all logic; NestJS microservices expose it via REST/WS
 * **Separation of planes**:
 
-  * Runtime data plane: WebSocket ⇄ UDP bridge
+  * Runtime data plane: WebSocket ⇄ TCP/UDP bridge
   * Operations plane: VTY control/statistics
 * **Extensible backend**: statistics persistence (InfluxDB) is a natural additional microservice
 
 ---
 
-## 7. Diagrams
+## 8. Diagrams
 
 ### Legend / Notation
 
@@ -285,8 +357,8 @@ See diagrams:
 
 ---
 
-## 8. Summary
+## 9. Summary
 
 This architecture enables a browser-native GSM BTS/TRX runtime using WebAssembly with SDR access via WebUSB, while preserving compatibility with native Osmocom services.
 
-All backend logic is implemented in `backend-core` and exposed via a set of NestJS microservices (REST/WS), including runtime transport bridging (WebSocket ⇄ UDP) and operational control/statistics via VTY, with planned statistics persistence (e.g., InfluxDB).
+All backend logic is implemented in `backend-core` and exposed via a set of NestJS microservices (REST/WS), including runtime transport bridging (WebSocket ⇄ TCP/UDP) and operational control/statistics via VTY, with planned statistics persistence (e.g., InfluxDB).
