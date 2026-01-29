@@ -1,4 +1,8 @@
-flowchart LR
+---
+config:
+  layout: elk
+---
+flowchart TB
   subgraph Browser["Client (Browser)"]
     subgraph WSDR["websdr (shared)"]
       SDR["SDR device"]
@@ -10,8 +14,8 @@ flowchart LR
 
     subgraph OSMOWEB_FE["osmoweb (osmo-specific)"]
       BTSUI["BTS config panel<br/>(Vue3 component)"]
-      BTS["osmo-bts (WASM)"]
-      TRX["osmo-trx (WASM, modified)<br/>WebSocket transport + JS API"]
+      BTS["osmo-bts (WASM, modified)<br/>WebSocket transport + JS API"]
+      TRX["osmo-trx (WASM, modified)<br/>JS API"]
       BTS <--> TRX
     end
 
@@ -26,7 +30,7 @@ flowchart LR
 
     subgraph OSMOWEB_BE["osmoweb backend<br/>(NestJS microservices)"]
       BTSAPI["BTS settings service<br/>(REST API)"]
-      RTS["Runtime transport service<br/>(WebSocket ⇄ UDP)"]
+      RTS["Runtime transport service<br/>(WebSocket ⇄ UDP / TCP)"]
       VTYCTL["Osmocom control service<br/>(VTY)"]
       VTYSTAT["Osmocom stats service<br/>(VTY)"]
       TSDBS["Stats storage service<br/>(planned: InfluxDB)"]
@@ -42,13 +46,18 @@ flowchart LR
       BSC["osmo-bsc"]
     end
 
-    RTS <--> |"UDP (configurable IP/port)"| OSMO
-    VTYCTL <--> |"VTY (telnet)"| OSMO
+    RTS <--> |"TCP (OML/RSL)"| BSC
+    RTS <--> |"TCP (control/status)"| BSC
+    RTS <--> |"TCP (control/status)"| HLR
+    RTS <--> |"UDP (Osmux media)"| MGW
+
+    VTYCTL <--> |"VTY (telnet)"| BSC
     VTYSTAT <--> |"VTY (telnet)"| OSMO
     VTYSTAT --> |"metrics/events (planned)"| TSDBS
   end
 
-  TRX <--> |"WebSocket<br/>(binary + text)"| RTS
+  BTS <--> |"WebSocket<br/>binary: OML/RSL (+ media)<br/>text: BSC/HLR control (+ media)"| RTS
+
   UI <--> |"REST"| AUTH
   AUTH <--> UDB
   BTSUI <--> |"REST"| BTSAPI

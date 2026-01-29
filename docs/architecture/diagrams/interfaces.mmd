@@ -1,3 +1,7 @@
+---
+config:
+  layout: elk
+---
 flowchart TB
   subgraph Browser["Browser"]
     subgraph WSDR_FE["websdr (shared)"]
@@ -9,9 +13,9 @@ flowchart TB
     end
 
     subgraph OSMOWEB_FE["osmoweb (osmo-specific)"]
+      BTS["osmo-bts (WASM, modified)"]
+      TRX["osmo-trx (WASM, modified)"]
       BTSUI["BTS config panel<br/>(Vue3 component)"]
-      TRX["osmo-trx (WASM)"]
-      BTS["osmo-bts (WASM)"]
       BTS <--> TRX
       WCORE <--> TRX
     end
@@ -25,7 +29,7 @@ flowchart TB
 
     subgraph OSMOWEB_BE["osmoweb backend"]
       BTSAPI["BTS settings<br/>(REST)"]
-      RTS["Runtime transport<br/>(WebSocket ⇄ UDP)"]
+      RTS["Runtime transport<br/>(WebSocket ⇄ UDP / TCP)"]
       VTYCTL["Osmocom control<br/>(VTY)"]
       VTYSTAT["Osmocom stats<br/>(VTY)"]
       TSDBS["InfluxDB (planned)"]
@@ -45,14 +49,18 @@ flowchart TB
   WS_BIN["WebSocket (binary)<br/>Osmocom traffic"]
   WS_TXT["WebSocket (text)<br/>Control / params"]
   UDP["UDP<br/>(configurable IP/port)"]
+  TCP["TCP<br/>(configurable IP/port)"]
   VTY["VTY (telnet)"]
 
-  TRX --> WS_BIN --> RTS
-  TRX --> WS_TXT --> RTS
+  BTS <--> WS_BIN <--> RTS
+  BTS <--> WS_TXT <--> RTS
 
-  RTS --> UDP --> OSMO
-  VTYCTL --> VTY --> OSMO
-  VTYSTAT --> VTY --> OSMO
+  RTS <--> TCP <--> BSC
+  RTS <--> TCP <--> HLR
+  RTS <--> UDP <--> MGW
+
+  VTYCTL <--> VTY <--> OSMO
+  VTYSTAT <--> VTY <--> OSMO
 
   UI <--> |"REST"| AUTH
   AUTH <--> UDB

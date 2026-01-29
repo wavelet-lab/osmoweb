@@ -1,64 +1,94 @@
+---
+config:
+  layout: elk
+---
 sequenceDiagram
   participant SDR as SDR device
   participant UI as Frontend UI
   participant FEC as frontend-core
+  participant BTS as osmo-bts (WASM)
   participant TRX as osmo-trx (WASM)
 
   participant AUTH as Auth service (NestJS)
   participant BTSAPI as BTS settings (REST) (NestJS)
 
-  participant RTS as Runtime transport (NestJS)<br/>(WebSocket ⇄ UDP)
+  participant WSGW as WebSocket gateway (NestJS)<br/>(multiple endpoints)
   participant VTYCTL as Osmocom control (NestJS)<br/>(VTY)
   participant VTYSTAT as Osmocom stats (NestJS)<br/>(VTY)
   participant TSDBS as Stats storage (planned)<br/>(InfluxDB)
 
   participant BSC as osmo-bsc
-  participant MSC as osmo-msc
   participant HLR as osmo-hlr
   participant MGW as osmo-mgw
+  participant MSC as osmo-msc
   participant STP as osmo-stp
 
+  %% Local device plane
   UI->>FEC: Select/configure SDR
-  FEC->>SDR: WebUSB<br/>open / control
+  FEC->>TRX: Init device pipeline
+  TRX->>SDR: WebUSB<br/>open / control
 
+  %% App/API plane
   UI->>AUTH: REST<br/>login / token
   UI->>BTSAPI: REST<br/>read/update BTS settings
+  BTSAPI->>VTYCTL: apply config
+  VTYCTL-->>BTSAPI: status / result
 
-  UI->>TRX: Control via JS API
-  TRX->>RTS: WebSocket (text)<br/>control / config
-  TRX->>RTS: WebSocket (binary)<br/>osmocom runtime traffic
+  %% Local BTS/TRX integration
+  UI->>BTS: Start/stop, runtime params
+  BTS->>TRX: Local API<br/>IQ / bursts / timing
+  TRX-->>BTS: IQ / bursts / timing
 
-  par Runtime data plane (UDP)
-    RTS->>BSC: UDP (configured IP/port)
-  and
-    RTS->>MSC: UDP (configured IP/port)
-  and
-    RTS->>HLR: UDP (configured IP/port)
-  and
-    RTS->>MGW: UDP (configured IP/port)
-  and
-    RTS->>STP: UDP (configured IP/port)
-  end
+  %% /wsdr/osmo/abis_oml (binary) -> TCP OML
+  BTS->>WSGW: WebSocket (binary)<br/>/wsdr/osmo/abis_oml
+  WSGW->>BSC: TCP<br/>OML
+  BSC-->>WSGW: TCP<br/>OML response
+  WSGW-->>BTS: WebSocket (binary)<br/>OML response
 
-  par Runtime responses
-    BSC-->>RTS: UDP responses/data
-  and
-    MSC-->>RTS: UDP responses/data
-  and
-    HLR-->>RTS: UDP responses/data
-  and
-    MGW-->>RTS: UDP responses/data
-  and
-    STP-->>RTS: UDP responses/data
-  end
+  %% /wsdr/osmo/abis_rsl (binary) -> TCP RSL
+  BTS->>WSGW: WebSocket (binary)<br/>/wsdr/osmo/abis_rsl
+  WSGW->>BSC: TCP<br/>RSL
+  BSC-->>WSGW: TCP<br/>RSL response
+  WSGW-->>BTS: WebSocket (binary)<br/>RSL response
 
-  RTS-->>TRX: WebSocket frames<br/>(binary/text)
-  TRX-->>UI: Callbacks / state / events
+  %% /wsdr/osmo/control (text) -> TCP control/status for BSC + HLR
+  BTS->>WSGW: WebSocket (text)<br/>/wsdr/osmo/control
+  WSGW->>BSC: TCP<br/>control/status
+  BSC-->>WSGW: TCP<br/>status
+  WSGW-->>BTS: WebSocket (text)<br/>status
 
-  par Operations plane (VTY)
+  BTS->>WSGW: WebSocket (text)<br/>/wsdr/osmo/control
+  WSGW->>HLR: TCP<br/>control/status
+  HLR-->>WSGW: TCP<br/>status
+  WSGW-->>BTS: WebSocket (text)<br/>status
+
+  %% /wsdr/osmo/media (binary) -> UDP Osmux media
+  BTS->>WSGW: WebSocket (binary)<br/>/wsdr/osmo/media
+  WSGW->>MGW: UDP<br/>Osmux media
+  MGW-->>WSGW: UDP<br/>Osmux media
+  WSGW-->>BTS: WebSocket (binary)<br/>Osmux media
+
+  note over BTS,WSGW: /wsdr/osmo/media may also use WebSocket text frames<br/>depending on implementation
+
+  %% Core network context (native links)
+  MSC->>MGW: MGCP control
+  MGW-->>MSC: MGCP response
+  STP->>MSC: signaling
+  MSC-->>STP: signaling response
+  HLR->>MSC: subscriber/auth
+  MSC-->>HLR: subscriber/auth response
+
+  %% Operations plane (VTY)
+  par Control (VTY)
     VTYCTL->>BSC: VTY (telnet)<br/>configure / control
-  and
+    BSC-->>VTYCTL: VTY reply
+    VTYCTL->>HLR: VTY (telnet)<br/>configure / control
+    HLR-->>VTYCTL: VTY reply
+  and Statistics (VTY)
     VTYSTAT->>BSC: VTY (telnet)<br/>read stats/state
+    BSC-->>VTYSTAT: VTY reply
+    VTYSTAT->>HLR: VTY (telnet)<br/>read stats/state
+    HLR-->>VTYSTAT: VTY reply
   end
 
   VTYSTAT-->>TSDBS: metrics/events (planned)

@@ -22,7 +22,8 @@ The platform consists of two major parts:
 * **Client-side frontend** (Browser)
 * **Server-side backend** (Linux)
 
-The frontend runs `osmo-bts` and a modified `osmo-trx` compiled to WebAssembly inside the user’s browser, and interfaces with a locally attached SDR via **WebUSB**.
+The browser-based runtime consists of `osmo-bts` compiled to WebAssembly, which communicates with the backend via **WebSocket**.
+`osmo-trx` is also compiled to WebAssembly and runs locally in the browser, interfacing directly with the SDR device via **WebUSB** and exposing a local API to `osmo-bts`.
 
 Because browsers cannot use raw UDP sockets, the backend provides a **WebSocket ⇄ UDP bridge** so that browser-based components can communicate with unmodified native Osmocom services.
 
@@ -165,6 +166,24 @@ Planned:
 | Bridge → Osmocom                | UDP                      | Native Osmocom runtime communication |
 | Backend control/stats → Osmocom | VTY (telnet)             | Operations: control & statistics     |
 | Stats storage (planned)         | Ingestion protocol (TBD) | Persist metrics/events to TSDB       |
+
+### 4.4 Gateway transport mapping
+
+The browser-facing gateway uses a single WebSocket connection with **binary** and **text** frames.  
+At the backend, the gateway translates these logical channels into native transports towards Osmocom services:
+
+| Logical interface | What is carried | Backend-side transport | Browser ↔ gateway framing |
+|---|---|---|---|
+| **HLR** | Subscriber data access, authentication requests, subscriber state queries | TCP | WebSocket **text** |
+| **BSC (control/status)** | Network control, state queries, configuration and operational commands | TCP | WebSocket **text** |
+| **RSL** | Radio Signalling Link: channel activation, paging, measurement reports, radio resource control | TCP | WebSocket **binary** |
+| **OML** | Operation & Maintenance: BTS configuration, supervision, alarms, lifecycle control | TCP | WebSocket **binary** |
+| **Media (Osmux)** | Voice user-plane traffic (multiplexed voice frames) | UDP | WebSocket **binary** (and text where applicable) |
+
+Notes:
+- Each GSM interface is mapped to a dedicated WebSocket endpoint between the browser-based BTS and the backend gateway.
+- “WebSocket text/binary” refers to the WebSocket frame type used by the gateway, not to GSM protocol semantics.
+- The gateway translates WebSocket-framed traffic into native TCP or UDP connections expected by Osmocom services.
 
 ---
 

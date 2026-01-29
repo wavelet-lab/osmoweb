@@ -1,14 +1,20 @@
+---
+config:
+  layout: elk
+---
 flowchart TB
   %% Comparison of voice transport options
 
   subgraph Browser["Client (Browser)"]
-    TRX["osmo-trx (WASM)"]
-    BTS["osmo-bts (WASM)"]
-    TRX --- BTS
+    TRX["osmo-trx (WASM, modified)"]
+    BTS["osmo-bts (WASM, modified)"]
+    SDR["SDR device"]
+    TRX <--> BTS
+    TRX <--> |"WebUSB"| SDR
   end
 
   subgraph Backend["Backend (NestJS microservices)"]
-    RTS["Runtime transport<br/>(WebSocket ⇄ UDP)"]
+    RTS["Runtime transport<br/>(WebSocket ⇄ UDP / TCP)"]
   end
 
   subgraph Osmocom["Native Osmocom services"]
@@ -33,7 +39,7 @@ flowchart TB
     B1["Single Osmux stream<br/>(multiplexed voice)"]
   end
 
-  TRX <--> |"WebSocket"| RTS
+  BTS <--> |"WebSocket"| RTS
 
   %% show both possibilities from RTS into Osmocom side
   RTS <--> |"UDP/RTP (many flows)"| A1
