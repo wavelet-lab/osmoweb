@@ -168,7 +168,72 @@ Planned:
 
 ---
 
-## 5. Design Principles
+## 5 Voice / Audio Transport (Engineering Rationale)
+
+Osmocom supports two user-plane transport mechanisms for voice traffic:
+
+- **RTP (Real-time Transport Protocol)** — a classical VoIP user-plane where each call leg is transported as a separate RTP flow over UDP.
+- **Osmux (Osmocom Multiplexing Protocol)** — a purpose-built Osmocom protocol that multiplexes multiple voice channels into a single UDP flow to reduce overhead and simplify transport.
+
+### 5.1 RTP vs Osmux — Comparison
+
+| Aspect | RTP (classic) | Osmux (chosen) |
+|------|---------------|----------------|
+| Transport model | One RTP flow per call leg | Single multiplexed stream |
+| Number of UDP flows | Grows with number of calls | Constant (one stream) |
+| WebSocket tunneling | Complex (many parallel flows) | Simple (single stream) |
+| Per-packet overhead | High (IP + UDP + RTP headers) | Lower (multiplexed payloads) |
+| Browser friendliness | Poor | Good |
+| Alignment with Osmocom | Indirect (VoIP-centric) | Native Osmocom protocol |
+| Suitability for OsmoWeb | ❌ Not ideal | ✅ Best fit |
+
+### 5.2 Engineering considerations in a browser-based deployment
+
+In OsmoWeb, the BTS/TRX runtime executes inside a web browser and communicates with the backend exclusively via **WebSocket**. This imposes several practical constraints that strongly influence the choice of voice transport:
+
+1. **Number of transport flows**
+
+   - RTP requires **one UDP flow per call leg** (and often per direction), which translates into multiple independent RTP streams.
+   - In a browser environment, tunneling multiple RTP streams would require:
+     - multiple logical channels,
+     - additional demultiplexing logic,
+     - more complex state management on the WebSocket bridge.
+
+   Osmux, by contrast, aggregates all active voice channels into **a single multiplexed stream**, which maps naturally onto a single WebSocket connection.
+
+2. **WebSocket tunneling complexity**
+
+   - WebSocket is a message-oriented, connection-oriented transport.
+   - Mapping many short-lived or parallel RTP flows onto WebSocket increases:
+     - protocol complexity,
+     - buffering requirements,
+     - error-handling surface.
+
+   Osmux was explicitly designed to carry multiple voice streams within one transport flow, making it **significantly easier to encapsulate over WebSocket** without introducing additional framing layers.
+
+3. **Overhead and efficiency**
+
+   - RTP adds per-packet overhead (IP/UDP/RTP headers) for every voice frame.
+   - Osmux reduces this overhead by multiplexing multiple channels and batching payloads, which is especially relevant when voice traffic is forwarded through an additional tunneling layer (WebSocket).
+
+4. **Alignment with Osmocom architecture**
+
+   - Osmux is a native Osmocom user-plane protocol and is directly supported by Osmocom components such as BSC and MGW.
+   - Using Osmux avoids introducing a parallel VoIP-centric architecture (SIP/RTP) into a system that is otherwise fully Osmocom-native.
+
+### 5.3 Chosen approach
+
+For these reasons, **OsmoWeb uses Osmux as the voice user-plane protocol**, transported as part of the binary WebSocket stream between the browser-based BTS/TRX and the backend runtime transport service.
+
+This choice minimizes transport complexity, reduces the number of concurrent flows, and aligns naturally with both the browser execution environment and the existing Osmocom architecture.
+
+See diagrams:
+- ![Voice Compare](diagrams/voice-compare.svg)
+- ![Voice Osmux](diagrams/voice-osmux.svg)
+
+---
+
+## 6. Design Principles
 
 * **Browser compatibility**: WebSocket is used instead of UDP; SDR access is via WebUSB
 * **Backend compatibility**: native Osmocom services remain unmodified
@@ -181,7 +246,7 @@ Planned:
 
 ---
 
-## 6. Diagrams
+## 7. Diagrams
 
 ### Legend / Notation
 
@@ -201,7 +266,7 @@ Planned:
 
 ---
 
-## 7. Summary
+## 8. Summary
 
 This architecture enables a browser-native GSM BTS/TRX runtime using WebAssembly with SDR access via WebUSB, while preserving compatibility with native Osmocom services.
 

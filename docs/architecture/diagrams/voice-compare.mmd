@@ -1,0 +1,49 @@
+flowchart TB
+  %% Comparison of voice transport options
+
+  subgraph Browser["Client (Browser)"]
+    TRX["osmo-trx (WASM)"]
+    BTS["osmo-bts (WASM)"]
+    TRX --- BTS
+  end
+
+  subgraph Backend["Backend (NestJS microservices)"]
+    RTS["Runtime transport<br/>(WebSocket ⇄ UDP)"]
+  end
+
+  subgraph Osmocom["Native Osmocom services"]
+    BSC["osmo-bsc"]
+    MGW["osmo-mgw"]
+    MSC["osmo-msc"]
+  end
+
+  subgraph External["External SIP/VoIP (optional)"]
+    SIPGW["SIP integration<br/>(e.g., osmo-sip-connector)"]
+    TRUNK["SIP trunk / PBX"]
+    SIPGW <--> |"SIP signaling"| TRUNK
+  end
+
+  %% Option A: RTP (classic)
+  subgraph A["Option A: RTP user-plane (classic)"]
+    A1["Many RTP streams<br/>(one per call leg)"]
+  end
+
+  %% Option B: Osmux
+  subgraph B["Option B: Osmux user-plane (multiplexed)"]
+    B1["Single Osmux stream<br/>(multiplexed voice)"]
+  end
+
+  TRX <--> |"WebSocket"| RTS
+
+  %% show both possibilities from RTS into Osmocom side
+  RTS <--> |"UDP/RTP (many flows)"| A1
+  A1 <--> |"RTP"| MGW
+
+  RTS <--> |"UDP/Osmux (single flow)"| B1
+  B1 <--> |"Osmux"| MGW
+
+  MSC <--> |"MGCP control"| MGW
+  BSC <--> |"MGCP control"| MGW
+
+  %% external SIP note (signaling)
+  MSC <--> |"MNCC / call control"| SIPGW

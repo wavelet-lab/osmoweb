@@ -28,7 +28,7 @@ The architecture documentation intentionally focuses on **production deployment 
 
 ## Entry Points
 
-* **`architecture/overview.md`** — High‑level production architecture description
+* [**`architecture/overview.md`**](architecture/overview.md) — High‑level production architecture description
 * **`architecture/diagrams/`** — diagrams, data flows, and interface definitions
 
 ---

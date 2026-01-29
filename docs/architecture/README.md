@@ -12,7 +12,7 @@ The documentation intentionally focuses on **production deployment only**. Devel
 
 Start with:
 
-* **`overview.md`** — High‑level architecture description
+* [**`overview.md`**](overview.md) — High‑level architecture description
 
   * System goals and design rationale
   * Server‑side and client‑side components
@@ -32,6 +32,8 @@ All diagrams are stored in the `diagrams/` subdirectory:
 * **Runtime Data Flow** — message flow during normal operation
 * **Interfaces & Protocols** — transport and API boundaries
 * **Legend / Notation** — diagram conventions and protocol labels
+* **Voice transport comparison** — RTP vs Osmux
+* **Voice over Osmux** — chosen approach in OsmoWeb
 
 Diagram sources are written in **Mermaid (`.mmd`)** and rendered to **SVG** for stable display in GitHub and other Markdown renderers.
 
@@ -42,6 +44,8 @@ diagrams/
   dataflow.mmd           → dataflow.svg
   interfaces.mmd         → interfaces.svg
   legend.mmd             → legend.svg
+  voice-compare.mmd      → voice-compare.svg
+  voice-osmux.mmd        → voice-osmux.svg
 ```
 
 SVG files are the authoritative rendered artifacts; Mermaid files are the editable sources.
