@@ -8,11 +8,9 @@ Documentation is organized by topic (architecture, operations, development, etc.
 
 ## Related Repositories
 
-- **websdr** — shared web platform providing WebUSB access, user management, authentication, utilities, and reusable UI components.  
-  https://github.com/wavelet-lab/websdr
+- **[websdr](https://github.com/wavelet-lab/websdr)** — shared web platform providing [WebUSB](https://developer.mozilla.org/en-US/docs/Web/API/WebUSB_API) access, user management, authentication, utilities, and reusable UI components.
 
-- **osmoweb** — Osmocom-specific platform implementing browser-based BTS/TRX execution, runtime transport (WebSocket ⇄ UDP), and Osmocom control/statistics.  
-  https://github.com/wavelet-lab/osmoweb
+- **[osmoweb](https://github.com/wavelet-lab/osmoweb)** — [Osmocom](https://osmocom.org/)-specific platform implementing browser-based BTS/TRX execution, runtime transport ([WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) ⇄ TCP/UDP), and Osmocom control/statistics.
 
 ---
 
@@ -20,7 +18,7 @@ Documentation is organized by topic (architecture, operations, development, etc.
 
 The [`architecture/`](architecture/README.md) subdirectory contains the **production architecture documentation** for the OsmoWeb platform.
 
-Its goal is to explain **how the system is structured at runtime**, how browser‑based GSM components interact with native Osmocom services, and where protocol and responsibility boundaries are defined.
+Its goal is to explain **how the system is structured at runtime**, how browser‑based GSM components interact with native [Osmocom](https://osmocom.org/) services, and where protocol and responsibility boundaries are defined.
 
 The architecture documentation intentionally focuses on **production deployment only**. Development, testing, and operational tooling are described elsewhere and are not part of the runtime architecture overview.
 
@@ -35,7 +33,7 @@ The architecture documentation intentionally focuses on **production deployment 
 
 ## Diagram Rendering (Mermaid)
 
-Architecture diagrams are written in **Mermaid (`.mmd`)** and rendered to **SVG** for stable display in GitHub.
+Architecture diagrams are written in **[Mermaid](https://mermaid.js.org/) (`.mmd`)** and rendered to **SVG** for stable display in GitHub.
 
 SVG files are the authoritative rendered artifacts; Mermaid files are the editable sources.
 
@@ -58,8 +56,8 @@ On Ubuntu 23.10+, `mmdc` may fail with a Chromium sandbox error. If that happens
 **In scope:**
 
 * Production runtime architecture
-* Browser‑based BTS/TRX execution using WebAssembly
-* Integration with native Osmocom services
+* Browser‑based BTS/TRX execution using [WebAssembly](https://developer.mozilla.org/en-US/docs/WebAssembly)
+* Integration with native [Osmocom](https://osmocom.org/) services
 
 **Out of scope:**
 

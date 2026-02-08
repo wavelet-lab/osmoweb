@@ -2,7 +2,7 @@
 
 This directory contains the **production architecture documentation** for the OsmoWeb platform.
 
-The goal of these documents is to explain **how the system is structured at runtime**, how browser‑based GSM components interact with native Osmocom services, and where protocol and responsibility boundaries are defined.
+The goal of these documents is to explain **how the system is structured at runtime**, how browser‑based GSM components interact with native [Osmocom](https://osmocom.org/) services, and where protocol and responsibility boundaries are defined.
 
 The documentation intentionally focuses on **production deployment only**. Development, testing, and operational tooling are described elsewhere and are not part of the runtime architecture overview.
 
@@ -16,7 +16,7 @@ Start with:
 
   * System goals and design rationale
   * Server‑side and client‑side components
-  * WebSocket ⇄ TCP/UDP bridging model
+  * [WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) ⇄ TCP/UDP bridging model
   * Communication flows and protocol boundaries
 
 This document is intended to be read top‑to‑bottom and provides the conceptual model for the entire platform.
@@ -32,13 +32,13 @@ All diagrams are stored in the `diagrams/` subdirectory:
 * **Runtime Data Flow** — message flow during normal operation
 * **Interfaces & Protocols** — transport and API boundaries
 * **Legend / Notation** — diagram conventions and protocol labels
-* **Voice transport comparison** — RTP vs Osmux
+* **Voice transport comparison** — [RTP](https://datatracker.ietf.org/doc/html/rfc3550) vs [Osmux](https://osmocom.org/projects/osmux/wiki)
 * **Voice over Osmux** — chosen approach in OsmoWeb
 * **Classic Osmocom topology** — reference hierarchical model (MSC → BSC → BTS)
 * **Current OsmoWeb topology** — single backend BSC with multiple browser-based BTS instances
 * **Target topology (multi-BSC)** — region-aware, scalable topology with multiple BSC instances
 
-Diagram sources are written in **Mermaid (`.mmd`)** and rendered to **SVG** for stable display in GitHub and other Markdown renderers.
+Diagram sources are written in **[Mermaid](https://mermaid.js.org/) (`.mmd`)** and rendered to **SVG** for stable display in GitHub and other Markdown renderers.
 
 ```
 diagrams/
@@ -63,8 +63,8 @@ SVG files are the authoritative rendered artifacts; Mermaid files are the editab
 **In scope:**
 
 * Production runtime architecture
-* Browser‑based BTS/TRX execution using WebAssembly
-* Integration with native Osmocom services
+* Browser‑based BTS/TRX execution using [WebAssembly](https://developer.mozilla.org/en-US/docs/WebAssembly)
+* Integration with native [Osmocom](https://osmocom.org/) services
 * Transport adaptation via WebSocket ⇄ TCP/UDP bridging
 
 **Out of scope:**
