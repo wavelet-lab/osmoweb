@@ -1,0 +1,38 @@
+---
+config:
+  layout: elk
+---
+flowchart TB
+  subgraph Browser["Client (Browser)"]
+    SDR["SDR device"]
+    FEC["frontend-core"]
+    UI["Frontend UI"]
+    BTS["osmo-bts (WASM, modified)"]
+    TRX["osmo-trx (WASM, modified)"]
+
+    UI --- FEC
+    FEC <--> |"WebUSB"| SDR
+    BTS <--> TRX
+    FEC <--> TRX
+  end
+
+  subgraph Backend["Backend (Linux)"]
+    RTS["Runtime transport svc (NestJS)<br/>(uses backend-core)"]
+    CORE["backend-core<br/>WebSocket ⇄ TCP/UDP bridge"]
+  end
+
+  subgraph OSMO["Native Osmocom services"]
+    STP["osmo-stp"]
+    HLR["osmo-hlr"]
+    MGW["osmo-mgw"]
+    MSC["osmo-msc"]
+    BSC["osmo-bsc"]
+  end
+
+  BTS <--> |"WebSocket<br/>binary: OML/RSL (+ media)<br/>text: BSC/HLR control (+ media)"| RTS
+  RTS --> CORE
+
+  CORE <--> |"TCP (OML/RSL) (configurable IP/port)"| BSC
+  CORE <--> |"TCP (control/status) (configurable IP/port)"| BSC
+  CORE <--> |"TCP (control/status) (configurable IP/port)"| HLR
+  CORE <--> |"UDP (Osmux media) (configurable IP/port)"| MGW

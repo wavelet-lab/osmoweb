@@ -1,0 +1,69 @@
+---
+config:
+  layout: elk
+---
+flowchart TB
+  subgraph Browser["Browser"]
+    subgraph WSDR_FE["websdr (shared)"]
+      UI["Shared UI"]
+      WCORE["Shared frontend layer<br/>(WebUSB + users/auth)"]
+      SDR["SDR device"]
+      UI --- WCORE
+      WCORE <--> |"WebUSB"| SDR
+    end
+
+    subgraph OSMOWEB_FE["osmoweb (osmo-specific)"]
+      BTS["osmo-bts (WASM, modified)"]
+      TRX["osmo-trx (WASM, modified)"]
+      BTSUI["BTS config panel<br/>(Vue3 component)"]
+      BTS <--> TRX
+      WCORE <--> TRX
+    end
+  end
+
+  subgraph Backend["Backend (NestJS microservices)"]
+    subgraph WSDR_BE["websdr backend"]
+      UDB["User DB"]
+      AUTH["Auth"]
+    end
+
+    subgraph OSMOWEB_BE["osmoweb backend"]
+      BTSAPI["BTS settings<br/>(REST)"]
+      RTS["Runtime transport<br/>(WebSocket ⇄ TCP/UDP)"]
+      VTYCTL["Osmocom control<br/>(VTY)"]
+      VTYSTAT["Osmocom stats<br/>(VTY)"]
+      TSDBS["InfluxDB (planned)"]
+
+      BTSAPI <--> |"apply config / status"| VTYCTL
+    end
+  end
+
+  subgraph OSMO["Native Osmocom services"]
+    STP["osmo-stp"]
+    HLR["osmo-hlr"]
+    MGW["osmo-mgw"]
+    MSC["osmo-msc"]
+    BSC["osmo-bsc"]
+  end
+
+  WS_BIN["WebSocket (binary)<br/>Osmocom traffic"]
+  WS_TXT["WebSocket (text)<br/>Control / params"]
+  UDP["UDP<br/>(configurable IP/port)"]
+  TCP["TCP<br/>(configurable IP/port)"]
+  VTY["VTY (telnet)"]
+
+  BTS <--> WS_BIN <--> RTS
+  BTS <--> WS_TXT <--> RTS
+
+  RTS <--> TCP <--> BSC
+  RTS <--> TCP <--> HLR
+  RTS <--> UDP <--> MGW
+
+  VTYCTL <--> VTY <--> OSMO
+  VTYSTAT <--> VTY <--> OSMO
+
+  UI <--> |"REST"| AUTH
+  AUTH <--> UDB
+  BTSUI <--> |"REST"| BTSAPI
+
+  VTYSTAT --> |"metrics/events (planned)"| TSDBS

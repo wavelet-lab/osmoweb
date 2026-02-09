@@ -1,0 +1,51 @@
+---
+config:
+  layout: elk
+---
+flowchart TB
+  subgraph Backend_B["Backend (Linux) (region B)"]
+      RTS_B["Runtime transport service<br/>(WebSocket ⇄ TCP/UDP)"]
+      BSC_B["osmo-bsc (region B)"]
+
+      RTS_B <--> BSC_B
+  end
+
+  subgraph Backend_A["Backend (Linux) (region A)"]
+      RTS_A["Runtime transport service<br/>(WebSocket ⇄ TCP/UDP)"]
+      BSC_A["osmo-bsc (region A)"]
+
+      RTS_A <--> BSC_A
+  end
+
+  subgraph MainBackend["Main Backend (Linux)"]
+    subgraph Core["Core network"]
+      MSC["osmo-msc"]
+      HLR["osmo-hlr"]
+      STP["osmo-stp"]
+      MGW["osmo-mgw"]
+
+      MSC <--> HLR
+      MSC <--> STP
+      MSC <--> MGW
+    end
+  end
+
+  subgraph ClientsB["Web clients (region B)"]
+    BTS_B1["osmo-bts (WASM)<br/>client B1"]
+    BTS_B2["osmo-bts (WASM)<br/>client B2"]
+  end
+
+  subgraph ClientsA["Web clients (region A)"]
+    BTS_A1["osmo-bts (WASM)<br/>client A1"]
+    BTS_A2["osmo-bts (WASM)<br/>client A2"]
+  end
+
+  BSC_B <--> MSC
+  BSC_A <--> MSC
+
+  BTS_A1 <--> RTS_A
+  BTS_A2 <--> RTS_A
+
+  BTS_B1 <--> RTS_B
+  BTS_B2 <--> RTS_B
+

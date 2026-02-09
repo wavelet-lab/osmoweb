@@ -1,0 +1,39 @@
+---
+config:
+  layout: elk
+---
+flowchart TB
+  subgraph Backend["Backend (Linux)"]
+    subgraph OSMOWEB_BE["osmoweb backend<br/>(NestJS microservices)"]
+      RTS["Runtime transport service<br/>(WebSocket ⇄ TCP/UDP)"]
+    end
+
+    subgraph Single["Single backend"]
+      BSC["osmo-bsc (single instance)"]
+    end
+    
+    subgraph Core["Core network"]
+      MSC["osmo-msc"]
+      HLR["osmo-hlr"]
+      STP["osmo-stp"]
+      MGW["osmo-mgw"]
+
+      MSC <--> HLR
+      MSC <--> STP
+      MSC <--> MGW
+    end
+      
+    RTS <--> BSC 
+
+    BSC <--> MSC
+  end
+
+  subgraph Clients["Web clients (multiple)"]
+    BTS1["osmo-bts (WASM)<br/>client #1"]
+    BTS2["osmo-bts (WASM)<br/>client #2"]
+    BTS3["osmo-bts (WASM)<br/>client #N"]
+  end
+
+  BTS3 <--> RTS
+  BTS2 <--> RTS
+  BTS1 <--> RTS

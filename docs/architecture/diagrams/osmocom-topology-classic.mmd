@@ -1,0 +1,21 @@
+---
+config:
+  layout: elk
+---
+flowchart TB
+  BTS1["osmo-bts (site A1)"]
+  BTS2["osmo-bts (site A2)"]
+  BTS3["osmo-bts (site B1)"]
+  BTS4["osmo-bts (site B2)"]
+  BSC1["osmo-bsc (region A)"]
+  BSC2["osmo-bsc (region B)"]
+  MSC["osmo-msc"]
+
+  BTS1 <--> BSC1
+  BTS2 <--> BSC1
+
+  BTS3 <--> BSC2
+  BTS4 <--> BSC2
+
+  BSC1 <--> MSC
+  BSC2 <--> MSC
