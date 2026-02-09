@@ -1,0 +1,30 @@
+---
+config:
+  layout: elk
+---
+flowchart TB
+  subgraph Browser["Client (Browser)"]
+    TRX["osmo-trx (WASM, modified)"]
+    BTS["osmo-bts (WASM, modified)"]
+    SDR["SDR device"]
+    TRX <--> BTS
+    TRX <--> |"WebUSB"| SDR
+  end
+
+  subgraph Backend["Backend<br/>(NestJS microservices)"]
+    DUMMY(" ")
+    RTS["Runtime transport<br/>(WebSocket ⇄ TCP/UDP)"]
+    style DUMMY fill:transparent,stroke:transparent
+  end
+
+  subgraph Osmocom["Native Osmocom services"]
+    MGW["osmo-mgw"]
+    MSC["osmo-msc"]
+    BSC["osmo-bsc"]
+  end
+
+  BTS <--> |"WebSocket (binary)<br/>incl. Osmux user-plane"| RTS
+  RTS <--> |"UDP/Osmux (single flow)"| MGW
+
+  MSC <--> |"MGCP control"| MGW
+  BSC <--> |"MGCP control"| MGW
