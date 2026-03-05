@@ -51,22 +51,6 @@ export class BscController extends OsmoBaseController {
         super(host, vtyPort, debug);
     }
 
-    private parseRateCounters(output: string): Record<string, number> {
-        const result: Record<string, number> = {};
-        for (const raw of output.split('\n')) {
-            const line = raw.trim();
-            if (!line) continue;
-            // name: value OR name = value
-            const m = line.match(/^(.+?)[\s:=]+([0-9]+)\s*$/);
-            if (m && m[1] && m[2]) {
-                const name = m[1].trim();
-                const val = parseInt(m[2], 10);
-                if (!isNaN(val)) result[name] = val;
-            }
-        }
-        return result;
-    }
-
     private parseBts(output: string): {
         btsCount: number;
         connectedBts: number;

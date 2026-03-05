@@ -1,0 +1,21 @@
+groups:
+  - name: osmo-bsc.rules
+    rules:
+      - alert: OsmoBSCDown
+        expr: up{job="osmo-bsc"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Osmo BSC down on {{ $labels.instance }}"
+          description: "Prometheus target for osmo-bsc (job=\"osmo-bsc\") is down for more than 1 minute."
+
+      # Example custom metric rule; replace `osmo_bsc_metric_errors_total` with a real metric
+      - alert: OsmoBSCHighErrorRate
+        expr: rate(osmo_bsc_metric_errors_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate on Osmo BSC"
+          description: "Error rate above threshold on osmo-bsc for 5 minutes."

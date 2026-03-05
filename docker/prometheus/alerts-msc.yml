@@ -1,0 +1,20 @@
+groups:
+  - name: osmo-msc.rules
+    rules:
+      - alert: OsmoMSCDown
+        expr: up{job="osmo-msc"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Osmo MSC down on {{ $labels.instance }}"
+          description: "Prometheus target for osmo-msc (job=\"osmo-msc\") is down for more than 1 minute."
+
+      - alert: OsmoMSCSignallingErrors
+        expr: rate(osmo_msc_signalling_errors_total[5m]) > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High signalling error rate on Osmo MSC"
+          description: "Signalling error rate high for osmo-msc; replace metric name with actual metric if needed."

@@ -1,0 +1,26 @@
+# Notes:
+# - The provisioning directory contains a datasource config that points to Prometheus
+#   at `http://prometheus:9090`. If Prometheus runs outside the same Docker network,
+#   change the URL in `provisioning/datasources/datasource.yml` to e.g. `http://host.docker.internal:9090` or
+#   `http://localhost:9090` depending on your setup.
+# - Default admin credentials are `admin`/`admin` (change in production).
+services:
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    # ports:
+    #   - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: "admin"
+      GF_SECURITY_ADMIN_PASSWORD: "admin"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_DASHBOARDS_MIN_REFRESH_INTERVAL: 1s
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ${GRAFANA_DIR:-.}/provisioning:/etc/grafana/provisioning:ro
+    network_mode: "host"
+
+volumes:
+  grafana-data:
+    driver: local

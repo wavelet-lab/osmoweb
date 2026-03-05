@@ -195,6 +195,9 @@ export class VtyClient extends EventEmitter {
                 // Ignore any prompt lines until we saw echo or any non-prompt output
                 if (this._promptRegex.test(line)) return;
 
+                // Ignore empty lines while awaiting echo (stale responses from connect \r\n)
+                if (line.trim().length === 0) return;
+
                 // If line equals the echoed command -> switch to collecting output
                 if (line.trim() === this.pending.cmd.trim()) {
                     this.pending.awaitingEcho = false;
@@ -230,9 +233,18 @@ export class VtyClient extends EventEmitter {
 
     async connect(timeoutMs = 5000): Promise<void> {
         return new Promise((resolve, reject) => {
-            const onReady = () => { cleanup(); resolve(); };
-            const onErr = (e: Error) => { cleanup(); reject(e); };
-            const timer = setTimeout(() => { cleanup(); reject(new Error(`VTY connect timeout ${timeoutMs}ms`)); }, timeoutMs);
+            const onReady = () => {
+                cleanup();
+                resolve();
+            };
+            const onErr = (e: Error) => {
+                cleanup();
+                reject(e);
+            };
+            const timer = setTimeout(() => {
+                cleanup();
+                reject(new Error(`VTY connect timeout ${timeoutMs}ms`));
+            }, timeoutMs);
             const cleanup = () => {
                 clearTimeout(timer);
                 this.off('ready', onReady);
@@ -266,16 +278,20 @@ export class VtyClient extends EventEmitter {
      * This does NOT alter the state (enable/configure) of the main session.
      */
     async execView(command: string): Promise<{ output: string }> {
-        const client = new VtyClient(this._host, this._port, this._debug);
-        await client.connect(); // stay in non-enabled VIEW mode
-        try {
-            const res = await client.execChecked(command);
-            return { output: res?.output ?? '' };
-        } finally {
+        return new Promise(async (resolve, reject) => {
+            const client = new VtyClient(this._host, this._port, this._debug);
             try {
-                client.close();
-            } catch { /* ignore */ }
-        }
+                await client.connect(); // stay in non-enabled VIEW mode
+                const res = await client.execChecked(command);
+                resolve({ output: res?.output ?? '' });
+            } catch (err) {
+                reject(new Error(`VTY VIEW command "${command}" failed: ${err}`));
+            } finally {
+                try {
+                    client.close();
+                } catch { /* ignore */ }
+            }
+        });
     }
 
     // Precompiled VTY output error patterns
@@ -352,6 +368,8 @@ export class VtyClient extends EventEmitter {
     }
 
     close() {
-        try { this._socket.end(); } catch { /* ignore */ }
+        try {
+            this._socket.end();
+        } catch { /* ignore */ }
     }
 }
