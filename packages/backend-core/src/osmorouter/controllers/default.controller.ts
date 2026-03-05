@@ -1,8 +1,8 @@
 import { WebSocket } from 'ws';
 import { IncomingMessage } from 'http';
 import type { OsmoController } from '@/osmorouter/controllers/controller.type';
-import type { LoggerInterface } from '@osmoweb/core/utils';
-import { SimpleLogger } from '@osmoweb/core/utils';
+import type { LoggerInterface } from '@websdr/core/utils';
+import { SimpleLogger } from '@websdr/core/utils';
 
 export class DefaultController implements OsmoController {
   protected readonly logger: LoggerInterface;

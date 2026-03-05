@@ -29,7 +29,8 @@ export interface BtsConfigProps {
 <script setup lang="ts">
 import { reactive, computed, watch, onMounted } from 'vue';
 import { configureARFCN, getSupportedBands, getBandArfcnRange } from '@osmoweb/core/radio';
-import Dropdown, { type DropdownOptionProps } from './Dropdown.vue';
+import { Dropdown } from '@websdr/vue3-components';
+import type { DropdownOptionProps } from '@websdr/vue3-components';
 
 interface Emits {
     (e: 'submit', config: BtsParams): void;
@@ -100,8 +101,9 @@ const getFrequency = (arfcn: number): string => {
             band: btsParams.band as MobileBand
         });
         let freq = '';
-        if (config.downlinkFrequency) freq += `D ${(config.downlinkFrequency / 1000).toFixed(1)}`;
-        if (config.uplinkFrequency) freq += `${freq ? ' / ' : ''}U ${(config.uplinkFrequency / 1000).toFixed(1)}`;
+        const decimalPlaces = btsParams.technology === RadioTechnology.NR ? 3 : 1;
+        if (config.downlinkFrequency) freq += `D ${(config.downlinkFrequency / 1000).toFixed(decimalPlaces)}`;
+        if (config.uplinkFrequency) freq += `${freq ? ' / ' : ''}U ${(config.uplinkFrequency / 1000).toFixed(decimalPlaces)}`;
         return freq ? `(${freq} MHz)` : '';
     } catch { /* ignore */ }
 

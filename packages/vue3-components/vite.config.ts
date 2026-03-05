@@ -18,7 +18,7 @@ export default defineConfig({
             external: (id) => {
                 if (!id || typeof id !== 'string') return false
                 if (id === 'vue') return true
-                if (id.startsWith('@osmoweb/frontend-core')) return true
+                if (id.startsWith('@websdr/')) return true
                 return false
             },
             output: {

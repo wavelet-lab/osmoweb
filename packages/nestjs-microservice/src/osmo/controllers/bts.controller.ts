@@ -6,7 +6,7 @@ import { AuthGuard } from '@nestjs/passport';
 import type { OsmoParams } from '@osmoweb/backend-core';
 import { BscController, OsmoServices, osmoDefaultParams } from '@osmoweb/backend-core';
 import type { BscBtsConfig } from '@osmoweb/backend-core';
-import type { AuthRequest } from '@/auth/interfaces/auth-request.interface';
+import type { AuthRequest } from '@websdr/nestjs-microservice/auth';
 import { UpdateBtsDto } from '@/osmo/dto/update-bts.dto';
 import { BtsManager } from '@osmoweb/backend-core';
 import { OSMO_PARAMS } from '@/osmo/tokens';

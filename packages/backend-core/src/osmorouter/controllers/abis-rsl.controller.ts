@@ -3,8 +3,8 @@ import type { OsmoController } from '@/osmorouter/controllers/controller.type';
 import { OsmoTcpClient } from '@/osmorouter/osmotcp.client';
 import type { OsmoParams } from '@/osmorouter/lib/common.types';
 import { OsmoServices } from '@/osmorouter/lib/common.types';
-import type { LoggerInterface } from '@osmoweb/core/utils';
-import { SimpleLogger } from '@osmoweb/core/utils';
+import type { LoggerInterface } from '@websdr/core/utils';
+import { SimpleLogger } from '@websdr/core/utils';
 
 export class AbisRslController implements OsmoController {
     protected readonly logger: LoggerInterface;

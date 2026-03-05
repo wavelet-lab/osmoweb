@@ -1,10 +1,21 @@
 {
     "name": "@osmoweb/core",
-    "version": "1.0.0",
+    "version": "0.5.0",
     "description": "This is the core package for OsmoWeb",
-    "author": "Timur <dtv.comp@gmail.com>",
+    "author": "Timur Davydov <dtv.comp@gmail.com>",
     "license": "MIT",
-    "keywords": [],
+    "keywords": [
+        "osmo",
+        "frequency",
+        "arfcn",
+        "band",
+        "technology",
+        "GSM",
+        "UMTS",
+        "LTE",
+        "NR"
+    ],
+    "publishConfig": { "access": "public" },
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "type": "module",
@@ -13,6 +24,9 @@
         "test": "vitest run",
         "test:watch": "vitest",
         "test:coverage": "vitest run --coverage"
+    },
+    "dependencies": {
+        "@websdr/core": "^0.5.3"
     },
     "devDependencies": {
         "@types/node": "^25.0.10"
@@ -32,11 +46,6 @@
             "types": "./dist/radio/index.d.ts",
             "import": "./dist/radio/index.js",
             "require": "./dist/radio/index.js"
-        },
-        "./utils": {
-            "types": "./dist/utils/index.d.ts",
-            "import": "./dist/utils/index.js",
-            "require": "./dist/utils/index.js"
         }
     }
 }

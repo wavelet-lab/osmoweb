@@ -1,4 +1,4 @@
-import { apiFetch } from './api';
+import { apiFetch } from '@websdr/frontend-core/services';
 import type { BscBtsConfig, BscBtsInfo } from '@osmoweb/backend-core';
 /**
  * Fetch BTS info for the current user.

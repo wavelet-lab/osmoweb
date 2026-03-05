@@ -1,1 +1,1 @@
-export const OSMO_PARAMS = Symbol('OSMO_PARAMS');
+export const OSMO_PARAMS = Symbol.for('OSMO_PARAMS');

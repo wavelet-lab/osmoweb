@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { getJournalLogLevelFromOsmoLogLevel } from '@/osmo/osmoLogger';
-import { JournalLogLevel } from '@/utils/journal';
+import { JournalLogLevel } from '@websdr/core/utils';
 
 describe('Osmo Logging Utils', () => {
     describe('getJournalLogLevel', () => {

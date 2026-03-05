@@ -1,8 +1,8 @@
 {
     "name": "osmoweb",
-    "version": "1.0.0",
+    "version": "0.5.0",
     "description": "OsmoWeb package",
-    "author": "Timur <dtv.comp@gmail.com>",
+    "author": "Timur Davydov <dtv.comp@gmail.com>",
     "license": "MIT",
     "keywords": [
         "osmoweb",
@@ -16,10 +16,16 @@
         "communication",
         "basestation",
         "network",
+        "cellular",
         "telecommunications",
         "infrastructure",
+        "radio",
+        "websdr",
+        "webusb",
+        "wsdr",
         "wavelet"
     ],
+    "private": true,
     "type": "module",
     "workspaces": [
         "./packages/core",
