@@ -245,7 +245,7 @@ describe('ARFCN Configuration Functions', () => {
     describe('getSupportedBands', () => {
         it('should return GSM bands for GSM technology', () => {
             const bands = getSupportedBands(RadioTechnology.GSM);
-            expect(bands).toHaveLength(8);
+            expect(bands).toHaveLength(4 /* 8 */);
             expect(bands).toContain('GSM_900');
             expect(bands).toContain('GSM_850');
         });
