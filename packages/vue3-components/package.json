@@ -1,33 +1,48 @@
 {
     "name": "@osmoweb/vue3-components",
-    "version": "1.0.0",
+    "version": "0.5.0",
     "description": "This is a Vue 3 components package for OsmoWeb",
-    "author": "Timur <dtv.comp@gmail.com>",
+    "author": "Timur Davydov <dtv.comp@gmail.com>",
     "license": "MIT",
-    "keywords": [],
+    "keywords": [
+        "vue",
+        "vue3",
+        "components",
+        "osmo",
+        "BtsInput",
+        "BtsConfig",
+        "BTS",
+        "configuration"
+    ],
+    "publishConfig": {
+        "access": "public"
+    },
     "main": "dist/index.cjs.js",
     "module": "dist/index.es.js",
     "types": "dist/index.d.ts",
     "type": "module",
     "scripts": {
         "build": "vue-tsc && tsc-alias && tsc-esm-fix && vite build && npm run build:styles && npm run build:types",
-        "build:styles": "mkdir -p dist/styles && sass src/styles:dist/styles --no-source-map && cp -n src/styles/*.css dist/styles/ 2>/dev/null || true",
+        "build:styles": "node scripts/build-styles.js",
         "build:types": "vue-tsc --emitDeclarationOnly",
         "test": "vitest run",
-        "test:watch": "vitest"
+        "test:watch": "vitest",
+        "test:coverage": "vitest run --coverage"
     },
     "dependencies": {
-        "@osmoweb/core": "^1.0.0",
-        "vue": "^3.5.22"
+        "@osmoweb/core": "^0.5.0",
+        "@osmoweb/frontend-core": "^0.5.0",
+        "vue": "^3.5.29"
     },
     "devDependencies": {
-        "@vitejs/plugin-vue": "^6.0.1",
+        "@vitejs/plugin-vue": "^6.0.3",
         "@vue/cli-plugin-typescript": "^5.0.9",
         "@vue/cli-service": "^5.0.9",
         "@vue/test-utils": "^2.4.6",
-        "happy-dom": "^19.0.1",
-        "sass": "^1.93.2",
-        "vue-tsc": "^3.1.0"
+        "@websdr/vue3-components": "^0.5.3",
+        "happy-dom": "^20.8.3",
+        "sass": "^1.97.3",
+        "vue-tsc": "^3.2.5"
     },
     "sideEffects": [
         "**/*.css",
@@ -39,6 +54,11 @@
             "types": "./dist/index.d.ts",
             "import": "./dist/index.es.js",
             "require": "./dist/index.cjs.js"
+        },
+        "./components": {
+            "types": "./dist/components/index.d.ts",
+            "import": "./dist/components/index.es.js",
+            "require": "./dist/components/index.cjs.js"
         },
         "./styles/*": "./dist/styles/*"
     }

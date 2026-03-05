@@ -5,8 +5,8 @@ import { MediaController } from '@/osmorouter/controllers/media.controller';
 import type { OsmoController, OsmoControllerClass } from '@/osmorouter/controllers/controller.type';
 import { DefaultController } from '@/osmorouter/controllers/default.controller';
 import type { OsmoParams } from '@/osmorouter/lib/common.types';
-import type { LoggerInterface } from '@osmoweb/core/utils';
-import { SimpleLogger } from '@osmoweb/core/utils';
+import type { LoggerInterface } from '@websdr/core/utils';
+import { SimpleLogger } from '@websdr/core/utils';
 
 export class Router {
     private readonly logger;

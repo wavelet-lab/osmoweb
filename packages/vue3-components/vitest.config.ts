@@ -23,7 +23,10 @@ export default defineConfig({
                 '**/tests/',
                 '*.config.*',
                 '**/index.ts',
-                '**/*.d.ts'
+                '**/*.d.ts',
+                '**/*.css',
+                '**/*.scss',
+                '**/*.json'
             ],
             reportsDirectory: './coverage'
         },

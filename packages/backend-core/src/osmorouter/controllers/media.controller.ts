@@ -5,8 +5,8 @@ import { OsmoUdpClient } from '@/osmorouter/osmoudp.client';
 import type { OsmoParams } from '@/osmorouter/lib/common.types';
 import { OsmoServices } from '@/osmorouter/lib/common.types';
 import { getBtsPoolInstance } from '@/osmorouter/btspool';
-import type { LoggerInterface } from '@osmoweb/core/utils';
-import { SimpleLogger, sleep } from '@osmoweb/core/utils';
+import type { LoggerInterface } from '@websdr/core/utils';
+import { SimpleLogger, sleep } from '@websdr/core/utils';
 
 export class MediaController implements OsmoController {
     protected readonly logger: LoggerInterface;

@@ -1,9 +1,9 @@
 import udp from 'dgram';
 import { Buffer } from 'buffer';
-import { CircularBuffer } from '@osmoweb/core/utils';
+import { CircularBuffer } from '@websdr/core/utils';
 import type { ServiceAddr } from '@/osmorouter/lib/common.types';
-import type { LoggerInterface } from '@osmoweb/core/utils';
-import { SimpleLogger } from '@osmoweb/core/utils';
+import type { LoggerInterface } from '@websdr/core/utils';
+import { SimpleLogger } from '@websdr/core/utils';
 
 export class OsmoUdpClient {
     protected readonly logger;

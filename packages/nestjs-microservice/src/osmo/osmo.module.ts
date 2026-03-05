@@ -9,7 +9,7 @@ import { MediaGateway } from './gateways/media.gateway';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BtsController } from './controllers/bts.controller';
 import { OSMO_PARAMS } from './tokens';
-import { LoggingModule } from '@/common/logging.module';
+import { LoggingModule } from '@websdr/nestjs-microservice/common';
 
 @Module({
     imports: [ConfigModule, LoggingModule],

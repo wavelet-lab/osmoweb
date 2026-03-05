@@ -1,32 +1,43 @@
 {
     "name": "@osmoweb/nestjs-microservice",
-    "version": "1.0.0",
+    "version": "0.5.0",
     "description": "This is a NestJS microservice for OsmoWeb",
-    "author": "Timur <dtv.comp@gmail.com>",
+    "author": "Timur Davydov <dtv.comp@gmail.com>",
     "license": "MIT",
-    "keywords": [],
+    "keywords": [
+        "nestjs",
+        "microservice",
+        "osmo",
+        "websocket"
+    ],
+    "publishConfig": {
+        "access": "public"
+    },
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "type": "module",
     "scripts": {
         "build": "tsc && tsc-alias && tsc-esm-fix",
         "test": "vitest run",
-        "test:watch": "vitest"
+        "test:watch": "vitest",
+        "test:coverage": "vitest run --coverage"
     },
     "dependencies": {
-        "@nestjs/common": "^11.1.6",
+        "@nestjs/common": "^11.1.15",
         "@nestjs/config": "^4.0.2",
-        "@nestjs/jwt": "^11.0.0",
-        "@nestjs/microservices": "^11.1.6",
+        "@nestjs/jwt": "^11.0.2",
+        "@nestjs/microservices": "^11.1.15",
         "@nestjs/passport": "^11.0.5",
-        "@nestjs/testing": "^11.1.6",
-        "@nestjs/websockets": "^11.1.6",
-        "@osmoweb/backend-core": "^1.0.0",
-        "@osmoweb/core": "^1.0.0",
+        "@nestjs/testing": "^11.1.15",
+        "@nestjs/websockets": "^11.1.15",
+        "@osmoweb/backend-core": "^0.5.0",
+        "@osmoweb/core": "^0.5.0",
+        "@types/node": "^25.3.3",
+        "@websdr/nestjs-microservice": "^0.5.3",
         "class-transformer": "^0.5.1",
-        "class-validator": "^0.14.2",
+        "class-validator": "^0.15.1",
         "passport-jwt": "^4.0.1",
-        "ws": "^8.18.3"
+        "ws": "^8.19.0"
     },
     "devDependencies": {
         "@types/passport-jwt": "^4.0.1",

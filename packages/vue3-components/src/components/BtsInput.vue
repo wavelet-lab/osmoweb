@@ -2,6 +2,8 @@
 import { defineComponent } from 'vue';
 import { RadioTechnology, GSMBand, LTEBand, NRBand } from '@osmoweb/core/radio';
 import type { BtsParams } from './BtsConfig.vue';
+import type { SizeType } from '@websdr/vue3-components';
+export type { SizeType };
 
 export { RadioTechnology, GSMBand, LTEBand, NRBand };
 export type { BtsParams };
@@ -16,7 +18,7 @@ export interface BtsInputProps {
     bts?: BtsParams; // Initial BTS configuration
     supportedTechnologies?: Array<RadioTechnology>; // Supported radio technologies
     placeholder?: string; // Placeholder text for the input
-    size?: DropdownProps['size']; // Size of the input
+    size?: SizeType; // Size of the input
     btsState?: BtsState; // Current state of the BTS
     disabled?: boolean; // Whether the input is disabled
     searchable?: boolean; // Whether dropdowns are searchable
@@ -27,8 +29,9 @@ export interface BtsInputProps {
 <script setup lang="ts">
 import { computed, watch, reactive } from 'vue';
 import { configureARFCN } from '@osmoweb/core/radio';
-import Dropdown, { type DropdownProps } from './Dropdown.vue';
 import BtsConfig from './BtsConfig.vue';
+import { Dropdown } from '@websdr/vue3-components';
+import type { StatusType } from '@websdr/vue3-components';
 
 interface Emits {
     (e: 'update', config: BtsParams): void;
@@ -51,6 +54,19 @@ watch(() => props.bts, (newBts) => {
     Object.assign(btsConfig, newBts);
 }, { deep: true });
 
+const arfcnLabel = computed((): string => {
+    switch (props.bts?.technology) {
+        case RadioTechnology.GSM:
+            return 'ARFCN';
+        case RadioTechnology.LTE:
+            return 'EARFCN';
+        case RadioTechnology.NR:
+            return 'NRARFCN';
+        default:
+            return 'ARFCN';
+    }
+});
+
 const displayText = computed(() => {
     if (!props.bts) return props.placeholder;
 
@@ -66,12 +82,13 @@ const displayText = computed(() => {
                 band: bts.band,
             });
 
-            const uplink = config.uplinkFrequency ? (config.uplinkFrequency / 1000).toFixed(1) : 'N/A';
-            const downlink = config.downlinkFrequency ? (config.downlinkFrequency / 1000).toFixed(1) : 'N/A';
+            const decimalPlaces = bts.technology === RadioTechnology.NR ? 3 : 1;
+            const uplink = config.uplinkFrequency ? (config.uplinkFrequency / 1000).toFixed(decimalPlaces) : 'N/A';
+            const downlink = config.downlinkFrequency ? (config.downlinkFrequency / 1000).toFixed(decimalPlaces) : 'N/A';
 
-            text += `D ${downlink} / U ${uplink} MHz`;
+            text += `${arfcnLabel.value} ${bts.arfcn} (D ${downlink} / U ${uplink} MHz)`;
         } catch {
-            text += `ARFCN ${bts.arfcn}`;
+            text += `${arfcnLabel.value} ${bts.arfcn}`;
         }
     } else {
         text = 'BTS not configured';
@@ -80,7 +97,7 @@ const displayText = computed(() => {
     return text;
 });
 
-const dropdownStatus = computed((): DropdownProps['status'] => {
+const dropdownStatus = computed((): StatusType => {
     if (!props.btsState || props.btsState == 'not-configured') return 'error';
     if (props.btsState === 'connected') return 'success';
     if (props.btsState === 'disconnected') return 'warning';

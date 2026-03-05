@@ -1,7 +1,7 @@
 import type { RawData } from 'ws';
 import type { CommonOsmoRequest } from '@/osmorouter/lib/protocol.types';
 import { decoder } from '@/osmorouter/lib/decoder';
-import type { LoggerInterface } from '@osmoweb/core/utils';
+import type { LoggerInterface } from '@websdr/core/utils';
 
 export const OsmoParser = (log: LoggerInterface) => {
     const decode = decoder();

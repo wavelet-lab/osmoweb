@@ -1,8 +1,8 @@
 {
     "name": "osmoweb",
-    "version": "1.0.0",
+    "version": "0.5.0",
     "description": "OsmoWeb package",
-    "author": "Timur <dtv.comp@gmail.com>",
+    "author": "Timur Davydov <dtv.comp@gmail.com>",
     "license": "MIT",
     "keywords": [
         "osmoweb",
@@ -16,10 +16,16 @@
         "communication",
         "basestation",
         "network",
+        "cellular",
         "telecommunications",
         "infrastructure",
+        "radio",
+        "websdr",
+        "webusb",
+        "wsdr",
         "wavelet"
     ],
+    "private": true,
     "type": "module",
     "workspaces": [
         "./packages/core",
@@ -40,12 +46,12 @@
     },
     "devDependencies": {
         "@mermaid-js/mermaid-cli": "^11.12.0",
-        "@types/node": "^24.5.2",
-        "@vitest/coverage-v8": "^3.2.4",
+        "@types/node": "^25.0.10",
+        "@vitest/coverage-v8": "^4.0.18",
         "tsc-alias": "^1.8.16",
         "tsc-esm-fix": "^3.1.2",
-        "typescript": "^5.9.2",
-        "vite": "^7.1.7",
-        "vitest": "^3.2.4"
+        "typescript": "^5.9.3",
+        "vite": "^7.3.1",
+        "vitest": "^4.0.18"
     }
 }

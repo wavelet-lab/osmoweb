@@ -1,24 +1,31 @@
 {
     "name": "@osmoweb/backend-core",
-    "version": "1.0.0",
+    "version": "0.5.0",
     "description": "This is the core backend package for OsmoWeb",
-    "author": "Timur <dtv.comp@gmail.com>",
+    "author": "Timur Davydov <dtv.comp@gmail.com>",
     "license": "MIT",
-    "keywords": [],
+    "keywords": [
+        "backend",
+        "osmo",
+        "websocket"
+    ],
+    "publishConfig": { "access": "public" },
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "type": "module",
     "scripts": {
         "build": "tsc && tsc-alias && tsc-esm-fix",
         "test": "vitest run",
-        "test:watch": "vitest"
+        "test:watch": "vitest",
+        "test:coverage": "vitest run --coverage"
     },
     "dependencies": {
-        "@osmoweb/core": "^1.0.0",
-        "ws": "^8.18.3"
+        "@osmoweb/core": "^0.5.0",
+        "@websdr/core": "^0.5.3",
+        "ws": "^8.19.0"
     },
     "devDependencies": {
-        "@types/node": "^24.3.0",
+        "@types/node": "^25.0.10",
         "@types/ws": "^8.18.1"
     },
     "exports": {
