@@ -49,21 +49,6 @@ export class MscController extends OsmoBaseController {
         return rates;
     }
 
-    private parseRateCounters(output: string): Record<string, number> {
-        const result: Record<string, number> = {};
-        for (const raw of output.split('\n')) {
-            const line = raw.trim();
-            if (!line) continue;
-            const m = line.match(/^(.+?)[\s:=]+([0-9]+)\s*(?:\(|$)/);
-            if (m && m[1] && m[2]) {
-                const name = m[1].trim();
-                const val = parseInt(m[2], 10);
-                if (!isNaN(val)) result[name] = val;
-            }
-        }
-        return result;
-    }
-
     private numFrom(output: string, re: RegExp): number {
         const m = output.match(re);
         if (m && m[1]) {
