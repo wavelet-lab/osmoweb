@@ -1,20 +1,20 @@
 groups:
   - name: osmo-stp.rules
     rules:
-      - alert: OsmoSTPDown
+      - alert: OsmoSTPPushGatewayDown
         expr: up{job="osmo-stp"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Osmo STP Push Gateway down on {{ $labels.instance }}"
+          description: "Prometheus target for osmo-stp (job=\"osmo-stp\") Push Gateway is down for more than 1 minute."
+
+      - alert: OsmoSTPDown
+        expr: status{job="osmo-stp"} == 0
         for: 1m
         labels:
           severity: critical
         annotations:
           summary: "Osmo STP down on {{ $labels.instance }}"
           description: "Prometheus target for osmo-stp (job=\"osmo-stp\") is down for more than 1 minute."
-
-      - alert: OsmoSTPSubscriberDrop
-        expr: rate(osmo_stp_subscriber_errors_total[5m]) > 5
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Subscriber error rate high on Osmo STP"
-          description: "Subscriber-related error rate high for osmo-stp. Replace metric name with actual metric if needed."

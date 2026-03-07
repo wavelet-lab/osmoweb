@@ -1,20 +1,20 @@
 groups:
   - name: osmo-hlr.rules
     rules:
-      - alert: OsmoHLRDown
+      - alert: OsmoHLRPushGatewayDown
         expr: up{job="osmo-hlr"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Osmo HLR Push Gateway down on {{ $labels.instance }}"
+          description: "Prometheus target for osmo-hlr (job=\"osmo-hlr\") Push Gateway is down for more than 1 minute."
+
+      - alert: OsmoHLRDown
+        expr: status{job="osmo-hlr"} == 0
         for: 1m
         labels:
           severity: critical
         annotations:
           summary: "Osmo HLR down on {{ $labels.instance }}"
           description: "Prometheus target for osmo-hlr (job=\"osmo-hlr\") is down for more than 1 minute."
-
-      - alert: OsmoHLRSubscriberDrop
-        expr: rate(osmo_hlr_subscriber_errors_total[5m]) > 5
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Subscriber error rate high on Osmo HLR"
-          description: "Subscriber-related error rate high for osmo-hlr. Replace metric name with actual metric if needed."

@@ -1,20 +1,20 @@
 groups:
   - name: osmo-mgw.rules
     rules:
-      - alert: OsmoMGWDown
+      - alert: OsmoMGWPushGatewayDown
         expr: up{job="osmo-mgw"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Osmo MGW Push Gateway down on {{ $labels.instance }}"
+          description: "Prometheus target for osmo-mgw (job=\"osmo-mgw\") Push Gateway is down for more than 1 minute."
+
+      - alert: OsmoMGWDown
+        expr: status{job="osmo-mgw"} == 0
         for: 1m
         labels:
           severity: critical
         annotations:
           summary: "Osmo MGW down on {{ $labels.instance }}"
           description: "Prometheus target for osmo-mgw (job=\"osmo-mgw\") is down for more than 1 minute."
-
-      - alert: OsmoMGWHighCallFailures
-        expr: rate(osmo_mgw_call_failures_total[5m]) > 1
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          summary: "High call failure rate on Osmo MGW"
-          description: "Call failure rate high for osmo-mgw; replace metric name with actual metric if needed."
