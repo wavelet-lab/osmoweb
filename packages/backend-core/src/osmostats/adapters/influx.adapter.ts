@@ -1,6 +1,7 @@
-import { Logger } from '@nestjs/common';
-import { forEachOsmoService, forEachCollectedStat } from '@osmoweb/backend-core';
-import type { StatsWriter, CollectedStats } from '@osmoweb/backend-core';
+import { forEachOsmoService, forEachCollectedStat } from '@/osmostats/stats';
+import type { StatsWriter, CollectedStats } from '@/osmostats/stats';
+import type { LoggerInterface } from '@websdr/core/utils';
+import { SimpleLogger } from '@websdr/core/utils';
 
 export interface InfluxOptions {
     url: string; // write endpoint
@@ -10,11 +11,12 @@ export interface InfluxOptions {
 }
 
 export class InfluxAdapter implements StatsWriter {
-    protected readonly logger = new Logger(InfluxAdapter.name);
+    protected readonly logger: LoggerInterface;
     private opts: InfluxOptions;
 
-    constructor(opts: InfluxOptions) {
+    constructor(opts: InfluxOptions, logger?: LoggerInterface) {
         this.opts = opts;
+        this.logger = logger ?? new SimpleLogger(InfluxAdapter.name);
         this.logger.log(`Initialized InfluxAdapter with url=${opts.url}`);
     }
 

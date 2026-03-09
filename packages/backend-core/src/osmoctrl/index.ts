@@ -17,8 +17,3 @@ export type {
     CtrlCommand, CtrlResponse, CtrlCommandType, CtrlResponseType,
     CtrlTrapEvent, OsmoComponent
 } from './lib/ctrl.types';
-
-export type { CollectedStat, CollectedStats, StatsWriter } from './stats';
-export {
-    StatsCollector, forEachOsmoService, forEachCollectedStat
-} from './stats';

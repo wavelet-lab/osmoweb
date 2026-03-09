@@ -1,8 +1,11 @@
 # Notes:
-# - The provisioning directory contains a datasource config that points to Prometheus
-#   at `http://prometheus:9090`. If Prometheus runs outside the same Docker network,
-#   change the URL in `provisioning/datasources/datasource.yml` to e.g. `http://host.docker.internal:9090` or
-#   `http://localhost:9090` depending on your setup.
+# - By default Grafana runs in host network mode (`network_mode: host`). In this mode
+#   the provisioned datasources should point to `http://localhost:9090` (Prometheus)
+#   and `http://localhost:8086` (InfluxDB), because Docker DNS names like `prometheus`
+#   or `influxdb` are not available.
+# - If you switch Grafana to a regular Docker network (and publish ports instead),
+#   you can point Prometheus datasource to `http://prometheus:9090` when Grafana is
+#   attached to the same Docker network as Prometheus.
 # - Default admin credentials are `admin`/`admin` (change in production).
 services:
   grafana:

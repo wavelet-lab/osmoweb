@@ -125,7 +125,7 @@ const handleCancel = (closeDropdown: () => void) => {
             </div>
         </template>
         <template #content="{ close }">
-            <BtsConfig :bts="btsConfig" :supported-technologies="supportedTechnologies" :searchable="props.searchable"
+            <BtsConfig :bts="btsConfig" :supported-technologies="props.supportedTechnologies" :searchable="props.searchable"
                 @submit="(config) => handleSubmit(close, config)" @cancel="() => handleCancel(close)" />
         </template>
     </Dropdown>

@@ -1,6 +1,7 @@
-import { Logger } from '@nestjs/common';
-import { forEachOsmoService, forEachCollectedStat } from '@osmoweb/backend-core';
-import type { StatsWriter, CollectedStats } from '@osmoweb/backend-core';
+import { forEachOsmoService, forEachCollectedStat } from '@/osmostats/stats';
+import type { StatsWriter, CollectedStats } from '@/osmostats/stats';
+import type { LoggerInterface } from '@websdr/core/utils';
+import { SimpleLogger } from '@websdr/core/utils';
 
 export interface PrometheusOptions {
     // Either a full push URL (including /metrics or /metrics/job/...),
@@ -10,11 +11,12 @@ export interface PrometheusOptions {
 }
 
 export class PrometheusAdapter implements StatsWriter {
-    protected readonly logger = new Logger(PrometheusAdapter.name);
+    protected readonly logger: LoggerInterface;
     private opts: PrometheusOptions;
 
-    constructor(opts: PrometheusOptions) {
+    constructor(opts: PrometheusOptions, logger?: LoggerInterface) {
         this.opts = opts;
+        this.logger = logger ?? new SimpleLogger(PrometheusAdapter.name);
         this.logger.log(`Initialized PrometheusAdapter with pushGatewayUrl=${opts.pushGatewayUrl}`);
     }
 
