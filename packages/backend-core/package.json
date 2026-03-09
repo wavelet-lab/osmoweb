@@ -48,6 +48,11 @@
             "types": "./dist/osmorouter/index.d.ts",
             "import": "./dist/osmorouter/index.js",
             "require": "./dist/osmorouter/index.js"
+        },
+        "./osmostats": {
+            "types": "./dist/osmostats/index.d.ts",
+            "import": "./dist/osmostats/index.js",
+            "require": "./dist/osmostats/index.js"
         }
     }
 }

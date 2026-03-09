@@ -49,20 +49,10 @@
             "import": "./dist/index.js",
             "require": "./dist/index.js"
         },
-        "./auth": {
-            "types": "./dist/auth/index.d.ts",
-            "import": "./dist/auth/index.js",
-            "require": "./dist/auth/index.js"
-        },
         "./osmo": {
             "types": "./dist/osmo/index.d.ts",
             "import": "./dist/osmo/index.js",
             "require": "./dist/osmo/index.js"
-        },
-        "./users": {
-            "types": "./dist/users/index.d.ts",
-            "import": "./dist/users/index.js",
-            "require": "./dist/users/index.js"
         }
     }
 }

@@ -1,6 +1,7 @@
-import { Logger } from '@nestjs/common';
-import { OsmoBaseController } from './controllers/osmobase.controller';
-import type { OsmoBaseStats } from './controllers/osmobase.controller';
+import { OsmoBaseController } from '@/osmoctrl/controllers/osmobase.controller';
+import type { OsmoBaseStats } from '@/osmoctrl/controllers/osmobase.controller';
+import type { LoggerInterface } from '@websdr/core/utils';
+import { SimpleLogger } from '@websdr/core/utils';
 
 export interface CollectedStat {
     id: string;
@@ -45,8 +46,13 @@ export interface StatsWriter {
 }
 
 export class StatsCollector {
-    protected readonly logger = new Logger(StatsCollector.name);
+    protected readonly logger: LoggerInterface;
     private controllers: { id: string; controller: OsmoBaseController }[] = [];
+
+    constructor(logger?: LoggerInterface) {
+        this.logger = logger ?? new SimpleLogger(StatsCollector.name);
+        this.logger.log('StatsCollector initialized');
+    }
 
     addController(id: string, controller: OsmoBaseController) {
         this.controllers.push({ id, controller });
@@ -61,7 +67,7 @@ export class StatsCollector {
                 await item.controller.connect();
                 const stats = await item.controller.getStats();
                 item.controller.disconnect();
-                this.logger.debug(`Collected stats from controller ${item.id}: count=${Object.keys(stats).length}`);
+                this.logger.debug?.(`Collected stats from controller ${item.id}: count=${Object.keys(stats).length}`);
                 results.push({ id: item.id, stats, timestamp: now });
             } catch (err) {
                 this.logger.error(`Failed to collect stats from controller ${item.id}: ${(err as Error).message}`);

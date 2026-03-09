@@ -1,20 +1,23 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import type { OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
     StatsCollector, BscController, HlrController, MgwController,
     MscController, StpController
 } from '@osmoweb/backend-core';
-import type { CollectedStat, StatsWriter } from '@osmoweb/backend-core';
+import type { StatsWriter } from '@osmoweb/backend-core';
 import { stringToBoolean } from '@websdr/core/utils'
+import type { LoggerInterface } from '@websdr/core/utils';
+import { SimpleLogger } from '@websdr/core/utils';
 
 @Injectable()
 export class StatsService implements OnModuleInit, OnModuleDestroy {
-    protected readonly logger = new Logger(StatsService.name);
+    protected readonly logger: LoggerInterface;
     private intervalHandle: NodeJS.Timeout | null = null;
     private writers: StatsWriter[] = [];
 
-    constructor(private readonly config: ConfigService, private readonly collector: StatsCollector) {
+    constructor(private readonly config: ConfigService, private readonly collector: StatsCollector, logger?: LoggerInterface) {
+        this.logger = logger ?? new SimpleLogger(StatsService.name);
         this.logger.log('StatsService initialized');
     }
 
@@ -25,7 +28,7 @@ export class StatsService implements OnModuleInit, OnModuleDestroy {
     async onModuleInit() {
         const rawEnabled = this.config.get<string | boolean | undefined>('STATS_ENABLED') ?? true;
         const enabled = typeof rawEnabled === 'boolean' ? rawEnabled : stringToBoolean(rawEnabled);
-        const interval = Number(this.config.get<number>('STATS_INTERVAL_MS') ?? 15_000);
+        const interval = Number(this.config.get<number>('STATS_INTERVAL_MS') ?? 10_000);
 
         const writerNames = this.writers.map(w => w.constructor.name).join(', ') || 'none';
         this.logger.log(`StatsService onModuleInit: enabled=${enabled}, interval=${interval}ms, writers=${writerNames}`);
