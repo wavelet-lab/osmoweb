@@ -33,7 +33,7 @@
         "@osmoweb/core": "^0.5.0",
         "@osmoweb/frontend-core": "^0.5.0",
         "@websdr/vue3-components": "^0.5.3",
-        "vue": "^3.5.29"
+        "vue": "^3.5.30"
     },
     "devDependencies": {
         "@vitejs/plugin-vue": "^6.0.3",
