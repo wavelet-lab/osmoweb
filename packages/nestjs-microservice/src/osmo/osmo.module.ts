@@ -7,12 +7,13 @@ import { AbisRslGateway } from './gateways/abis-rsl.gateway';
 import { ControlGateway } from './gateways/control.gateway';
 import { MediaGateway } from './gateways/media.gateway';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { StatsModule } from './stats/stats.module';
 import { BtsController } from './controllers/bts.controller';
 import { OSMO_PARAMS } from './tokens';
-import { LoggingModule } from '@/common/logging.module';
+import { LoggingModule } from '@websdr/nestjs-microservice/common';
 
 @Module({
-    imports: [ConfigModule, LoggingModule],
+    imports: [ConfigModule, LoggingModule, StatsModule],
     controllers: [BtsController],
     providers: [
         {

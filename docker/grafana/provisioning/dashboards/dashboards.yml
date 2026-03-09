@@ -1,0 +1,9 @@
+apiVersion: 1
+providers:
+  - name: 'osmo-dashboards'
+    orgId: 1
+    folder: 'Osmo'
+    type: file
+    disableDeletion: false
+    options:
+      path: /etc/grafana/provisioning/dashboards

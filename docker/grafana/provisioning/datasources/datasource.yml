@@ -1,0 +1,32 @@
+apiVersion: 1
+deleteDatasources:
+  - name: Prometheus
+    orgId: 1
+  - name: InfluxDB
+    orgId: 1
+datasources:
+  # Prometheus provisioning template (replace URL if Prometheus runs outside the same Docker network)
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://localhost:9090
+    isDefault: true
+    editable: false
+    jsonData:
+      timeInterval: "1s"
+      minInterval: "1s"
+  # InfluxDB provisioning template (replace placeholders below)
+  - name: InfluxDB
+    type: influxdb
+    access: proxy
+    url: http://localhost:8086
+    isDefault: false
+    editable: true
+    jsonData:
+      timeInterval: "1s"
+      minInterval: "1s"
+      version: Flux
+      organization: "your-influxdb-org" # Change this to match the organization name you set in InfluxDB
+      defaultBucket: "your-influxdb-bucket" # Change this to match the bucket name you set in InfluxDB
+    secureJsonData:
+      token: "your-influxdb-token" # Change this to match the token you set in InfluxDB

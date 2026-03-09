@@ -12,6 +12,8 @@ interface GSMBandConfig extends BandConfig {
  * GSM band configurations
  */
 const GSM_BANDS: Record<GSMBand, GSMBandConfig> = {
+/* These bands are not commonly used in public networks, so they are commented out for now */
+/*
     [GSMBand.GSM_450]: {
         uplinkStart: 450600,    // 450.6 MHz
         uplinkEnd: 457400,      // 457.4 MHz
@@ -48,6 +50,7 @@ const GSM_BANDS: Record<GSMBand, GSMBandConfig> = {
         arfcnEnd: 549,
         channelSpacing: 200     // 0.2 MHz
     },
+*/
     [GSMBand.GSM_850]: {
         uplinkStart: 824200,    // 824.2 MHz
         uplinkEnd: 848800,      // 848.8 MHz

@@ -14,10 +14,11 @@ export enum RadioTechnology {
  * https://downloads.osmocom.org/docs/osmo-bts/master/osmobts-sysmo-vty-reference.pdf
  */
 export enum GSMBand {
-    GSM_450 = 'GSM_450',    // 450 MHz (Doesn't used in public networks)
-    GSM_480 = 'GSM_480',    // 480 MHz (Doesn't used in public networks)
-    GSM_750 = 'GSM_750',    // 750 MHz (Doesn't used in public networks)
-    GSM_810 = 'GSM_810',    // 810 MHz (Doesn't used in public networks)
+/* These bands are not commonly used in public networks, so they are commented out for now */
+    // GSM_450 = 'GSM_450',    // 450 MHz (Doesn't used in public networks)
+    // GSM_480 = 'GSM_480',    // 480 MHz (Doesn't used in public networks)
+    // GSM_750 = 'GSM_750',    // 750 MHz (Doesn't used in public networks)
+    // GSM_810 = 'GSM_810',    // 810 MHz (Doesn't used in public networks)
     GSM_850 = 'GSM_850',    // 850 MHz (Americas)
     GSM_900 = 'GSM_900',    // 900 MHz (Global)
     DCS_1800 = 'DCS_1800',  // 1800 MHz (Global)

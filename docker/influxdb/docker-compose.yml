@@ -1,0 +1,25 @@
+# Usage:
+# from packages/nestjs-microservice/docker run:
+# docker compose -f docker-compose.yml up -d
+services:
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdb
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    environment:
+      # Initialize InfluxDB on first start. Change these values as needed.
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: "osmoweb" # Change this to your desired username
+      DOCKER_INFLUXDB_INIT_PASSWORD: "osmoweb-password" # Change this to a secure password
+      DOCKER_INFLUXDB_INIT_ORG: "your-influxdb-org" # Change this to your desired organization name
+      DOCKER_INFLUXDB_INIT_BUCKET: "your-influxdb-bucket" # Change this to your desired bucket name
+      DOCKER_INFLUXDB_INIT_RETENTION: 0
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: "your-influxdb-token" # Change this to a secure token
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+
+volumes:
+  influxdb-data:
+    driver: local

@@ -9,9 +9,9 @@ import type {
 } from '@/osmorouter/lib/protocol.types';
 import { getBtsPoolInstance } from '@/osmorouter/btspool';
 import type { BtsItem } from '@/osmorouter/btspool';
-import { sleep } from '@osmoweb/core/utils';
-import type { LoggerInterface } from '@osmoweb/core/utils';
-import { SimpleLogger } from '@osmoweb/core/utils';
+import { sleep } from '@websdr/core/utils';
+import type { LoggerInterface } from '@websdr/core/utils';
+import { SimpleLogger } from '@websdr/core/utils';
 
 export class ControlController implements OsmoController {
     protected readonly logger: LoggerInterface;

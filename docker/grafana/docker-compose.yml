@@ -1,0 +1,29 @@
+# Notes:
+# - By default Grafana runs in host network mode (`network_mode: host`). In this mode
+#   the provisioned datasources should point to `http://localhost:9090` (Prometheus)
+#   and `http://localhost:8086` (InfluxDB), because Docker DNS names like `prometheus`
+#   or `influxdb` are not available.
+# - If you switch Grafana to a regular Docker network (and publish ports instead),
+#   you can point Prometheus datasource to `http://prometheus:9090` when Grafana is
+#   attached to the same Docker network as Prometheus.
+# - Default admin credentials are `admin`/`admin` (change in production).
+services:
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    # ports:
+    #   - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: "admin"
+      GF_SECURITY_ADMIN_PASSWORD: "admin"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_DASHBOARDS_MIN_REFRESH_INTERVAL: 1s
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ${GRAFANA_DIR:-.}/provisioning:/etc/grafana/provisioning:ro
+    network_mode: "host"
+
+volumes:
+  grafana-data:
+    driver: local

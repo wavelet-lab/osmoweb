@@ -1,4 +1,4 @@
-import { JournalLogLevel } from '@/utils/journal';
+import { JournalLogLevel } from '@websdr/core/utils';
 
 export function getJournalLogLevelFromOsmoLogLevel(loglevel: number): JournalLogLevel {
     /* Osmo logging levels:

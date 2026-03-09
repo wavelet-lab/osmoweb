@@ -1,6 +1,6 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest'
 import { OsmoParser } from '@/osmorouter/lib/osmo.parse'
-import type { LoggerInterface } from '@osmoweb/core/utils'
+import type { LoggerInterface } from '@websdr/core/utils'
 
 describe('OsmoParser', () => {
     let mockLogger: LoggerInterface
