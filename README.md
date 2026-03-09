@@ -42,12 +42,21 @@ This project builds on existing Osmocom services; it does not replace them. Focu
 └─ ...
 ```
 
-- [packages/core](packages/core) — Core shared library with domain types, utilities, and constants used across all packages.
-- [packages/backend-core](packages/backend-core) — Backend building blocks: router and controllers to talk to Osmocom daemons; also exposes common types/config like Osmo services and defaults (see [packages/backend-core/src/osmo/index.ts](packages/backend-core/src/osmo/index.ts)).
-- [packages/nestjs-microservice](packages/nestjs-microservice) — NestJS integration that wraps backend-core into DI-ready providers and WebSocket gateways; main entry is [`OsmoModule`](packages/nestjs-microservice/src/osmo.module.ts) configurable via OSMO_* env vars.
+- [packages/core](packages/core) — Core shared library with domain types, utilities, and constants used across all packages. Docs: [packages/core/README.md](packages/core/README.md)
+- [packages/backend-core](packages/backend-core) — Backend building blocks: router and controllers to talk to Osmocom daemons.
+Docs: [packages/backend-core/README.md](packages/backend-core/README.md)
+- [packages/nestjs-microservice](packages/nestjs-microservice) — NestJS integration that wraps backend-core into DI-ready providers and WebSocket gateways; configurable via OSMO_* env vars.
+Docs: [packages/nestjs-microservice/README.md](packages/nestjs-microservice/README.md)
 - [packages/frontend-core](packages/frontend-core) — Front-end core utilities and adapters for client apps.
-- [packages/vue3-components](packages/vue3-components) — Vue 3 components library (e.g., [LogArea](packages/vue3-components/src/components/LogArea.vue), [LogAreaItem](packages/vue3-components/src/components/LogAreaItem.vue)); built with Vite and ships types/styles.
+Docs: [packages/frontend-core/README.md](packages/frontend-core/README.md)
+- [packages/vue3-components](packages/vue3-components) — Vue 3 UI components and styles used by OsmoWeb apps (BTS config/input components).
+Docs: [packages/vue3-components/README.md](packages/vue3-components/README.md)
 - [test-apps](test-apps) — Sample scripts for manual testing (e.g., [bsc-test.ts](test-apps/bsc-test.ts), [msc-test.ts](test-apps/msc-test.ts), [hlr-test.ts](test-apps/hlr-test.ts), [mgw-test.ts](test-apps/mgw-test.ts)).
+
+## Documentation
+
+- Docs index: [docs/README.md](docs/README.md)
+- Architecture entry point: [docs/architecture/overview.md](docs/architecture/overview.md)
 
 ## Setup the project
 
@@ -86,6 +95,8 @@ npm run test:coverage
 
 ## Run test applications
 
+Test apps documentation: [test-apps/README.md](test-apps/README.md)
+
 All test applications are located in the `test-apps` folder. Before running any of them, change into that directory:
 ```bash
 cd test-apps
@@ -112,6 +123,11 @@ npm run test:msc
 ```
 
 > Note: Ensure the required Osmocom services are reachable before running the tests.
+
+## Docker infrastructure
+
+Monitoring stack (Prometheus/Pushgateway/Alertmanager + InfluxDB + Grafana):
+- [docker/README.md](docker/README.md)
 
 ## Environments
 
