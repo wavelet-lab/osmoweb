@@ -31,6 +31,22 @@ The architecture documentation intentionally focuses on **production deployment 
 
 ---
 
+## Related documentation in this repo
+
+These docs focus on production runtime architecture. For package-level API docs and operational tooling, see:
+
+- Repository entry point: [README.md](../README.md)
+- Package docs:
+	- [packages/core/README.md](../packages/core/README.md)
+	- [packages/backend-core/README.md](../packages/backend-core/README.md)
+	- [packages/frontend-core/README.md](../packages/frontend-core/README.md)
+	- [packages/vue3-components/README.md](../packages/vue3-components/README.md)
+	- [packages/nestjs-microservice/README.md](../packages/nestjs-microservice/README.md)
+- Monitoring stack (Prometheus/InfluxDB/Grafana): [docker/README.md](../docker/README.md)
+- Manual test apps (VTY controller scripts): [test-apps/README.md](../test-apps/README.md)
+
+---
+
 ## Diagram Rendering (Mermaid)
 
 Architecture diagrams are written in **[Mermaid](https://mermaid.js.org/) (`.mmd`)** and rendered to **SVG** for stable display in GitHub.
