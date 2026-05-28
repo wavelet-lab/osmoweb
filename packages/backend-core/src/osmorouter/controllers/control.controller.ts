@@ -1,5 +1,5 @@
 import type WebSocket from 'ws';
-import type { OsmoController } from '@/osmorouter/controllers/controller.type';
+import type { LoggerFactory, OsmoController } from '@/osmorouter/controllers/controller.type';
 import { OsmoTcpClient } from '@/osmorouter/osmotcp.client';
 import { OsmoServices } from '@/osmorouter/lib/common.types';
 import type { OsmoParams } from '@/osmorouter/lib/common.types';
@@ -13,9 +13,11 @@ import { SimpleLogger } from '@websdr/core/utils';
 
 export class ControlController implements OsmoController {
     protected readonly logger: LoggerInterface;
+    protected readonly createLogger: LoggerFactory;
 
-    constructor(private readonly osmoParams: OsmoParams, logger?: LoggerInterface) {
+    constructor(private readonly osmoParams: OsmoParams, logger?: LoggerInterface, loggerFactory?: LoggerFactory) {
         this.logger = logger ?? new SimpleLogger(ControlController.name);
+        this.createLogger = loggerFactory ?? ((context: string) => logger ?? new SimpleLogger(context));
     }
 
     parseRequest(req: CommonOsmoRequest, _client: WebSocket): CommonOsmoResponse | undefined {
@@ -50,8 +52,9 @@ export class ControlController implements OsmoController {
             client.close();
             return;
         }
-        const osmoHlrClient = new OsmoTcpClient(serviceHlr, 'HLR');
-        const osmoBscClient = new OsmoTcpClient(serviceBsc, 'BSC');
+        const osmoClientLogger = this.createLogger(OsmoTcpClient.name);
+        const osmoHlrClient = new OsmoTcpClient(serviceHlr, 'HLR', osmoClientLogger);
+        const osmoBscClient = new OsmoTcpClient(serviceBsc, 'BSC', osmoClientLogger);
 
         client.onmessage = (msg: WebSocket.MessageEvent) => {
             if (typeof msg.data === 'string') {

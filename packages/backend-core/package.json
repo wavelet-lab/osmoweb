@@ -1,6 +1,6 @@
 {
     "name": "@osmoweb/backend-core",
-    "version": "0.5.0",
+    "version": "0.6.0",
     "description": "This is the core backend package for OsmoWeb",
     "author": "Timur Davydov <dtv.comp@gmail.com>",
     "license": "MIT",
@@ -9,7 +9,9 @@
         "osmo",
         "websocket"
     ],
-    "publishConfig": { "access": "public" },
+    "publishConfig": {
+        "access": "public"
+    },
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "type": "module",
@@ -20,12 +22,12 @@
         "test:coverage": "vitest run --coverage"
     },
     "dependencies": {
-        "@osmoweb/core": "^0.5.0",
-        "@websdr/core": "^0.5.3",
-        "ws": "^8.19.0"
+        "@osmoweb/core": "^0.6.0",
+        "@websdr/core": "^0.6.0",
+        "ws": "^8.21.0"
     },
     "devDependencies": {
-        "@types/node": "^25.0.10",
+        "@types/node": "^25.6.0",
         "@types/ws": "^8.18.1"
     },
     "exports": {
@@ -48,6 +50,11 @@
             "types": "./dist/osmorouter/index.d.ts",
             "import": "./dist/osmorouter/index.js",
             "require": "./dist/osmorouter/index.js"
+        },
+        "./osmorouter/protocol": {
+            "types": "./dist/osmorouter/protocol/index.d.ts",
+            "import": "./dist/osmorouter/protocol/index.js",
+            "require": "./dist/osmorouter/protocol/index.js"
         },
         "./osmostats": {
             "types": "./dist/osmostats/index.d.ts",

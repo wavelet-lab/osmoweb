@@ -1,6 +1,6 @@
 import type WebSocket from 'ws';
 import { IncomingMessage } from 'http';
-import type { OsmoController } from '@/osmorouter/controllers/controller.type';
+import type { LoggerFactory, OsmoController } from '@/osmorouter/controllers/controller.type';
 import { OsmoUdpClient } from '@/osmorouter/osmoudp.client';
 import type { OsmoParams } from '@/osmorouter/lib/common.types';
 import { OsmoServices } from '@/osmorouter/lib/common.types';
@@ -10,9 +10,11 @@ import { SimpleLogger, sleep } from '@websdr/core/utils';
 
 export class MediaController implements OsmoController {
     protected readonly logger: LoggerInterface;
+    protected readonly createLogger: LoggerFactory;
 
-    constructor(private readonly osmoParams: OsmoParams, logger?: LoggerInterface) {
+    constructor(private readonly osmoParams: OsmoParams, logger?: LoggerInterface, loggerFactory?: LoggerFactory) {
         this.logger = logger ?? new SimpleLogger(MediaController.name);
+        this.createLogger = loggerFactory ?? ((context: string) => logger ?? new SimpleLogger(context));
     }
 
     handle = async (client: WebSocket, clientreq: IncomingMessage) => {
@@ -25,7 +27,7 @@ export class MediaController implements OsmoController {
             client.close();
             return;
         }
-        const osmoClient = new OsmoUdpClient(service, `MEDIA (${clientId})`);
+        const osmoClient = new OsmoUdpClient(service, `MEDIA (${clientId})`, this.createLogger(OsmoUdpClient.name));
 
         // osmoClient.onMessage = (msg: Buffer) => {
         //     client.send(msg);
