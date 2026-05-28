@@ -1,1 +1,2 @@
-export { getBts, updateBts } from "./bts";
+export { getBts, releaseBts, updateBts } from "./bts";
+export type { BtsConfig, BtsUpdateInput } from "./bts";

@@ -1,101 +1,183 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { BtsManager } from '@/osmo/bts.manager';
+import { BtsManager, createIpaFromUuid } from '@/osmo/bts.manager';
+import { GSMBand } from '@osmoweb/core';
 
 describe('BtsManager', () => {
     let mgr: BtsManager;
 
     beforeEach(() => {
-        mgr = new BtsManager();
+        mgr = new BtsManager({ assignmentTtlMs: 1000 });
     });
 
-    it('allocates sequential ids starting from 0 and sets fields', () => {
-        const a = mgr.allocate('user-1', '1.2.3.4');
-        expect(a.id).toBe(0);
-        expect(a.uuid).toBe('user-1');
-        expect(a.ip).toBe('1.2.3.4');
-        expect(a.connected).toBe(true);
-        expect(typeof a.createdAt).toBe('number');
-        expect(typeof a.lastSeen).toBe('number');
-        expect(a.lastSeen).toBeGreaterThanOrEqual(a.createdAt);
-
-        // counts and free calculation
-        expect(mgr.countAssigned()).toBe(1);
-        expect(mgr.dumpState().nextSeqId).toBe(1);
-        expect(mgr.countFree()).toBe(BtsManager.MAX_BTS - 1);
-    });
-
-    it('re-allocating same uuid updates ip/connected/lastSeen and keeps id', () => {
-        const first = mgr.allocate('user-x', '10.0.0.1');
-        const id = first.id;
-        const beforeLastSeen = first.lastSeen!;
-
-        const second = mgr.allocate('user-x', '10.0.0.2');
-        expect(second.id).toBe(id);
-        expect(second.ip).toBe('10.0.0.2');
-        expect(second.connected).toBe(true);
-        expect(second.lastSeen).toBeGreaterThanOrEqual(beforeLastSeen);
-
-        // still only one assignment
+    it('same uuid returns same BTS id', () => {
+        const first = mgr.allocate('user-1', '1.2.3.4', { band: GSMBand.GSM_900, arfcn: 1, now: 10 });
+        const second = mgr.allocate('user-1', '1.2.3.5', { now: 20 });
+        expect(second.id).toBe(first.id);
+        expect(second.ip).toBe('1.2.3.5');
+        expect(second.lastSeen).toBe(20);
         expect(mgr.countAssigned()).toBe(1);
     });
 
-    it('getByUuid and getById return correct assignments or null', () => {
-        expect(mgr.getByUuid('nope')).toBeNull();
-        expect(mgr.getById(0)).toBeNull();
-
-        const a = mgr.allocate('u1', '0.0.0.0');
-        expect(mgr.getByUuid('u1')!.id).toBe(a.id);
-        expect(mgr.getById(a.id)!.uuid).toBe('u1');
+    it('same uuid keeps same osmux_port after update', () => {
+        const first = mgr.allocate('user-1', 'ip', { band: GSMBand.GSM_900, arfcn: 1 });
+        const second = mgr.updateForUuid('user-1', 'ip', { band: GSMBand.DCS_1800, arfcn: 512 });
+        expect(second.btsCfg.osmux_port).toBe(first.btsCfg.osmux_port);
+        expect(second.btsCfg.band).toBe(GSMBand.DCS_1800);
+        expect(second.btsCfg.arfcn).toBe(512);
     });
 
-    it('releaseByUuid removes mapping and makes id available for reuse', () => {
-        const a0 = mgr.allocate('a', 'ip-a');
-        const a1 = mgr.allocate('b', 'ip-b');
-        const a2 = mgr.allocate('c', 'ip-c');
-
-        expect(mgr.countAssigned()).toBe(3);
-
-        expect(mgr.releaseByUuid('b')).toBe(true);
-        expect(mgr.getByUuid('b')).toBeNull();
-        expect(mgr.countAssigned()).toBe(2);
-
-        // release unknown uuid returns false
-        expect(mgr.releaseByUuid('nonexistent')).toBe(false);
-
-        // Free id should be reused (smallest free id chosen)
-        // release another to create multiple free ids
-        expect(mgr.releaseById(a0.id)).toBe(true);
-
-        const d = mgr.allocate('d', 'ip-d');
-        // smallest free id was a0.id (0), it should be reused
-        expect(d.id).toBe(a0.id);
+    it('same uuid with different instanceId gets different assignments', () => {
+        const first = mgr.allocate('user-1', 'ip', { instanceId: 'tab-1' });
+        const second = mgr.allocate('user-1', 'ip', { instanceId: 'tab-2' });
+        expect(first.id).toBe(0);
+        expect(second.id).toBe(1);
+        expect(mgr.getByUuid('user-1')).toBeNull();
+        expect(mgr.getByUuid('user-1', 'tab-1')).toBe(first);
+        expect(mgr.getByUuid('user-1', 'tab-2')).toBe(second);
     });
 
-    it('releaseById returns false for unknown id and true for existing', () => {
-        expect(mgr.releaseById(9999)).toBe(false);
-        const a = mgr.allocate('z', 'ip-z');
-        expect(mgr.releaseById(a.id)).toBe(true);
-        expect(mgr.releaseById(a.id)).toBe(false); // already released
+    it('same instanceId under different uuid gets different assignments', () => {
+        const first = mgr.allocate('user-1', 'ip', { instanceId: 'tab-1' });
+        const second = mgr.allocate('user-2', 'ip', { instanceId: 'tab-1' });
+        expect(first.id).toBe(0);
+        expect(second.id).toBe(1);
+        expect(mgr.getByUuid('user-1', 'tab-1')).toBe(first);
+        expect(mgr.getByUuid('user-2', 'tab-1')).toBe(second);
     });
 
-    it('markDisconnected toggles connected flag but keeps assignment', () => {
-        expect(mgr.markDisconnected('missing')).toBe(false);
-
-        const a = mgr.allocate('user-d', '1.1.1.1');
-        expect(a.connected).toBe(true);
-
-        expect(mgr.markDisconnected('user-d')).toBe(true);
-        const rec = mgr.getByUuid('user-d')!;
-        expect(rec.connected).toBe(false);
-
-        // still assigned until explicit release
-        expect(mgr.countAssigned()).toBe(1);
-        expect(mgr.countFree()).toBe(BtsManager.MAX_BTS - 1);
+    it('instanceId equal to another uuid does not access that user assignment', () => {
+        const owner = mgr.allocate('user-1', 'ip');
+        const attacker = mgr.allocate('user-2', 'ip', { instanceId: 'user-1' });
+        expect(owner.id).toBe(0);
+        expect(attacker.id).toBe(1);
+        expect(mgr.releaseByUuid('user-2', 'user-1')).toBe(true);
+        expect(mgr.getByUuid('user-1')).toBe(owner);
     });
 
-    it('throws when no available BTS ids (nextSeqId >= MAX_BTS)', () => {
-        // force internal state to simulate exhausted ids
-        (mgr as any).nextSeqId = BtsManager.MAX_BTS;
-        expect(() => mgr.allocate('overflow', '0.0.0.0')).toThrow('No available BTS ids');
+    it('different uuid gets different sequential BTS ids', () => {
+        expect(mgr.allocate('a', 'ip').id).toBe(0);
+        expect(mgr.allocate('b', 'ip').id).toBe(1);
+        expect(mgr.allocate('c', 'ip').id).toBe(2);
+    });
+
+    it('allocation after syncFromBsc reuses existing inactive BSC ids first', () => {
+        mgr.syncFromBsc([inactiveBsc(0), inactiveBsc(1), inactiveBsc(2)]);
+        expect(mgr.allocate('user-1', 'ip').id).toBe(0);
+        expect(mgr.allocate('user-2', 'ip').id).toBe(1);
+        expect(mgr.allocate('user-3', 'ip').id).toBe(2);
+        expect(mgr.allocate('user-4', 'ip').id).toBe(3);
+    });
+
+    it('allocation after syncFromBsc skips BTS ids that BSC reports as active', () => {
+        mgr.syncFromBsc([activeBsc(0)]);
+        expect(mgr.allocate('user-1', 'ip').id).toBe(1);
+    });
+
+    it('allocation after syncFromBsc skips BTS ids with unknown connection state', () => {
+        mgr.syncFromBsc([{ id: 0 }]);
+        expect(mgr.allocate('user-1', 'ip').id).toBe(1);
+    });
+
+    it('released id is reused', () => {
+        const first = mgr.allocate('a', 'ip');
+        mgr.releaseByUuid('a');
+        const second = mgr.allocate('b', 'ip');
+        expect(second.id).toBe(first.id);
+    });
+
+    it('active assignments never share osmux_port', () => {
+        const ports = new Set<number>();
+        for (let i = 0; i < 5; i++) {
+            const assignment = mgr.allocate(`user-${i}`, 'ip');
+            expect(ports.has(assignment.btsCfg.osmux_port)).toBe(false);
+            ports.add(assignment.btsCfg.osmux_port);
+        }
+    });
+
+    it('ipa is deterministic for uuid + bts id', () => {
+        expect(createIpaFromUuid('user-1', 12)).toEqual(createIpaFromUuid('user-1', 12));
+        expect(createIpaFromUuid('user-1', 12).ipa).toMatch(/^\d+\/12\/0$/);
+    });
+
+    it('releaseByUuid frees assignment and port', () => {
+        const first = mgr.allocate('a', 'ip');
+        expect(mgr.releaseByUuid('a')).toBe(true);
+        expect(mgr.getByUuid('a')).toBeNull();
+        const second = mgr.allocate('b', 'ip');
+        expect(second.id).toBe(first.id);
+        expect(second.btsCfg.osmux_port).toBe(first.btsCfg.osmux_port);
+    });
+
+    it('cleanupExpiredAssignments frees stale assignment', () => {
+        const first = mgr.allocate('a', 'ip', { now: 0 });
+        expect(mgr.cleanupExpiredAssignments(1001)).toBe(1);
+        expect(mgr.getById(first.id)).toBeNull();
+        const second = mgr.allocate('b', 'ip');
+        expect(second.id).toBe(first.id);
+        expect(second.btsCfg.osmux_port).toBe(first.btsCfg.osmux_port);
+    });
+
+    it('cleanupDisconnectedBscAssignments does not free live runtime assignment reported disconnected by BSC', () => {
+        const first = mgr.allocate('a', 'ip');
+        expect(mgr.cleanupDisconnectedBscAssignments([inactiveBsc(first.id)])).toBe(0);
+        expect(mgr.getByUuid('a')).toBe(first);
+    });
+
+    it('cleanupDisconnectedBscAssignments frees backend-disconnected assignment reported disconnected by BSC', () => {
+        const first = mgr.allocate('a', 'ip');
+        mgr.markDisconnectedById(first.id);
+        expect(mgr.cleanupDisconnectedBscAssignments([inactiveBsc(first.id)])).toBe(1);
+        expect(mgr.getByUuid('a')).toBeNull();
+        const second = mgr.allocate('b', 'ip');
+        expect(second.id).toBe(first.id);
+        expect(second.btsCfg.osmux_port).toBe(first.btsCfg.osmux_port);
+    });
+
+    it('cleanupDisconnectedBscAssignments keeps assignment reported active by BSC', () => {
+        const first = mgr.allocate('a', 'ip');
+        expect(mgr.cleanupDisconnectedBscAssignments([activeBsc(first.id)])).toBe(0);
+        expect(mgr.getByUuid('a')).toBe(first);
+    });
+
+    it('markSeenById and markDisconnectedById update websocket-driven state', () => {
+        const first = mgr.allocate('a', 'ip', { now: 1 });
+        expect(mgr.markDisconnectedById(first.id, 2)).toBe(true);
+        expect(mgr.getById(first.id)?.connected).toBe(false);
+        expect(mgr.getById(first.id)?.lastSeen).toBe(2);
+
+        expect(mgr.markSeenById(first.id, 3)).toBe(true);
+        expect(mgr.getById(first.id)?.connected).toBe(true);
+        expect(mgr.getById(first.id)?.lastSeen).toBe(3);
+    });
+
+    it('syncFromBsc does not wipe active uuid assignment', () => {
+        const active = mgr.allocate('a', 'ip', { band: GSMBand.GSM_900, arfcn: 1 });
+        mgr.syncFromBsc([activeBsc(active.id), inactiveBsc(10000)]);
+        expect(mgr.getByUuid('a')).toBe(active);
+        expect(mgr.allocate('b', 'ip').id).toBe(10000);
+    });
+
+    it('no available port produces a clear error', () => {
+        mgr = new BtsManager({ osmuxPortStart: 7000, osmuxPortCount: 1 });
+        mgr.allocate('a', 'ip');
+        expect(() => mgr.allocate('b', 'ip')).toThrow('No available osmux_port');
     });
 });
+
+function activeBsc(id: number) {
+    return {
+        id,
+        connected: true,
+        nmState: { state: "Oper 'Enabled', Admin 'Unlocked', Avail 'OK'" },
+        omlState: 'connected',
+    };
+}
+
+function inactiveBsc(id: number) {
+    return {
+        id,
+        connected: false,
+        nmState: { state: "Oper 'NULL', Admin 'Locked', Avail 'Power off'" },
+        omlState: 'disconnected',
+    };
+}

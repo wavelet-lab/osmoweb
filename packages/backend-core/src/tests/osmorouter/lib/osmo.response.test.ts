@@ -1,6 +1,6 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest'
 import { OsmoResponse } from '@/osmorouter/lib/osmo.response'
-import type { CommonOsmoResponse } from '@/osmorouter/lib/protocol.types'
+import type { CommonOsmoResponse } from '@/osmorouter/protocol/protocol.types'
 import type { LoggerInterface } from '@websdr/core/utils'
 
 describe('OsmoResponse', () => {
@@ -23,7 +23,7 @@ describe('OsmoResponse', () => {
 
     test('should create response with Buffer ID and simple object', () => {
         const id = Buffer.from([1, 2, 3, 4])
-        const response: CommonOsmoResponse = { event: 'lock-bts', id: 0x01020304, result: { code: 0 } };
+        const response: CommonOsmoResponse = { event: 'get-bts-list', bts: [] };
 
         const result = responseFunc(id, response)
 
@@ -34,6 +34,6 @@ describe('OsmoResponse', () => {
         const messageStr = new TextDecoder().decode(messageBytes)
         expect(JSON.parse(messageStr)).toEqual(response)
 
-        expect(mockLogger.debug).toHaveBeenCalledWith('Res: {"event":"lock-bts","id":16909060,"result":{"code":0}}')
+        expect(mockLogger.debug).toHaveBeenCalledWith('Res: {"event":"get-bts-list","bts":[]}')
     })
 })

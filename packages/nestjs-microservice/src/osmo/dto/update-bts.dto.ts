@@ -25,6 +25,10 @@ export class TrxDto {
 export class UpdateBtsDto implements BscBtsConfig {
     @IsOptional()
     @IsString()
+    instanceId?: string;
+
+    @IsOptional()
+    @IsString()
     type?: string;
 
     @IsOptional()
@@ -43,6 +47,10 @@ export class UpdateBtsDto implements BscBtsConfig {
     @IsOptional()
     @IsString()
     band?: GSMBand;
+
+    @IsOptional()
+    @IsInt()
+    arfcn?: number;
 
     @IsOptional()
     @IsString()
