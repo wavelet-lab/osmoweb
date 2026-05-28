@@ -1,6 +1,6 @@
 {
     "name": "@osmoweb/nestjs-microservice",
-    "version": "0.6.0",
+    "version": "0.6.1",
     "description": "This is a NestJS microservice for OsmoWeb",
     "author": "Timur Davydov <dtv.comp@gmail.com>",
     "license": "MIT",
@@ -20,7 +20,9 @@
         "build": "tsc && tsc-alias && tsc-esm-fix",
         "test": "vitest run",
         "test:watch": "vitest",
-        "test:coverage": "vitest run --coverage"
+        "test:coverage": "vitest run --coverage",
+        "prepack": "cp ../../LICENSE ./LICENSE || true",
+        "postpack": "rm -f ./LICENSE"
     },
     "dependencies": {
         "@osmoweb/backend-core": "^0.6.0",
@@ -56,5 +58,11 @@
             "import": "./dist/osmo/index.js",
             "require": "./dist/osmo/index.js"
         }
-    }
+    },
+    "files": [
+        "dist",
+        "!dist/tests",
+        "LICENSE",
+        "README.md"
+    ]
 }

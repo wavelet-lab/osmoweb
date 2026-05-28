@@ -1,6 +1,6 @@
 {
     "name": "@osmoweb/core",
-    "version": "0.6.0",
+    "version": "0.6.1",
     "description": "This is the core package for OsmoWeb",
     "author": "Timur Davydov <dtv.comp@gmail.com>",
     "license": "MIT",
@@ -25,7 +25,9 @@
         "build": "tsc && tsc-alias && tsc-esm-fix",
         "test": "vitest run",
         "test:watch": "vitest",
-        "test:coverage": "vitest run --coverage"
+        "test:coverage": "vitest run --coverage",
+        "prepack": "cp ../../LICENSE ./LICENSE || true",
+        "postpack": "rm -f ./LICENSE"
     },
     "dependencies": {
         "@websdr/core": "^0.6.0"
@@ -49,5 +51,11 @@
             "import": "./dist/radio/index.js",
             "require": "./dist/radio/index.js"
         }
-    }
+    },
+    "files": [
+        "dist",
+        "!dist/tests",
+        "LICENSE",
+        "README.md"
+    ]
 }

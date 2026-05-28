@@ -1,6 +1,6 @@
 {
     "name": "@osmoweb/backend-core",
-    "version": "0.6.0",
+    "version": "0.6.1",
     "description": "This is the core backend package for OsmoWeb",
     "author": "Timur Davydov <dtv.comp@gmail.com>",
     "license": "MIT",
@@ -19,7 +19,9 @@
         "build": "tsc && tsc-alias && tsc-esm-fix",
         "test": "vitest run",
         "test:watch": "vitest",
-        "test:coverage": "vitest run --coverage"
+        "test:coverage": "vitest run --coverage",
+        "prepack": "cp ../../LICENSE ./LICENSE || true",
+        "postpack": "rm -f ./LICENSE"
     },
     "dependencies": {
         "@osmoweb/core": "^0.6.0",
@@ -61,5 +63,11 @@
             "import": "./dist/osmostats/index.js",
             "require": "./dist/osmostats/index.js"
         }
-    }
+    },
+    "files": [
+        "dist",
+        "!dist/tests",
+        "LICENSE",
+        "README.md"
+    ]
 }

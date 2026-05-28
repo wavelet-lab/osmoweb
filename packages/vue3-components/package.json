@@ -1,6 +1,6 @@
 {
     "name": "@osmoweb/vue3-components",
-    "version": "0.6.0",
+    "version": "0.6.1",
     "description": "This is a Vue 3 components package for OsmoWeb",
     "author": "Timur Davydov <dtv.comp@gmail.com>",
     "license": "MIT",
@@ -27,7 +27,9 @@
         "build:types": "vue-tsc --emitDeclarationOnly",
         "test": "vitest run",
         "test:watch": "vitest",
-        "test:coverage": "vitest run --coverage"
+        "test:coverage": "vitest run --coverage",
+        "prepack": "cp ../../LICENSE ./LICENSE || true",
+        "postpack": "rm -f ./LICENSE"
     },
     "dependencies": {
         "@osmoweb/core": "^0.6.0",
@@ -64,5 +66,11 @@
             "require": "./dist/components/index.cjs.js"
         },
         "./styles/*": "./dist/styles/*"
-    }
+    },
+    "files": [
+        "dist",
+        "!dist/tests",
+        "LICENSE",
+        "README.md"
+    ]
 }
