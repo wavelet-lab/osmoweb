@@ -1,6 +1,6 @@
 {
     "name": "@osmoweb/frontend-core",
-    "version": "0.5.0",
+    "version": "0.6.0",
     "description": "This is the core frontend package for OsmoWeb",
     "author": "Timur Davydov <dtv.comp@gmail.com>",
     "license": "MIT",
@@ -17,19 +17,30 @@
     "type": "module",
     "scripts": {
         "build": "tsc && tsc-alias && tsc-esm-fix",
+        "prebuild": "node ./scripts/prebuild.js",
         "test": "vitest run",
         "test:watch": "vitest",
         "test:coverage": "vitest run --coverage"
     },
     "dependencies": {
-        "@osmoweb/core": "^0.5.0",
-        "@websdr/frontend-core": "^0.5.3"
+        "@osmoweb/core": "^0.6.0",
+        "@osmoweb/backend-core": "^0.6.0",
+        "@websdr/core": "^0.6.0",
+        "@websdr/frontend-core": "^0.6.0"
+    },
+    "devDependencies": {
+        "@types/emscripten": "^1.41.5"
     },
     "exports": {
         ".": {
             "types": "./dist/index.d.ts",
             "import": "./dist/index.js",
             "require": "./dist/index.js"
+        },
+        "./osmo": {
+            "types": "./dist/osmo/index.d.ts",
+            "import": "./dist/osmo/index.js",
+            "require": "./dist/osmo/index.js"
         },
         "./services": {
             "types": "./dist/services/index.d.ts",
