@@ -1,3 +1,15 @@
 // Re-export osmo functionalities
-export { BtsManager } from './bts.manager';
-export type { BtsAssignment } from './bts.manager';
+export {
+    BtsManager,
+    getBtsManagerInstance,
+    createIpaFromUuid,
+    createCellIdentityFromUuid,
+    assignmentToBtsConfig,
+} from './bts.manager';
+export type {
+    BtsAssignment,
+    BtsManagerOptions,
+    BtsAllocateParams,
+    BtsUpdateParams,
+    IpaUnitId,
+} from './bts.manager';

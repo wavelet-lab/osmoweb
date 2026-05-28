@@ -1,7 +1,7 @@
 import { VtyCommandError } from '@/osmoctrl/vty.client';
 import { OsmoBaseController } from './osmobase.controller';
 import type { OsmoBaseStats } from './osmobase.controller';
-import type { GSMBand } from '@osmoweb/core';
+import { detectGSMBandFromArfcn, GSMBand } from '@osmoweb/core';
 
 export interface BscTimeslotStats {
     tch: number;
@@ -38,11 +38,57 @@ export interface BscBtsConfig {
 // Interface for getBts result
 export interface BscBtsInfo extends BscBtsConfig {
     id: number;
+    connected?: boolean;
     nmState?: {
         state: string;
         adminLocked?: boolean; // inferred from state string
     };
     omlState?: string;
+}
+
+function toOsmoBscBand(band: GSMBand): string {
+    switch (band) {
+        case GSMBand.GSM_850:
+            return 'GSM850';
+        case GSMBand.GSM_900:
+        case GSMBand.EGSM_900:
+            return 'GSM900';
+        case GSMBand.DCS_1800:
+            return 'DCS1800';
+        case GSMBand.PCS_1900:
+            return 'PCS1900';
+    }
+}
+
+function fromOsmoBscBand(band: string, arfcn?: number): GSMBand {
+    if (typeof arfcn === 'number')
+            return detectGSMBandFromArfcn(arfcn)?.[0] ?? GSMBand.GSM_900;
+
+    switch (band) {
+        case 'GSM850':
+            return GSMBand.GSM_850;
+        case 'GSM900':
+            return GSMBand.GSM_900;
+        case 'DCS1800':
+            return GSMBand.DCS_1800;
+        case 'PCS1900':
+            return GSMBand.PCS_1900;
+        default:
+            return band as GSMBand;
+    }
+}
+
+function inferBscBtsConnected(info: Pick<BscBtsInfo, 'nmState' | 'omlState'>): boolean | undefined {
+    const nmState = info.nmState?.state.toLowerCase();
+    if (nmState) {
+        if (nmState.includes("oper 'enabled'") && nmState.includes("avail 'ok'")) return true;
+        if (nmState.includes("oper 'null'") || nmState.includes("avail 'power off'")) return false;
+    }
+
+    const omlState = info.omlState?.toLowerCase();
+    if (omlState === 'connected') return true;
+    if (omlState === 'disconnected' || omlState === 'down') return false;
+    return undefined;
 }
 
 export class BscController extends OsmoBaseController {
@@ -114,6 +160,7 @@ export class BscController extends OsmoBaseController {
         let numTrxFromHeader: number | undefined;
         let bsicFromHeader: number | undefined;
         let arfcnFromList: number | undefined;
+        let rawBand: string | undefined;
 
         const ensureTrx0 = () => {
             if (!info.trx || info.trx.length === 0) {
@@ -138,7 +185,7 @@ export class BscController extends OsmoBaseController {
 
                 // band (present in header as "in band XXX")
                 const bm = line.match(/\bin\s+band\s+([A-Za-z0-9/_-]+)/i);
-                if (bm && bm[1]) info.band = bm[1] as GSMBand;
+                if (bm && bm[1]) rawBand = bm[1];
 
                 continue;
             }
@@ -230,6 +277,11 @@ export class BscController extends OsmoBaseController {
             // }
         }
 
+        if (rawBand) {
+            info.band = fromOsmoBscBand(rawBand, info.trx?.[0]?.arfcn);
+        }
+        info.connected = inferBscBtsConnected(info);
+
         return info;
     }
 
@@ -315,24 +367,33 @@ export class BscController extends OsmoBaseController {
         const cmds: string[] = ['configure terminal', 'network', `bts ${btsId}`];
 
         if (cfg.type && !btsExists) cmds.push(`type ${cfg.type}`);
-        if (cfg.band) cmds.push(`band ${cfg.band}`);
+        if (cfg.band) cmds.push(`band ${toOsmoBscBand(cfg.band)}`);
         if (cfg.description) cmds.push(`description ${cfg.description}`);
         if (cfg.unitId) cmds.push(`ipa unit-id ${cfg.unitId.site} ${cfg.unitId.bts}`);
-        if (typeof cfg.lac === 'number') cmds.push(`location_area_code 0x${cfg.lac.toString(16)}`);
+        cmds.push(`location_area_code ${cfg.lac ?? 1}`);
         if (typeof cfg.ci === 'number') cmds.push(`cell_identity ${cfg.ci}`);
-
-        if (Array.isArray(cfg.trx)) {
-            for (const t of cfg.trx) {
-                if (!Number.isInteger(t.id) || t.id < 0) continue;
-                cmds.push(`trx ${t.id}`);
-                if (typeof t.arfcn === 'number') cmds.push(` arfcn ${t.arfcn}`);
-                cmds.push(' exit');
-            }
-        }
-
+        cmds.push('base_station_id_code 63');
+        cmds.push('ms max power 15');
+        cmds.push('cell reselection hysteresis 4');
+        cmds.push('rxlev access min 0');
+        cmds.push('radio-link-timeout 32');
         cmds.push('channel allocator ascending');
+        cmds.push('rach tx integer 9');
+        cmds.push('rach max transmission 7');
+        cmds.push('channel-descrption attach 1');
+        cmds.push('channel-descrption bs-pa-mfrms 5');
+        cmds.push('channel-descrption bs-ag-blks-res 1');
+        cmds.push('rach emergency call allowed 1');
+        cmds.push('no access-control-class-ramping');
+        cmds.push('access-control-class-ramping-step-size 1');
+        cmds.push('early-classmark-sending allowed');
+        cmds.push('early-classmark-sending-3g allowed');
+        cmds.push('oml ipa stream-id 255 line 0');
         cmds.push('neighbor-list mode manual');
+        cmds.push('codec-support fr hr amr');
+        cmds.push('no force-combined-si');
         cmds.push('osmux only');
+
         if (cfg.gprs === true) {
             cmds.push('gprs mode gprs');
             cmds.push('gprs routing area 0');
@@ -346,10 +407,51 @@ export class BscController extends OsmoBaseController {
         } else {
             cmds.push('gprs mode none');
         }
-        cmds.push('no force-combined-si');
-        cmds.push('no bs-power-control');
-        cmds.push('no ms-power-control');
-        cmds.push('no neighbors');
+
+        if (Array.isArray(cfg.trx)) {
+            for (const t of cfg.trx) {
+                if (!Number.isInteger(t.id) || t.id < 0) continue;
+                cmds.push(`trx ${t.id}`);
+                cmds.push('rf_locked 0');
+                if (typeof t.arfcn === 'number') cmds.push(`arfcn ${t.arfcn}`);
+                cmds.push('nominal power 20');
+                cmds.push('max_power_red 4');
+                cmds.push('rsl e1 tei 0');
+                cmds.push('timeslot 0');
+                cmds.push('phys_chan_config CCCH');
+                cmds.push('hopping enabled 0');
+                cmds.push('exit');
+                cmds.push('timeslot 1');
+                cmds.push('phys_chan_config SDCCH8');
+                cmds.push('hopping enabled 0');
+                cmds.push('exit');
+                cmds.push('timeslot 2');
+                cmds.push('phys_chan_config TCH/F');
+                cmds.push('hopping enabled 0');
+                cmds.push('exit');
+                cmds.push('timeslot 3');
+                cmds.push('phys_chan_config TCH/F');
+                cmds.push('hopping enabled 0');
+                cmds.push('exit');
+                cmds.push('timeslot 4');
+                cmds.push('phys_chan_config TCH/F');
+                cmds.push('hopping enabled 0');
+                cmds.push('exit');
+                cmds.push('timeslot 5');
+                cmds.push('phys_chan_config TCH/F');
+                cmds.push('hopping enabled 0');
+                cmds.push('exit');
+                cmds.push('timeslot 6');
+                cmds.push('phys_chan_config TCH/H');
+                cmds.push('hopping enabled 0');
+                cmds.push('exit');
+                cmds.push('timeslot 7');
+                cmds.push('phys_chan_config TCH/F');
+                cmds.push('hopping enabled 0');
+                cmds.push('exit');
+                cmds.push('exit');
+            }
+        }
 
         cmds.push('end');
         if (persist) cmds.push('write memory');

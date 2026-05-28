@@ -1,5 +1,5 @@
 import type { RawData } from 'ws';
-import type { CommonOsmoResponse } from '@/osmorouter/lib/protocol.types';
+import type { CommonOsmoResponse } from '@/osmorouter/protocol/protocol.types';
 import { encoder } from '@/osmorouter/lib/decoder';
 import type { LoggerInterface } from '@websdr/core/utils';
 

@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { apiFetch } from '@websdr/frontend-core/services';
-import btsDefault, { getBts, updateBts } from '../../services/bts';
-import type { BscBtsConfig } from '../../../../backend-core/dist/osmoctrl/controllers/bsc.controller';
+import btsDefault, { getBts, releaseBts, updateBts } from '../../services/bts';
 import { GSMBand } from '@osmoweb/core';
 
 // Mock the @websdr/frontend-core/services module used by auth.ts
@@ -28,7 +27,7 @@ describe('bts service', () => {
     });
 
     it('updateBts sends PUT with JSON body when config provided and returns response', async () => {
-        const cfg: BscBtsConfig = { type: 'Test BTS', band: GSMBand.GSM_900 };
+        const cfg = { band: GSMBand.GSM_900, arfcn: 12 };
         const resp = { success: true };
         vi.mocked(apiFetch).mockResolvedValue(resp);
         const result = await updateBts(cfg);
@@ -51,8 +50,32 @@ describe('bts service', () => {
         });
     });
 
+    it('releaseBts sends DELETE and returns response', async () => {
+        const resp = { released: true };
+        vi.mocked(apiFetch).mockResolvedValue(resp);
+        const result = await releaseBts();
+        expect(vi.mocked(apiFetch)).toHaveBeenCalledWith('/api/v1/osmo/bts', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({}),
+        });
+        expect(result).toBe(resp);
+    });
+
+    it('releaseBts sends instanceId when provided', async () => {
+        const resp = { released: true };
+        vi.mocked(apiFetch).mockResolvedValue(resp);
+        await releaseBts('tab-1');
+        expect(vi.mocked(apiFetch)).toHaveBeenCalledWith('/api/v1/osmo/bts', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ instanceId: 'tab-1' }),
+        });
+    });
+
     it('default export exposes getBts and updateBts', () => {
         expect(btsDefault.getBts).toBe(getBts);
+        expect(btsDefault.releaseBts).toBe(releaseBts);
         expect(btsDefault.updateBts).toBe(updateBts);
     });
 });
