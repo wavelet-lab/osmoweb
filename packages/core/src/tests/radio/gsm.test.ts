@@ -37,7 +37,13 @@ describe('GSM Functions', () => {
 
         it('should throw error for ARFCN out of range', () => {
             expect(() => gsmArfcnToFrequency(1000, GSMBand.GSM_900))
-                .toThrow('ARFCN 1000 is out of range for band GSM_900');
+                .toThrow('ARFCN 1000 is out of range for band GSM900');
+        });
+
+        it('should convert EGSM 900 ARFCN to frequency correctly', () => {
+            const result = gsmArfcnToFrequency(975, GSMBand.EGSM_900);
+            expect(result.uplink).toBe(880200); // 880.2 MHz
+            expect(result.downlink).toBe(925200); // 925.2 MHz
         });
 
         it('should handle channel spacing correctly', () => {
@@ -65,9 +71,20 @@ describe('GSM Functions', () => {
             expect(arfcn).toBe(2);
         });
 
+        it('should convert EGSM uplink/downlink frequency to ARFCN correctly', () => {
+            const arfcnUp = gsmFrequencyToArfcn(880200, GSMBand.EGSM_900); // 880.2 MHz
+            expect(arfcnUp).toBe(975);
+
+            const arfcnDown = gsmFrequencyToArfcn(925200, GSMBand.EGSM_900); // 925.2 MHz
+            expect(arfcnDown).toBe(975);
+
+            const arfcnSpacing = gsmFrequencyToArfcn(880400, GSMBand.EGSM_900); // 880.4 MHz
+            expect(arfcnSpacing).toBe(976);
+        });
+
         it('should throw error for frequency out of band', () => {
             expect(() => gsmFrequencyToArfcn(1000000, GSMBand.GSM_900))
-                .toThrow('Frequency 1000000 kHz is not in band GSM_900');
+                .toThrow('Frequency 1000000 kHz is not in band GSM900');
         });
     });
 
@@ -80,6 +97,16 @@ describe('GSM Functions', () => {
         it('should detect GSM_900 from downlink frequency', () => {
             const band = detectGSMBandFromFrequency(950000); // 950 MHz
             expect(band).toStrictEqual([GSMBand.GSM_900]);
+        });
+
+        it('should detect EGSM_900 from uplink frequency', () => {
+            const band = detectGSMBandFromFrequency(885000); // 885 MHz
+            expect(band).toStrictEqual([GSMBand.GSM_850, GSMBand.EGSM_900]);
+        });
+
+        it('should detect both GSM_900 and EGSM_900 at the boundary', () => {
+            const band = detectGSMBandFromFrequency(890000); // boundary frequency
+            expect(band).toStrictEqual([GSMBand.GSM_850, GSMBand.GSM_900, GSMBand.EGSM_900]);
         });
 
         it('should detect GSM_850 correctly', () => {
@@ -107,6 +134,11 @@ describe('GSM Functions', () => {
         it('should detect GSM_900 from ARFCN', () => {
             const band = detectGSMBandFromArfcn(50);
             expect(band).toStrictEqual([GSMBand.GSM_900]);
+        });
+
+        it('should detect EGSM_900 from ARFCN', () => {
+            const band = detectGSMBandFromArfcn(975);
+            expect(band).toStrictEqual([GSMBand.EGSM_900]);
         });
 
         it('should detect GSM_850 from ARFCN', () => {
@@ -145,21 +177,32 @@ describe('GSM Functions', () => {
                 downlinkEnd: 893800 // 893.8 MHz
             });
         });
+
+        it('should return correct frequency range for EGSM_900', () => {
+            const range = getGSMBandFrequencyRange(GSMBand.EGSM_900);
+            expect(range).toEqual({
+                uplinkStart: 880200, // 880.2 MHz
+                uplinkEnd: 890000, // 890 MHz
+                downlinkStart: 925200, // 925.2 MHz
+                downlinkEnd: 935000 // 935 MHz
+            });
+        });
     });
 
     describe('getAllGSMBands', () => {
         it('should return all GSM bands', () => {
             const bands = getAllGSMBands();
-            expect(bands).toHaveLength(4 /* 8 */);
+            expect(bands).toHaveLength(5 /* 9 */);
             /* These bands are not commonly used in public networks, so they are commented out for now */
             // expect(bands).toContain('GSM_450');
             // expect(bands).toContain('GSM_480');
             // expect(bands).toContain('GSM_750');
             // expect(bands).toContain('GSM_810');
-            expect(bands).toContain('GSM_850');
-            expect(bands).toContain('GSM_900');
-            expect(bands).toContain('DCS_1800');
-            expect(bands).toContain('PCS_1900');
+            expect(bands).toContain('GSM850');
+            expect(bands).toContain('GSM900');
+            expect(bands).toContain('EGSM900');
+            expect(bands).toContain('DCS1800');
+            expect(bands).toContain('PCS1900');
         });
     });
 });

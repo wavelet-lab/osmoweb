@@ -162,7 +162,7 @@ describe('Integration Tests', () => {
                 arfcn: 1000,
                 technology: RadioTechnology.GSM,
                 band: GSMBand.GSM_900
-            })).toThrow('ARFCN 1000 is out of range for band GSM_900');
+            })).toThrow('ARFCN 1000 is out of range for band GSM900');
         });
     });
 

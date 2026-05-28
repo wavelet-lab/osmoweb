@@ -65,8 +65,17 @@ const GSM_BANDS: Record<GSMBand, GSMBandConfig> = {
         uplinkEnd: 915000,      // 915 MHz
         downlinkStart: 935000,  // 935 MHz
         downlinkEnd: 960000,    // 960 MHz
-        arfcnStart: 0,          // Doesn't include ARFCN for Extended Range GSM 900 (940-1023)
-        arfcnEnd: 124,          // Doesn't include ARFCN for Extended Range GSM 900 (940-1023)
+        arfcnStart: 0,          // Doesn't include ARFCN for Extended Range GSM 900 (975-1023)
+        arfcnEnd: 124,          // Doesn't include ARFCN for Extended Range GSM 900 (975-1023)
+        channelSpacing: 200     // 0.2 MHz
+    },
+    [GSMBand.EGSM_900]: {
+        uplinkStart: 880200,    // 880.2 MHz
+        uplinkEnd: 890000,      // 890 MHz
+        downlinkStart: 925200,  // 925.2 MHz
+        downlinkEnd: 935000,    // 935 MHz
+        arfcnStart: 975,        // Extended Range GSM 900 ARFCN range (975-1023)
+        arfcnEnd: 1023,         // Extended Range GSM 900 ARFCN range (975-1023)
         channelSpacing: 200     // 0.2 MHz
     },
     [GSMBand.DCS_1800]: {

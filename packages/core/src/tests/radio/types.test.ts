@@ -27,24 +27,25 @@ describe('Types and Enums', () => {
 
     describe('GSMBand enum', () => {
         it('should have correct values', () => {
-            expect(GSMBand.GSM_850).toBe('GSM_850');
-            expect(GSMBand.GSM_900).toBe('GSM_900');
-            expect(GSMBand.DCS_1800).toBe('DCS_1800');
-            expect(GSMBand.PCS_1900).toBe('PCS_1900');
+            expect(GSMBand.GSM_850).toBe('GSM850');
+            expect(GSMBand.GSM_900).toBe('GSM900');
+            expect(GSMBand.DCS_1800).toBe('DCS1800');
+            expect(GSMBand.PCS_1900).toBe('PCS1900');
         });
 
         it('should have all expected GSM bands', () => {
             const bands = Object.values(GSMBand);
-            expect(bands).toHaveLength(4 /* 8 */);
+            expect(bands).toHaveLength(5 /* 9 */);
             /* These bands are not commonly used in public networks, so they are commented out for now */
             // expect(bands).toContain('GSM_450');
             // expect(bands).toContain('GSM_480');
             // expect(bands).toContain('GSM_750');
             // expect(bands).toContain('GSM_810');
-            expect(bands).toContain('GSM_850');
-            expect(bands).toContain('GSM_900');
-            expect(bands).toContain('DCS_1800');
-            expect(bands).toContain('PCS_1900');
+            expect(bands).toContain('GSM850');
+            expect(bands).toContain('GSM900');
+            expect(bands).toContain('EGSM900');
+            expect(bands).toContain('DCS1800');
+            expect(bands).toContain('PCS1900');
         });
     });
 

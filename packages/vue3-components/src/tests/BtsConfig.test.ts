@@ -5,7 +5,7 @@ import { nextTick } from 'vue';
 // Mock the entire @osmoweb/core/radio module
 vi.mock('@osmoweb/core/radio', () => ({
     RadioTechnology: { GSM: 'GSM', LTE: 'LTE', NR: 'NR' },
-    GSMBand: { GSM_900: 'GSM_900', DCS_1800: 'DCS_1800' },
+    GSMBand: { GSM_900: 'GSM900', DCS_1800: 'DCS1800' },
     LTEBand: { B3: 'B3', B7: 'B7' },
     NRBand: { N41: 'N41', N78: 'N78' },
     configureARFCN: vi.fn(({ arfcn, technology, band }): {
@@ -15,7 +15,7 @@ vi.mock('@osmoweb/core/radio', () => ({
         uplinkFrequency: number | undefined;
         downlinkFrequency: number | undefined
     } => {
-        if (technology === 'GSM' && band === 'GSM_900') {
+        if (technology === 'GSM' && band === 'GSM900') {
             return {
                 arfcn,
                 technology,
@@ -44,7 +44,7 @@ vi.mock('@osmoweb/core/radio', () => ({
     getSupportedBands: vi.fn((technology) => {
         switch (technology) {
             case 'GSM':
-                return ['GSM_900', 'DCS_1800'];
+                return ['GSM900', 'DCS1800'];
             case 'LTE':
                 return ['B3', 'B7'];
             case 'NR':
@@ -54,10 +54,10 @@ vi.mock('@osmoweb/core/radio', () => ({
         }
     }),
     getBandArfcnRange: vi.fn((technology, band) => {
-        if (technology === 'GSM' && band === 'GSM_900') {
+        if (technology === 'GSM' && band === 'GSM900') {
             return { arfcnStart: 0, arfcnEnd: 124 };
         }
-        if (technology === 'GSM' && band === 'DCS_1800') {
+        if (technology === 'GSM' && band === 'DCS1800') {
             return { arfcnStart: 512, arfcnEnd: 885 };
         }
         if (technology === 'LTE' && band === 'B3') {
@@ -108,7 +108,7 @@ describe('BtsConfig', () => {
         it('renders with existing BTS configuration', () => {
             const existingBts: BtsParams = {
                 technology: 'GSM' as RadioTechnology,
-                band: 'GSM_900' as MobileBand,
+                band: 'GSM900' as MobileBand,
                 arfcn: 50
             };
 
@@ -120,7 +120,7 @@ describe('BtsConfig', () => {
             });
 
             expect(wrapper.vm.btsParams.technology).toBe('GSM');
-            expect(wrapper.vm.btsParams.band).toBe('GSM_900');
+            expect(wrapper.vm.btsParams.band).toBe('GSM900');
             expect(wrapper.vm.btsParams.arfcn).toBe(50);
         });
     });
@@ -162,19 +162,19 @@ describe('BtsConfig', () => {
             wrapper.vm.btsParams.technology = 'GSM';
             await nextTick();
             expect(mockGetSupportedBands).toHaveBeenCalledWith('GSM');
-            expect(wrapper.vm.availableBands).toEqual(['GSM_900', 'DCS_1800']);
+            expect(wrapper.vm.availableBands).toEqual(['GSM900', 'DCS1800']);
 
             wrapper.vm.btsParams.technology = undefined; // Default to GSM
             await nextTick();
-            expect(wrapper.vm.availableBands).toEqual(['GSM_900', 'DCS_1800']);
+            expect(wrapper.vm.availableBands).toEqual(['GSM900', 'DCS1800']);
         });
 
         it('computes availableArfcns correctly', async () => {
             wrapper.vm.btsParams.technology = 'GSM';
-            wrapper.vm.btsParams.band = 'GSM_900';
+            wrapper.vm.btsParams.band = 'GSM900';
             await nextTick();
 
-            expect(mockGetBandArfcnRange).toHaveBeenCalledWith('GSM', 'GSM_900');
+            expect(mockGetBandArfcnRange).toHaveBeenCalledWith('GSM', 'GSM900');
             expect(wrapper.vm.availableArfcns).toHaveLength(125);
             expect(wrapper.vm.availableArfcns[0]).toBe(0);
             expect(wrapper.vm.availableArfcns[124]).toBe(124);
@@ -209,11 +209,11 @@ describe('BtsConfig', () => {
 
         it('clears ARFCN when band changes', async () => {
             wrapper.vm.btsParams.technology = 'GSM';
-            wrapper.vm.btsParams.band = 'GSM_900';
+            wrapper.vm.btsParams.band = 'GSM900';
             wrapper.vm.btsParams.arfcn = 50;
             await nextTick();
 
-            wrapper.vm.btsParams.band = 'DCS_1800';
+            wrapper.vm.btsParams.band = 'DCS1800';
             await nextTick();
 
             expect(wrapper.vm.btsParams.arfcn).toBeUndefined();
@@ -234,7 +234,7 @@ describe('BtsConfig', () => {
         it('emits submit event with form data when handleSubmit is called', async () => {
             Object.assign(wrapper.vm.btsParams, {
                 technology: 'GSM',
-                band: 'GSM_900',
+                band: 'GSM900',
                 arfcn: 50
             });
             await nextTick();
@@ -244,7 +244,7 @@ describe('BtsConfig', () => {
             expect(wrapper.emitted('submit')).toBeTruthy();
             expect(wrapper.emitted('submit')?.[0]).toEqual([{
                 technology: 'GSM',
-                band: 'GSM_900',
+                band: 'GSM900',
                 arfcn: 50,
                 downlinkFrequency: 945000,
                 uplinkFrequency: 900000,
@@ -254,7 +254,7 @@ describe('BtsConfig', () => {
         it('resets form when resetForm is called', async () => {
             const initialBts: BtsParams = {
                 technology: 'GSM' as RadioTechnology,
-                band: 'GSM_900' as MobileBand,
+                band: 'GSM900' as MobileBand,
                 arfcn: 50
             };
 
@@ -272,7 +272,7 @@ describe('BtsConfig', () => {
             await nextTick();
 
             expect(wrapper.vm.btsParams.technology).toBe('GSM');
-            expect(wrapper.vm.btsParams.band).toBe('GSM_900');
+            expect(wrapper.vm.btsParams.band).toBe('GSM900');
             expect(wrapper.vm.btsParams.arfcn).toBe(50);
         });
     });
@@ -287,7 +287,7 @@ describe('BtsConfig', () => {
         });
 
         it('displays frequency information correctly', () => {
-            wrapper.vm.btsParams.band = 'GSM_900';
+            wrapper.vm.btsParams.band = 'GSM900';
             wrapper.vm.btsParams.technology = 'GSM';
 
             const frequency = wrapper.vm.getFrequency(50);
@@ -295,7 +295,7 @@ describe('BtsConfig', () => {
             expect(mockConfigureARFCN).toHaveBeenCalledWith({
                 arfcn: 50,
                 technology: 'GSM',
-                band: 'GSM_900'
+                band: 'GSM900'
             });
             expect(frequency).toBe('(D 945.0 / U 900.0 MHz)');
         });
@@ -305,7 +305,7 @@ describe('BtsConfig', () => {
                 throw new Error('Invalid ARFCN');
             });
 
-            wrapper.vm.btsParams.band = 'GSM_900';
+            wrapper.vm.btsParams.band = 'GSM900';
             const frequency = wrapper.vm.getFrequency(50);
 
             expect(frequency).toBe('');
@@ -322,12 +322,12 @@ describe('BtsConfig', () => {
             mockConfigureARFCN.mockReturnValue({
                 arfcn: 50,
                 technology: 'GSM' as RadioTechnology,
-                band: 'GSM_900' as MobileBand,
+                band: 'GSM900' as MobileBand,
                 downlinkFrequency: 900000,
                 uplinkFrequency: undefined,
             });
 
-            wrapper.vm.btsParams.band = 'GSM_900';
+            wrapper.vm.btsParams.band = 'GSM900';
             wrapper.vm.btsParams.technology = 'GSM';
 
             const frequency = wrapper.vm.getFrequency(50);
@@ -338,12 +338,12 @@ describe('BtsConfig', () => {
             mockConfigureARFCN.mockReturnValue({
                 arfcn: 50,
                 technology: 'GSM' as RadioTechnology,
-                band: 'GSM_900' as MobileBand,
+                band: 'GSM900' as MobileBand,
                 downlinkFrequency: undefined,
                 uplinkFrequency: 945000
             });
 
-            wrapper.vm.btsParams.band = 'GSM_900';
+            wrapper.vm.btsParams.band = 'GSM900';
             wrapper.vm.btsParams.technology = 'GSM';
 
             const frequency = wrapper.vm.getFrequency(50);
@@ -416,7 +416,7 @@ describe('BtsConfig', () => {
             });
 
             wrapper.vm.btsParams.technology = 'GSM';
-            wrapper.vm.btsParams.band = 'GSM_900';
+            wrapper.vm.btsParams.band = 'GSM900';
             await nextTick();
 
             expect(wrapper.vm.availableArfcns).toEqual([]);
@@ -432,7 +432,7 @@ describe('BtsConfig', () => {
             });
 
             wrapper.vm.btsParams.technology = 'GSM';
-            wrapper.vm.btsParams.band = 'GSM_900';
+            wrapper.vm.btsParams.band = 'GSM900';
             await nextTick();
 
             expect(wrapper.vm.availableArfcns).toEqual([]);
