@@ -15,14 +15,15 @@ export enum RadioTechnology {
  */
 export enum GSMBand {
 /* These bands are not commonly used in public networks, so they are commented out for now */
-    // GSM_450 = 'GSM_450',    // 450 MHz (Doesn't used in public networks)
-    // GSM_480 = 'GSM_480',    // 480 MHz (Doesn't used in public networks)
-    // GSM_750 = 'GSM_750',    // 750 MHz (Doesn't used in public networks)
-    // GSM_810 = 'GSM_810',    // 810 MHz (Doesn't used in public networks)
-    GSM_850 = 'GSM_850',    // 850 MHz (Americas)
-    GSM_900 = 'GSM_900',    // 900 MHz (Global)
-    DCS_1800 = 'DCS_1800',  // 1800 MHz (Global)
-    PCS_1900 = 'PCS_1900'   // 1900 MHz (Americas)
+    // GSM_450 = 'GSM450',    // 450 MHz (Doesn't used in public networks)
+    // GSM_480 = 'GSM480',    // 480 MHz (Doesn't used in public networks)
+    // GSM_750 = 'GSM750',    // 750 MHz (Doesn't used in public networks)
+    // GSM_810 = 'GSM810',    // 810 MHz (Doesn't used in public networks)
+    GSM_850 = 'GSM850',    // 850 MHz (Americas)
+    GSM_900 = 'GSM900',    // 900 MHz (Global)
+    EGSM_900 = 'EGSM900',  // 900 MHz (Global)
+    DCS_1800 = 'DCS1800',  // 1800 MHz (Global)
+    PCS_1900 = 'PCS1900'   // 1900 MHz (Americas)
 }
 
 /**

@@ -1,8 +1,6 @@
 # OsmoWeb
 [OsmoWeb](https://github.com/wavelet-lab/osmoweb) is an open-source TypeScript library that brings Osmocom's mobile communication capabilities to the web.
 
-⚠️ This project is under active development. Not all features are implemented yet and some functionality may not work.
-
 ## Description
 
 OsmoWeb is a TypeScript monorepo for building web apps and services around Osmocom network elements, with a long‑term goal of providing an npm package to run a 2G base station in the browser or in a web environment.
@@ -131,6 +129,56 @@ Monitoring stack (Prometheus/Pushgateway/Alertmanager + InfluxDB + Grafana):
 
 ## Environments
 
+OsmoWeb packages read configuration from the host application environment.
+
+### Backend / NestJS
+
+`packages/nestjs-microservice` builds `OSMO_PARAMS` from `@nestjs/config`:
+
+| Variable | Default | Used for |
+| --- | --- | --- |
+| `OSMO_SERVER_PORT` | `8800` | Backend Osmo server port. |
+| `OSMO_WORKER_POOL_SIZE` | `4` | Worker pool size for Osmo routing. |
+| `OSMO_UDP_MEDIA_URI` / `OSMO_UDP_MEDIA_PORT` | `localhost` / `1984` | UDP media service endpoint. |
+| `OSMO_TCP_ABIS_OML_URI` / `OSMO_TCP_ABIS_OML_PORT` | `localhost` / `3002` | ABIS OML TCP service endpoint. |
+| `OSMO_TCP_ABIS_RSL_URI` / `OSMO_TCP_ABIS_RSL_PORT` | `localhost` / `3003` | ABIS RSL TCP service endpoint. |
+| `OSMO_TCP_HLR_URI` / `OSMO_TCP_HLR_PORT` | `localhost` / `4258` | HLR TCP service endpoint. |
+| `OSMO_TCP_BSC_URI` / `OSMO_TCP_BSC_PORT` | `localhost` / `4242` | BSC TCP service endpoint. |
+| `OSMO_CONTROL_URI` | `/wsdr/osmo/control` | Control WebSocket endpoint stored in `OSMO_PARAMS`. |
+| `OSMO_MEDIA_URI` | `/wsdr/osmo/media` | Media WebSocket endpoint stored in `OSMO_PARAMS`. |
+| `OSMO_ABIS_OML_URI` | `/wsdr/osmo/abis_oml` | ABIS OML WebSocket endpoint stored in `OSMO_PARAMS`. |
+| `OSMO_ABIS_RSL_URI` | `/wsdr/osmo/abis_rsl` | ABIS RSL WebSocket endpoint stored in `OSMO_PARAMS`. |
+
+The WebSocket gateways are currently registered on the default `/wsdr/osmo/*` paths.
+
+### Stats / Monitoring
+
+| Variable | Default | Used for |
+| --- | --- | --- |
+| `STATS_ENABLED` | `true` | Enables periodic stats collection when at least one writer is configured. |
+| `STATS_INTERVAL_MS` | `10000` | Stats polling interval in milliseconds. |
+| `INFLUXDB_URL` | unset | Enables the InfluxDB writer. |
+| `INFLUXDB_ORG` | unset | InfluxDB organization. |
+| `INFLUXDB_TOKEN` | unset | InfluxDB token. |
+| `INFLUXDB_BUCKET` | unset | InfluxDB bucket. |
+| `PROMETHEUS_PUSH_URL` | unset | Enables the Prometheus Pushgateway writer. |
+
+### Frontend
+
+| Variable | Default | Used for |
+| --- | --- | --- |
+| `VITE_OSMO_PORT` / `OSMO_PORT` | current API base port | Overrides the port used when building Osmo WebSocket URLs in frontend packages. |
+
+### Auth
+
+The NestJS package reuses auth from `@websdr/nestjs-microservice`; set `JWT_SECRET` in real deployments. See the WebSDR NestJS package README for `JWT_ALGORITHM`, `JWT_EXPIRES_IN`, and cookie behavior controlled by `NODE_ENV`.
+
+## Funding
+
+This project is funded through [NGI0 Commons Fund](https://nlnet.nl/commonsfund), a fund established by [NLnet](https://nlnet.nl) with financial support from the European Commission's [Next Generation Internet](https://ngi.eu) program. Learn more at the [NLnet project page](https://nlnet.nl/project/WSDR).
+
+[<img src="https://nlnet.nl/logo/banner.png" alt="NLnet foundation logo" width="20%" />](https://nlnet.nl)
+[<img src="https://nlnet.nl/image/logos/NGI0_tag.svg" alt="NGI Zero Logo" width="20%" />](https://nlnet.nl/commonsfund)
 
 ## License
 

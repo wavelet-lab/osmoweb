@@ -237,7 +237,7 @@ describe('ARFCN Configuration Functions', () => {
                     arfcn: 10000,
                     technology: RadioTechnology.GSM,
                     band: GSMBand.GSM_900
-                })).toThrow('ARFCN 10000 is out of range for band GSM_900');
+                })).toThrow('ARFCN 10000 is out of range for band GSM900');
             });
         });
     });
@@ -245,9 +245,10 @@ describe('ARFCN Configuration Functions', () => {
     describe('getSupportedBands', () => {
         it('should return GSM bands for GSM technology', () => {
             const bands = getSupportedBands(RadioTechnology.GSM);
-            expect(bands).toHaveLength(4 /* 8 */);
-            expect(bands).toContain('GSM_900');
-            expect(bands).toContain('GSM_850');
+            expect(bands).toHaveLength(5 /* 9 */);
+            expect(bands).toContain('GSM900');
+            expect(bands).toContain('EGSM900');
+            expect(bands).toContain('GSM850');
         });
 
         it('should return LTE bands for LTE technology', () => {
@@ -267,7 +268,7 @@ describe('ARFCN Configuration Functions', () => {
 
     describe('getBandFrequencyRange', () => {
         it('should return GSM band frequency range', () => {
-            const range = getBandFrequencyRange(RadioTechnology.GSM, 'GSM_900' as MobileBand);
+            const range = getBandFrequencyRange(RadioTechnology.GSM, 'GSM900' as MobileBand);
             expect(range).toEqual({
                 uplinkStart: 890000, // 890 MHz
                 uplinkEnd: 915000, // 915 MHz

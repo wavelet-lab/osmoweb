@@ -2,7 +2,7 @@ import { ControlController } from '@/osmorouter/controllers/control.controller';
 import { AbisRslController } from '@/osmorouter/controllers/abis-rsl.controller';
 import { AbisOmlController } from '@/osmorouter/controllers/abis-oml.controller';
 import { MediaController } from '@/osmorouter/controllers/media.controller';
-import type { OsmoController, OsmoControllerClass } from '@/osmorouter/controllers/controller.type';
+import type { LoggerFactory, OsmoController, OsmoControllerClass } from '@/osmorouter/controllers/controller.type';
 import { DefaultController } from '@/osmorouter/controllers/default.controller';
 import type { OsmoParams } from '@/osmorouter/lib/common.types';
 import type { LoggerInterface } from '@websdr/core/utils';
@@ -10,6 +10,7 @@ import { SimpleLogger } from '@websdr/core/utils';
 
 export class Router {
     private readonly logger;
+    private readonly createLogger: LoggerFactory;
     private readonly controllerMap = new Map<string, OsmoControllerClass>([
         ['control', ControlController],
         ['abis_rsl', AbisRslController],
@@ -18,10 +19,12 @@ export class Router {
     ]);
 
     private instanceCtrlMap = new Map<string, OsmoController>();
-    private defaultController = new DefaultController();
+    private defaultController: DefaultController;
 
-    constructor(logger?: LoggerInterface) {
-        this.logger = logger ?? new SimpleLogger();
+    constructor(logger?: LoggerInterface, loggerFactory?: LoggerFactory) {
+        this.createLogger = loggerFactory ?? ((context: string) => logger ?? new SimpleLogger(context));
+        this.logger = logger ?? this.createLogger(Router.name);
+        this.defaultController = new DefaultController(this.createLogger(DefaultController.name));
         this.logger.log?.('Osmo router created');
     }
 
@@ -41,7 +44,7 @@ export class Router {
      */
     init(osmoParams: OsmoParams) {
         for (const [path, cls] of this.controllerMap.entries()) {
-            this.instanceCtrlMap.set(path, new cls(osmoParams));
+            this.instanceCtrlMap.set(path, new cls(osmoParams, this.createLogger(cls.name), this.createLogger));
             this.logger.log?.(`Initialized controller: ${path}`);
         }
     }

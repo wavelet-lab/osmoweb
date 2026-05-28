@@ -6,3 +6,4 @@ export { ControlController } from './controllers/control.controller';
 export { MediaController } from './controllers/media.controller';
 export { OsmoServices, osmoServiceAddrMap, osmoDefaultParams } from './lib/common.types';
 export type { OsmoParams } from './lib/common.types';
+export type { BtsConfig } from './protocol';

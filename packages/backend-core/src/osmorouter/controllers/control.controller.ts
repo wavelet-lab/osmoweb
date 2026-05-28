@@ -1,51 +1,36 @@
 import type WebSocket from 'ws';
-import type { OsmoController } from '@/osmorouter/controllers/controller.type';
+import type { LoggerFactory, OsmoController } from '@/osmorouter/controllers/controller.type';
 import { OsmoTcpClient } from '@/osmorouter/osmotcp.client';
 import { OsmoServices } from '@/osmorouter/lib/common.types';
 import type { OsmoParams } from '@/osmorouter/lib/common.types';
 import type {
-    BtsConfig, GetBtsListRequest, GetBtsListResponse, CommonOsmoResponse, LockBtsRequest,
-    LockBtsResponse, UnlockBtsRequest, UnlockBtsResponse, CommonOsmoRequest, ErrorResponse
-} from '@/osmorouter/lib/protocol.types';
-import { getBtsPoolInstance } from '@/osmorouter/btspool';
-import type { BtsItem } from '@/osmorouter/btspool';
+    GetBtsListResponse, CommonOsmoResponse, CommonOsmoRequest, ErrorResponse
+} from '@/osmorouter/protocol/protocol.types';
+import { getBtsManagerInstance } from '@/osmo/bts.manager';
 import { sleep } from '@websdr/core/utils';
 import type { LoggerInterface } from '@websdr/core/utils';
 import { SimpleLogger } from '@websdr/core/utils';
 
 export class ControlController implements OsmoController {
     protected readonly logger: LoggerInterface;
+    protected readonly createLogger: LoggerFactory;
 
-    constructor(private readonly osmoParams: OsmoParams, logger?: LoggerInterface) {
+    constructor(private readonly osmoParams: OsmoParams, logger?: LoggerInterface, loggerFactory?: LoggerFactory) {
         this.logger = logger ?? new SimpleLogger(ControlController.name);
+        this.createLogger = loggerFactory ?? ((context: string) => logger ?? new SimpleLogger(context));
     }
 
-    parseRequest(req: CommonOsmoRequest, client: WebSocket): CommonOsmoResponse | undefined {
-        let code = 0;
-        const btsPool = getBtsPoolInstance();
+    parseRequest(req: CommonOsmoRequest, _client: WebSocket): CommonOsmoResponse | undefined {
         switch (req.event) {
             case 'get-bts-list':
                 const bts_list_response: GetBtsListResponse = {
                     event: req.event,
-                    bts: btsPool.btses.map((v: BtsItem, idx: number) => ({ ...v.cfg, id: idx, locked: v.locked })),
+                    bts: getBtsManagerInstance().dumpState().knownBtsIds
+                        .map((id: number) => getBtsManagerInstance().getById(id))
+                        .filter((bts) => bts !== null)
+                        .map((bts) => getBtsManagerInstance().toBtsConfig(bts!)),
                 };
                 return bts_list_response;
-            case 'lock-bts':
-                code = btsPool.lockBts(req.id, client);
-                const lock_bts_response: LockBtsResponse = {
-                    event: req.event,
-                    id: req.id,
-                    result: { code: code },
-                };
-                return lock_bts_response;
-            case 'unlock-bts':
-                code = btsPool.unlockBts(req.id, client);
-                const unlock_bts_response: UnlockBtsResponse = {
-                    event: req.event,
-                    id: req.id,
-                    result: { code: code },
-                };
-                return unlock_bts_response;
             default:
                 const error_response: ErrorResponse = {
                     error: { description: `Unknown request ${req}` },
@@ -67,8 +52,9 @@ export class ControlController implements OsmoController {
             client.close();
             return;
         }
-        const osmoHlrClient = new OsmoTcpClient(serviceHlr, 'HLR');
-        const osmoBscClient = new OsmoTcpClient(serviceBsc, 'BSC');
+        const osmoClientLogger = this.createLogger(OsmoTcpClient.name);
+        const osmoHlrClient = new OsmoTcpClient(serviceHlr, 'HLR', osmoClientLogger);
+        const osmoBscClient = new OsmoTcpClient(serviceBsc, 'BSC', osmoClientLogger);
 
         client.onmessage = (msg: WebSocket.MessageEvent) => {
             if (typeof msg.data === 'string') {
@@ -83,13 +69,11 @@ export class ControlController implements OsmoController {
         client.onclose = () => {
             osmoHlrClient.disconnect();
             osmoBscClient.disconnect();
-            getBtsPoolInstance().unlockBtsByClient(client);
         }
 
         client.onerror = () => {
             osmoHlrClient.disconnect();
             osmoBscClient.disconnect();
-            getBtsPoolInstance().unlockBtsByClient(client);
         }
 
         osmoHlrClient.onData = (data: Buffer) => {

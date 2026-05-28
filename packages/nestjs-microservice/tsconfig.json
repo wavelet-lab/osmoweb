@@ -3,10 +3,10 @@
         // File Layout
         "rootDir": "src",
         "outDir": "dist",
-        "baseUrl": ".",
+        // Path Mapping
         "paths": {
             "@/*": [
-                "src/*"
+                "./src/*"
             ],
             "vitest": [
                 "../../node_modules/vitest"

@@ -104,13 +104,11 @@ export class OsmoUdpClient {
     }
 
     send(data: Buffer) {
-        this.client.send(data, /* this.port, this.uri, */(error) => {
-            if (error) {
-                this.logger.error(`OsmoUdpClient(${this._name}).sendData: ${error}`)
-                this.disconnect();
-            }/*  else {
-                this.log.debug?.(`OsmoUdpClient(${this._name}).sendData: Data sent !!!`)
-            } */
-        });
+        try {
+            this.client.send(data);
+        } catch (error) {
+            this.logger.error(`OsmoUdpClient(${this._name}).sendData: ${error}`)
+            this.disconnect();
+        }
     }
 }

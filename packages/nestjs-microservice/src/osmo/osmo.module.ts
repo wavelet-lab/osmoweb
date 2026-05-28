@@ -11,9 +11,10 @@ import { StatsModule } from './stats/stats.module';
 import { BtsController } from './controllers/bts.controller';
 import { OSMO_PARAMS } from './tokens';
 import { LoggingModule } from '@websdr/nestjs-microservice/common';
+import { AuthModule, JwtAuthGuard } from '@websdr/nestjs-microservice/auth';
 
 @Module({
-    imports: [ConfigModule, LoggingModule, StatsModule],
+    imports: [ConfigModule, AuthModule, LoggingModule, StatsModule],
     controllers: [BtsController],
     providers: [
         {
@@ -53,6 +54,7 @@ import { LoggingModule } from '@websdr/nestjs-microservice/common';
                 };
             },
         },
+        JwtAuthGuard,
         ...osmoProviders,
         CoreRouterAdapter,
         AbisOmlGateway,

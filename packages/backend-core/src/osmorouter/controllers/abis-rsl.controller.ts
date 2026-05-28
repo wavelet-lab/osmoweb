@@ -1,5 +1,5 @@
 import type WebSocket from 'ws';
-import type { OsmoController } from '@/osmorouter/controllers/controller.type';
+import type { LoggerFactory, OsmoController } from '@/osmorouter/controllers/controller.type';
 import { OsmoTcpClient } from '@/osmorouter/osmotcp.client';
 import type { OsmoParams } from '@/osmorouter/lib/common.types';
 import { OsmoServices } from '@/osmorouter/lib/common.types';
@@ -8,9 +8,11 @@ import { SimpleLogger } from '@websdr/core/utils';
 
 export class AbisRslController implements OsmoController {
     protected readonly logger: LoggerInterface;
+    protected readonly createLogger: LoggerFactory;
 
-    constructor(private readonly osmoParams: OsmoParams, logger?: LoggerInterface) {
+    constructor(private readonly osmoParams: OsmoParams, logger?: LoggerInterface, loggerFactory?: LoggerFactory) {
         this.logger = logger ?? new SimpleLogger(AbisRslController.name);
+        this.createLogger = loggerFactory ?? ((context: string) => logger ?? new SimpleLogger(context));
     }
 
     handle = async (client: WebSocket) => {
@@ -20,7 +22,7 @@ export class AbisRslController implements OsmoController {
             client.close();
             return;
         }
-        const osmoClient = new OsmoTcpClient(service, 'RSL');
+        const osmoClient = new OsmoTcpClient(service, 'RSL', this.createLogger(OsmoTcpClient.name));
 
         // osmoClient.onData = (data: Buffer) => {
         //     client.send(data);

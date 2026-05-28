@@ -12,7 +12,7 @@ export default defineComponent({
 
 export interface BtsParams {
     technology?: RadioTechnology; // Radio technology: GSM, LTE, NR
-    band?: MobileBand; // Mobile band (e.g., GSM - GSM_900, LTE - B3, NR - N78)
+    band?: MobileBand; // Mobile band (e.g., GSM - GSM900, LTE - B3, NR - N78)
     arfcn?: number; // Absolute Radio Frequency Channel Number for downlink: GSM - Arfcn, LTE - Earfcn, NR - Nrarfcn
     uplinkFrequency?: number; // Uplink frequency in kHz
     downlinkFrequency?: number; // Downlink frequency in kHz

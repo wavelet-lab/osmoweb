@@ -9,8 +9,8 @@ export const osmoProviders: Provider[] = [
     {
         provide: Router,
         useFactory: (params: OsmoParams, logger: LoggerService) => {
-            const ctxLogger = createContextLogger(logger, 'OsmoRouter');
-            const router = new Router(ctxLogger as unknown as LoggerInterface);
+            const createLogger = (context: string) => createContextLogger(logger, context) as unknown as LoggerInterface;
+            const router = new Router(createLogger('OsmoRouter'), createLogger);
             router.init(params);
             return router;
         },

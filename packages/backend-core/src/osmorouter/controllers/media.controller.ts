@@ -1,22 +1,25 @@
 import type WebSocket from 'ws';
 import { IncomingMessage } from 'http';
-import type { OsmoController } from '@/osmorouter/controllers/controller.type';
+import type { LoggerFactory, OsmoController } from '@/osmorouter/controllers/controller.type';
 import { OsmoUdpClient } from '@/osmorouter/osmoudp.client';
 import type { OsmoParams } from '@/osmorouter/lib/common.types';
 import { OsmoServices } from '@/osmorouter/lib/common.types';
-import { getBtsPoolInstance } from '@/osmorouter/btspool';
+import { getBtsManagerInstance } from '@/osmo/bts.manager';
 import type { LoggerInterface } from '@websdr/core/utils';
 import { SimpleLogger, sleep } from '@websdr/core/utils';
 
 export class MediaController implements OsmoController {
     protected readonly logger: LoggerInterface;
+    protected readonly createLogger: LoggerFactory;
 
-    constructor(private readonly osmoParams: OsmoParams, logger?: LoggerInterface) {
+    constructor(private readonly osmoParams: OsmoParams, logger?: LoggerInterface, loggerFactory?: LoggerFactory) {
         this.logger = logger ?? new SimpleLogger(MediaController.name);
+        this.createLogger = loggerFactory ?? ((context: string) => logger ?? new SimpleLogger(context));
     }
 
     handle = async (client: WebSocket, clientreq: IncomingMessage) => {
         let clientId = `${clientreq.socket.remoteAddress}:${clientreq.socket.remotePort}`;
+        let btsId: number | undefined;
         let port = -1;
         const service = this.osmoParams.services[OsmoServices.OSMO_UDP_MEDIA];
         if (service === undefined) {
@@ -24,7 +27,7 @@ export class MediaController implements OsmoController {
             client.close();
             return;
         }
-        const osmoClient = new OsmoUdpClient(service, `MEDIA (${clientId})`);
+        const osmoClient = new OsmoUdpClient(service, `MEDIA (${clientId})`, this.createLogger(OsmoUdpClient.name));
 
         // osmoClient.onMessage = (msg: Buffer) => {
         //     client.send(msg);
@@ -35,13 +38,16 @@ export class MediaController implements OsmoController {
                 if (typeof msg.data === 'string') {
                     const req = JSON.parse(msg.data)
                     if (req.bts !== undefined) {
-                        const bts = getBtsPoolInstance().getBtsItem(req.bts);
-                        if (bts !== undefined) {
-                            port = bts.cfg.osmux_port;
+                        btsId = Number(req.bts);
+                        const bts = getBtsManagerInstance().getById(btsId);
+                        if (bts) {
+                            port = bts.btsCfg.osmux_port;
+                            getBtsManagerInstance().markSeenById(btsId);
                         }
                         this.logger.log(`Client ${clientId} choose bts ${req.bts} with port ${port}`);
                     }
                 } else if (msg.data instanceof Buffer) {
+                    if (btsId !== undefined) getBtsManagerInstance().markSeenById(btsId);
                     this.logger.debug?.(`Media send to client ${clientId}:`, msg.data.toString('hex'));
                     osmoClient.send(msg.data);
                 }
@@ -51,10 +57,12 @@ export class MediaController implements OsmoController {
         }
 
         client.onclose = () => {
+            if (btsId !== undefined) getBtsManagerInstance().markDisconnectedById(btsId);
             osmoClient.disconnect();
         }
 
         client.onerror = () => {
+            if (btsId !== undefined) getBtsManagerInstance().markDisconnectedById(btsId);
             osmoClient.disconnect();
         }
 
@@ -73,6 +81,7 @@ export class MediaController implements OsmoController {
         // }
         for await (const buffer of osmoClient.get()) {
             if (buffer !== undefined) {
+                if (btsId !== undefined) getBtsManagerInstance().markSeenById(btsId);
                 client.send(buffer/* , (error) => {
                 this.log.error('MEDIA send error:', error, ': disconnect from WebSocket client');
                 running = false;
@@ -85,5 +94,6 @@ export class MediaController implements OsmoController {
             if (!running) break;
         }
         client.close();
+        if (btsId !== undefined) getBtsManagerInstance().markDisconnectedById(btsId);
     };
 }

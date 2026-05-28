@@ -1,6 +1,6 @@
 {
     "name": "@osmoweb/nestjs-microservice",
-    "version": "0.5.0",
+    "version": "0.6.1",
     "description": "This is a NestJS microservice for OsmoWeb",
     "author": "Timur Davydov <dtv.comp@gmail.com>",
     "license": "MIT",
@@ -20,28 +20,32 @@
         "build": "tsc && tsc-alias && tsc-esm-fix",
         "test": "vitest run",
         "test:watch": "vitest",
-        "test:coverage": "vitest run --coverage"
+        "test:coverage": "vitest run --coverage",
+        "prepack": "cp ../../LICENSE ./LICENSE || true",
+        "postpack": "rm -f ./LICENSE"
     },
     "dependencies": {
-        "@nestjs/common": "^11.1.16",
-        "@nestjs/config": "^4.0.2",
-        "@nestjs/jwt": "^11.0.2",
-        "@nestjs/microservices": "^11.1.16",
-        "@nestjs/passport": "^11.0.5",
-        "@nestjs/testing": "^11.1.16",
-        "@nestjs/websockets": "^11.1.16",
-        "@osmoweb/backend-core": "^0.5.0",
-        "@osmoweb/core": "^0.5.0",
-        "@types/node": "^25.3.5",
-        "@websdr/nestjs-microservice": "^0.5.3",
+        "@osmoweb/backend-core": "^0.6.0",
+        "@osmoweb/core": "^0.6.0",
+        "@websdr/nestjs-microservice": "^0.6.0",
         "class-transformer": "^0.5.1",
         "class-validator": "^0.15.1",
         "passport-jwt": "^4.0.1",
-        "ws": "^8.19.0"
+        "ws": "^8.21.0"
     },
     "devDependencies": {
+        "@nestjs/testing": "^11.1.24",
+        "@types/node": "^25.6.0",
         "@types/passport-jwt": "^4.0.1",
         "@types/ws": "^8.18.1"
+    },
+    "peerDependencies": {
+        "@nestjs/common": "^11.1.24",
+        "@nestjs/config": "^4.0.4",
+        "@nestjs/jwt": "^11.0.2",
+        "@nestjs/microservices": "^11.1.24",
+        "@nestjs/passport": "^11.0.5",
+        "@nestjs/websockets": "^11.1.24"
     },
     "exports": {
         ".": {
@@ -54,5 +58,11 @@
             "import": "./dist/osmo/index.js",
             "require": "./dist/osmo/index.js"
         }
-    }
+    },
+    "files": [
+        "dist",
+        "!dist/tests",
+        "LICENSE",
+        "README.md"
+    ]
 }

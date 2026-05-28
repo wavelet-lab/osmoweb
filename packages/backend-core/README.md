@@ -160,7 +160,7 @@ Expected shape:
     {
       "id": 0,
       "band": "DCS1800",
-      "ip.access": "127.0.0.1",
+      "ipa": "127.0.0.1",
       "arfcn": 871,
       "cell_identity": 6969,
       "osmux_port": 10000
