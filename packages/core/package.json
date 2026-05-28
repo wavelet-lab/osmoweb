@@ -1,6 +1,6 @@
 {
     "name": "@osmoweb/core",
-    "version": "0.5.0",
+    "version": "0.6.0",
     "description": "This is the core package for OsmoWeb",
     "author": "Timur Davydov <dtv.comp@gmail.com>",
     "license": "MIT",
@@ -15,7 +15,9 @@
         "LTE",
         "NR"
     ],
-    "publishConfig": { "access": "public" },
+    "publishConfig": {
+        "access": "public"
+    },
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "type": "module",
@@ -26,10 +28,10 @@
         "test:coverage": "vitest run --coverage"
     },
     "dependencies": {
-        "@websdr/core": "^0.5.3"
+        "@websdr/core": "^0.6.0"
     },
     "devDependencies": {
-        "@types/node": "^25.0.10"
+        "@types/node": "^25.6.0"
     },
     "exports": {
         ".": {

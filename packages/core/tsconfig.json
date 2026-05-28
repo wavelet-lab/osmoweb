@@ -4,10 +4,9 @@
         "rootDir": "src",
         "outDir": "dist",
         // Path Mapping
-        "baseUrl": ".",
         "paths": {
             "@/*": [
-                "src/*"
+                "./src/*"
             ],
             "vitest": [
                 "../../node_modules/vitest"
