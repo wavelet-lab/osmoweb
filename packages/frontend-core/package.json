@@ -25,8 +25,8 @@
         "postpack": "rm -f ./LICENSE"
     },
     "dependencies": {
-        "@osmoweb/core": "^0.6.0",
-        "@osmoweb/backend-core": "^0.6.0",
+        "@osmoweb/core": "^0.6.1",
+        "@osmoweb/backend-core": "^0.6.1",
         "@websdr/core": "^0.6.0",
         "@websdr/frontend-core": "^0.6.0"
     },

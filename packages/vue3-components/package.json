@@ -32,8 +32,8 @@
         "postpack": "rm -f ./LICENSE"
     },
     "dependencies": {
-        "@osmoweb/core": "^0.6.0",
-        "@osmoweb/frontend-core": "^0.6.0",
+        "@osmoweb/core": "^0.6.1",
+        "@osmoweb/frontend-core": "^0.6.1",
         "@websdr/vue3-components": "^0.6.0"
     },
     "devDependencies": {
