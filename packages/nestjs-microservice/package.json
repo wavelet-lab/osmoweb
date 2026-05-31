@@ -25,8 +25,8 @@
         "postpack": "rm -f ./LICENSE"
     },
     "dependencies": {
-        "@osmoweb/backend-core": "^0.6.0",
-        "@osmoweb/core": "^0.6.0",
+        "@osmoweb/backend-core": "^0.6.1",
+        "@osmoweb/core": "^0.6.1",
         "@websdr/nestjs-microservice": "^0.6.0",
         "class-transformer": "^0.5.1",
         "class-validator": "^0.15.1",
