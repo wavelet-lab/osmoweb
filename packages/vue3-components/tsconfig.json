@@ -25,9 +25,10 @@
             "DOM.Iterable"
         ],
         // Other Outputs
-        "sourceMap": true,
+        "sourceMap": false,
+        "inlineSourceMap": false,
         "declaration": true,
-        "declarationMap": true,
+        "declarationMap": false,
         // Stricter Typechecking Options
         "noUncheckedIndexedAccess": true,
         // "exactOptionalPropertyTypes": true,
