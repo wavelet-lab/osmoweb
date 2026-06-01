@@ -1,6 +1,6 @@
 {
     "name": "@osmoweb/test-apps",
-    "version": "0.6.1",
+    "version": "0.6.2",
     "description": "OsmoWeb package test applications",
     "author": "Timur Davydov <dtv.comp@gmail.com>",
     "license": "MIT",

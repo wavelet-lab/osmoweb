@@ -1,6 +1,6 @@
 {
     "name": "@osmoweb/core",
-    "version": "0.6.1",
+    "version": "0.6.2",
     "description": "This is the core package for OsmoWeb",
     "author": "Timur Davydov <dtv.comp@gmail.com>",
     "license": "MIT",
