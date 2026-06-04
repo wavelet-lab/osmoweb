@@ -1,6 +1,6 @@
 {
     "name": "@osmoweb/frontend-core",
-    "version": "0.6.2",
+    "version": "0.6.3",
     "description": "This is the core frontend package for OsmoWeb",
     "author": "Timur Davydov <dtv.comp@gmail.com>",
     "license": "MIT",
@@ -25,10 +25,10 @@
         "postpack": "rm -f ./LICENSE"
     },
     "dependencies": {
-        "@osmoweb/core": "^0.6.2",
-        "@osmoweb/backend-core": "^0.6.2",
-        "@websdr/core": "^0.6.0",
-        "@websdr/frontend-core": "^0.6.0"
+        "@osmoweb/core": "^0.6.3",
+        "@osmoweb/backend-core": "^0.6.3",
+        "@websdr/core": "^0.6.1",
+        "@websdr/frontend-core": "^0.6.1"
     },
     "devDependencies": {
         "@types/emscripten": "^1.41.5"

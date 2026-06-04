@@ -1,6 +1,6 @@
 {
     "name": "@osmoweb/core",
-    "version": "0.6.2",
+    "version": "0.6.3",
     "description": "This is the core package for OsmoWeb",
     "author": "Timur Davydov <dtv.comp@gmail.com>",
     "license": "MIT",
@@ -30,7 +30,7 @@
         "postpack": "rm -f ./LICENSE"
     },
     "dependencies": {
-        "@websdr/core": "^0.6.0"
+        "@websdr/core": "^0.6.1"
     },
     "devDependencies": {
         "@types/node": "^25.6.0"

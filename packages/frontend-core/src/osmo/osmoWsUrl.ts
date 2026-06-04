@@ -1,14 +1,14 @@
 import { getEnvValue } from '@websdr/frontend-core/common';
-import { getApiBase } from '@websdr/frontend-core/services';
+import { apiWsUrl } from '@websdr/frontend-core/services';
 
 type OsmoEnv = {
     VITE_OSMO_PORT?: string;
     OSMO_PORT?: string;
 };
 
-function getEnvOsmoPort(): string | undefined {
+function getEnvOsmoPort(): number | undefined {
     const envOsmoPort = getEnvValue<OsmoEnv>(["VITE_OSMO_PORT", "OSMO_PORT"]);
-    return envOsmoPort === undefined ? undefined : String(envOsmoPort);
+    return envOsmoPort === undefined ? undefined : Number(envOsmoPort);
 }
 
 export function endpointToOsmoWsUrl(endpoint: string): string {
@@ -16,13 +16,8 @@ export function endpointToOsmoWsUrl(endpoint: string): string {
     if (!endpoint) return ret;
     if (endpoint.startsWith('ws://') || endpoint.startsWith('wss://'))
         ret = endpoint;
-    else {
-        const locUrl = new URL(getApiBase());
-        if (locUrl.protocol === "https:") locUrl.protocol = "wss:";
-        else locUrl.protocol = "ws:";
-        locUrl.port = getEnvOsmoPort() ?? locUrl.port;
-        locUrl.pathname = endpoint;
-        ret = locUrl.toString();
-    }
+    else
+        ret = apiWsUrl(endpoint, getEnvOsmoPort());
+
     return ret;
 }
