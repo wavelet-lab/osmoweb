@@ -3,7 +3,7 @@ import type { BscBtsConfig, BtsConfig } from '@osmoweb/backend-core';
 import type { GSMBand } from '@osmoweb/core';
 
 export type { BtsConfig };
-export type BtsUpdateInput = BscBtsConfig & {
+export type BtsUpdateInput = Pick<BscBtsConfig, 'trx'> & {
     instanceId?: string;
     band?: GSMBand;
     arfcn?: number;
@@ -12,8 +12,9 @@ export type BtsUpdateInput = BscBtsConfig & {
  * Fetch BTS info for the current user.
  * GET /api/v1/osmo/bts
  */
-export async function getBts(): Promise<BtsConfig> {
-    return apiFetch('/api/v1/osmo/bts');
+export async function getBts(instanceId?: string): Promise<BtsConfig> {
+    const query = instanceId ? `?instanceId=${encodeURIComponent(instanceId)}` : '';
+    return apiFetch(`/api/v1/osmo/bts${query}`);
 }
 
 /**

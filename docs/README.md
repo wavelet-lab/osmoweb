@@ -26,6 +26,7 @@ The architecture documentation intentionally focuses on **production deployment 
 
 ## Entry Points
 
+* [**`api.md`**](api.md) — Implemented HTTP, WebSocket, SDK, library, transport, and integration API reference
 * [**`architecture/overview.md`**](architecture/overview.md) — High‑level production architecture description
 * **`architecture/diagrams/`** — diagrams, data flows, and interface definitions
 

@@ -149,17 +149,17 @@ To theme components, override the CSS custom properties defined in `variables.cs
   --success-color: #059669;        /* Corporate green */
   --warning-color: #d97706;        /* Corporate orange */
   --danger-color: #dc2626;         /* Corporate red */
-  
+
   /* Corporate typography */
   --input-font-size: 15px;
   --button-font-weight: 700;
-  
+
   /* Corporate spacing */
   --input-padding: 16px;
   --button-padding: 16px 32px;
   --input-border-radius: 8px;
   --button-border-radius: 8px;
-  
+
   /* Corporate shadows */
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
@@ -175,11 +175,11 @@ To theme components, override the CSS custom properties defined in `variables.cs
   --input-border: 1px solid transparent;
   --input-focus-shadow: none;
   --dropdown-shadow: none;
-  
+
   /* Flat colors */
   --input-focus-border: var(--primary-color);
   --dropdown-border: 1px solid var(--border-light);
-  
+
   /* Sharp corners */
   --input-border-radius: 0;
   --button-border-radius: 0;
@@ -193,17 +193,16 @@ You can also override styles at the component level:
 
 ```vue
 <template>
-  <div class="custom-log-area">
-    <LogArea :logs="logs" />
+  <div class="custom-bts-input">
+    <BtsInput :bts="bts" />
   </div>
 </template>
 
 <style scoped>
-.custom-log-area {
+.custom-bts-input {
   /* Override only for this instance */
-  --log-error-color: #e74c3c;
-  --log-warning-color: #f39c12;
-  --logarea-item-font-size: 12px;
+  --input-border-radius: 12px;
+  --primary-color: #1e40af;
 }
 </style>
 ```
@@ -213,25 +212,9 @@ You can also override styles at the component level:
 For complete control, you can also override CSS classes:
 
 ```scss
-/* Global overrides */
-.log-area {
-  border: 2px solid var(--primary-color);
-  
-  .filter {
-    background: var(--primary-color);
-    color: white;
-  }
-  
-  .log-area-item {
-    &:hover {
-      background-color: var(--light);
-    }
-  }
-}
-
 .dropdown-trigger {
   border: 2px solid var(--border);
-  
+
   &:focus {
     border-color: var(--primary-color);
     outline: 2px solid var(--primary-color);

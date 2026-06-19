@@ -1,6 +1,6 @@
 {
     "name": "@osmoweb/test-apps",
-    "version": "0.6.3",
+    "version": "0.6.4",
     "description": "OsmoWeb package test applications",
     "author": "Timur Davydov <dtv.comp@gmail.com>",
     "license": "MIT",
@@ -39,7 +39,8 @@
         "test:mgw": "tsx mgw-test.ts"
     },
     "dependencies": {
-        "@osmoweb/backend-core": "file:../packages/backend-core"
+        "@osmoweb/backend-core": "file:../packages/backend-core",
+        "@osmoweb/core": "file:../packages/core"
     },
     "devDependencies": {
         "@types/node": "^25.6.0",

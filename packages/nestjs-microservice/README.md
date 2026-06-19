@@ -21,10 +21,10 @@ npm install @osmoweb/nestjs-microservice
 
 Subpath exports:
 
-- `@osmoweb/nestjs-microservice` — re-exports `osmo`, and re-exports `auth`/`users` from `@websdr/nestjs-microservice`
+- `@osmoweb/nestjs-microservice` — re-exports the OsmoWeb module and token
 - `@osmoweb/nestjs-microservice/osmo` — OsmoWeb module (`OsmoModule`) and tokens
-- `@osmoweb/nestjs-microservice/auth` — re-exported from `@websdr/nestjs-microservice/auth`
-- `@osmoweb/nestjs-microservice/users` — re-exported from `@websdr/nestjs-microservice/users`
+
+Import auth and users APIs directly from `@websdr/nestjs-microservice`.
 
 ## Quick start
 
@@ -50,17 +50,13 @@ export class AppModule {}
 
 ### Osmocom service addresses
 
-These keys override defaults from `@osmoweb/backend-core`:
-
-- `OSMO_SERVER_PORT`
-
 Per-service host/port pairs:
 
 - `OSMO_UDP_MEDIA_URI`, `OSMO_UDP_MEDIA_PORT`
 - `OSMO_TCP_ABIS_OML_URI`, `OSMO_TCP_ABIS_OML_PORT`
 - `OSMO_TCP_ABIS_RSL_URI`, `OSMO_TCP_ABIS_RSL_PORT`
-- `OSMO_TCP_HLR_URI`, `OSMO_TCP_HLR_PORT`
-- `OSMO_TCP_BSC_URI`, `OSMO_TCP_BSC_PORT`
+- `OSMO_TCP_HLR_URI`, `OSMO_TCP_HLR_PORT` (stats VTY)
+- `OSMO_TCP_BSC_URI`, `OSMO_TCP_BSC_PORT` (REST configuration and stats VTY)
 
 ### WebSocket endpoints
 
@@ -71,31 +67,42 @@ Gateways are currently registered with fixed endpoints:
 - `/wsdr/osmo/abis_oml`
 - `/wsdr/osmo/abis_rsl`
 
-Note: `OSMO_CONTROL_URI`, `OSMO_MEDIA_URI`, `OSMO_ABIS_OML_URI`, `OSMO_ABIS_RSL_URI` are also read into `OSMO_PARAMS`, but the gateway decorators currently use the hardcoded endpoints above.
-
-### Worker pool
-
-- `OSMO_WORKER_POOL_SIZE`
+The host application chooses its HTTP listening port. Gateway paths are not
+configured through environment variables.
 
 ## REST API
 
 ### `GET /api/v1/osmo/bts`
 
 Returns the BTS config/info assigned to the authenticated user.
+Use the optional `instanceId` query parameter to select a non-default
+assignment.
 
 ### `PUT /api/v1/osmo/bts`
 
 Allocates a BTS for the authenticated user (if needed) and updates its config in the BSC via VTY.
 
-Payload is validated using `class-validator` (see `UpdateBtsDto`).
+The accepted payload fields are `instanceId`, `band`, top-level `arfcn`, and
+`trx`. The controller applies its own generated BSC values for type, unit id,
+cell identity, description, and GPRS mode.
 
-Authentication: this controller uses `AuthGuard('jwt')`. Your application must register a Passport JWT strategy (e.g. by using the auth module from `@websdr/nestjs-microservice`).
+### `DELETE /api/v1/osmo/bts`
+
+Releases the authenticated user's assignment. An optional JSON
+`instanceId` selects a non-default assignment.
+
+Payloads are validated by a controller-level Nest `ValidationPipe`.
+Undocumented fields are rejected.
+
+Authentication: the controller uses `JwtAuthGuard` from
+`@websdr/nestjs-microservice`.
 
 ## WebSocket bridge
 
 The gateways delegate to `@osmoweb/backend-core` router controllers.
 
-Important: some flows use a BTS pool loaded from a `bts-config.json` file in the **current working directory** (see `@osmoweb/backend-core` BtsPool).
+BTS assignments are managed in process memory by `BtsManager`; no configuration
+file is loaded.
 
 ## Stats polling
 
@@ -105,6 +112,14 @@ Enable/disable and interval:
 
 - `STATS_ENABLED` (default: true)
 - `STATS_INTERVAL_MS` (default: 10000)
+
+VTY endpoints:
+
+- `OSMO_TCP_BSC_URI`, `OSMO_TCP_BSC_PORT`
+- `OSMO_TCP_HLR_URI`, `OSMO_TCP_HLR_PORT`
+- `OSMO_TCP_MGW_URI`, `OSMO_TCP_MGW_PORT`
+- `OSMO_TCP_MSC_URI`, `OSMO_TCP_MSC_PORT`
+- `OSMO_TCP_STP_URI`, `OSMO_TCP_STP_PORT`
 
 Writers are enabled only when their env vars are provided:
 

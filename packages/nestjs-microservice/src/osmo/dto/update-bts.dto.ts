@@ -1,17 +1,8 @@
 import {
-    IsArray, IsBoolean, IsInt, IsOptional, IsString, ValidateNested
+    IsArray, IsInt, IsOptional, IsString, ValidateNested
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import type { BscBtsConfig } from '@osmoweb/backend-core';
 import type { GSMBand } from '@osmoweb/core';
-
-export class UnitIdDto {
-    @IsInt()
-    site!: number;
-
-    @IsInt()
-    bts!: number;
-}
 
 export class TrxDto {
     @IsInt()
@@ -22,27 +13,16 @@ export class TrxDto {
     arfcn?: number;
 }
 
-export class UpdateBtsDto implements BscBtsConfig {
+export class ReleaseBtsDto {
     @IsOptional()
     @IsString()
     instanceId?: string;
+}
 
+export class UpdateBtsDto {
     @IsOptional()
     @IsString()
-    type?: string;
-
-    @IsOptional()
-    @ValidateNested()
-    @Type(() => UnitIdDto)
-    unitId?: UnitIdDto;
-
-    @IsOptional()
-    @IsInt()
-    lac?: number;
-
-    @IsOptional()
-    @IsInt()
-    ci?: number;
+    instanceId?: string;
 
     @IsOptional()
     @IsString()
@@ -53,16 +33,8 @@ export class UpdateBtsDto implements BscBtsConfig {
     arfcn?: number;
 
     @IsOptional()
-    @IsString()
-    description?: string;
-
-    @IsOptional()
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => TrxDto)
     trx?: TrxDto[];
-
-    @IsOptional()
-    @IsBoolean()
-    gprs?: boolean;
 }
