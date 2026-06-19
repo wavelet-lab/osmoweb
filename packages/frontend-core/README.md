@@ -1,8 +1,7 @@
 # @osmoweb/frontend-core
 
-Front-end helpers for OsmoWeb applications.
-
-This package is intentionally small: it provides thin, typed wrappers around OsmoWeb HTTP APIs (via `apiFetch` from `@websdr/frontend-core`).
+Front-end HTTP, WebSocket, WebUSB, worker, and WebAssembly helpers for OsmoWeb
+applications.
 
 ## Install
 
@@ -12,11 +11,12 @@ npm install @osmoweb/frontend-core
 
 ## Imports (entrypoints)
 
-- `@osmoweb/frontend-core` — re-exports everything from `./services`
+- `@osmoweb/frontend-core` — re-exports `./services` and `./osmo`
 - `@osmoweb/frontend-core/services` — API client helpers
+- `@osmoweb/frontend-core/osmo` — browser BTS/TRX runtime helpers
 
 ```ts
-import { getBts, updateBts } from '@osmoweb/frontend-core/services';
+import { getBts, releaseBts, updateBts } from '@osmoweb/frontend-core/services';
 ```
 
 ## Services
@@ -26,28 +26,28 @@ import { getBts, updateBts } from '@osmoweb/frontend-core/services';
 Endpoints:
 
 - `GET /api/v1/osmo/bts` → `getBts()`
+- `GET /api/v1/osmo/bts?instanceId=...` → `getBts(instanceId)`
 - `PUT /api/v1/osmo/bts` → `updateBts(cfg?)`
+- `DELETE /api/v1/osmo/bts` → `releaseBts(instanceId?)`
 
 ```ts
-import { getBts, updateBts } from '@osmoweb/frontend-core/services';
+import { getBts, releaseBts, updateBts } from '@osmoweb/frontend-core/services';
 import { GSMBand } from '@osmoweb/core';
-import type { BscBtsConfig } from '@osmoweb/backend-core';
+import type { BtsUpdateInput } from '@osmoweb/frontend-core/services';
 
 // Read BTS info for the current user/session
 const bts = await getBts();
 
 // Update BTS config
-const cfg: BscBtsConfig = {
-  type: 'osmo-bts',
+const cfg: BtsUpdateInput = {
+  instanceId: 'browser-tab-1',
   band: GSMBand.GSM_900,
-  description: 'Demo BTS',
-  trx: [{ id: 0, arfcn: 0 }],
+  arfcn: 0,
 };
 
 await updateBts(cfg);
-
-// Reset / send empty payload
-await updateBts();
+await getBts('browser-tab-1');
+await releaseBts('browser-tab-1');
 ```
 
 ## Notes
@@ -59,8 +59,18 @@ await updateBts();
 
 From `@osmoweb/frontend-core/services`:
 
-- `getBts(): Promise<BscBtsInfo>`
-- `updateBts(cfg?: BscBtsConfig): Promise<any>`
+- `getBts(instanceId?: string): Promise<BtsConfig>`
+- `updateBts(cfg?: BtsUpdateInput): Promise<BtsConfig>`
+- `releaseBts(instanceId?: string): Promise<{ released: boolean }>`
+
+From `@osmoweb/frontend-core/osmo`:
+
+- Runtime: `Osmo`, `initOsmo()`, and Emscripten callback exports
+- Worker API: `OsmoTrxWorker`, `OsmoTrxManager`,
+  `OsmoTrxManagerWorker`, `getOsmoTrxManagerInstance()`
+- Transport helpers: `endpointToOsmoWsUrl()`, `OsmoWSUrls`
+- Runtime types and constants: `BtsStatsGroup`, `OsmoBands`,
+  `IPAccessProto`
 
 ## Compatibility notes
 

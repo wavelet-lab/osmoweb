@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { BtsController } from '@/osmo/controllers/bts.controller';
+import { ReleaseBtsDto, UpdateBtsDto } from '@/osmo/dto/update-bts.dto';
 import { BtsManager } from '@osmoweb/backend-core';
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { HttpException, HttpStatus, ValidationPipe } from '@nestjs/common';
 import { GSMBand } from '@osmoweb/core';
 
 describe('BtsController', () => {
@@ -28,6 +29,13 @@ describe('BtsController', () => {
         const assignment = manager.allocate('user-1', 'ip', { band: GSMBand.GSM_900, arfcn: 10 });
         const res = await controller.getBts({ user: { sub: 'user-1' } } as any);
         expect(res).toEqual(assignment.btsCfg);
+    });
+
+    it('GET returns the assignment selected by instanceId', async () => {
+        manager.allocate('user-1', 'ip', { instanceId: 'tab-1', band: GSMBand.GSM_900, arfcn: 10 });
+        const expected = manager.allocate('user-1', 'ip', { instanceId: 'tab-2', band: GSMBand.GSM_900, arfcn: 11 });
+        const res = await controller.getBts({ user: { sub: 'user-1' } } as any, 'tab-2');
+        expect(res).toEqual(expected.btsCfg);
     });
 
     it('GET without assignment returns 404', async () => {
@@ -178,6 +186,23 @@ describe('BtsController', () => {
         expect(String(err.message)).toMatch(/out of range/i);
         expect(bsc.getAllBts).not.toHaveBeenCalled();
         expect(bsc.updateBts).not.toHaveBeenCalled();
+    });
+
+    it('rejects undocumented PUT and DELETE payload fields', async () => {
+        const pipe = new ValidationPipe({
+            transform: true,
+            whitelist: true,
+            forbidNonWhitelisted: true,
+        });
+
+        await expect(pipe.transform(
+            { band: GSMBand.GSM_900, arfcn: 12, description: 'unsupported' },
+            { type: 'body', metatype: UpdateBtsDto, data: '' },
+        )).rejects.toThrow();
+        await expect(pipe.transform(
+            { instanceId: 'tab-1', description: 'unsupported' },
+            { type: 'body', metatype: ReleaseBtsDto, data: '' },
+        )).rejects.toThrow();
     });
 });
 

@@ -137,19 +137,14 @@ OsmoWeb packages read configuration from the host application environment.
 
 | Variable | Default | Used for |
 | --- | --- | --- |
-| `OSMO_SERVER_PORT` | `8800` | Backend Osmo server port. |
-| `OSMO_WORKER_POOL_SIZE` | `4` | Worker pool size for Osmo routing. |
 | `OSMO_UDP_MEDIA_URI` / `OSMO_UDP_MEDIA_PORT` | `localhost` / `1984` | UDP media service endpoint. |
 | `OSMO_TCP_ABIS_OML_URI` / `OSMO_TCP_ABIS_OML_PORT` | `localhost` / `3002` | ABIS OML TCP service endpoint. |
 | `OSMO_TCP_ABIS_RSL_URI` / `OSMO_TCP_ABIS_RSL_PORT` | `localhost` / `3003` | ABIS RSL TCP service endpoint. |
-| `OSMO_TCP_HLR_URI` / `OSMO_TCP_HLR_PORT` | `localhost` / `4258` | HLR TCP service endpoint. |
-| `OSMO_TCP_BSC_URI` / `OSMO_TCP_BSC_PORT` | `localhost` / `4242` | BSC TCP service endpoint. |
-| `OSMO_CONTROL_URI` | `/wsdr/osmo/control` | Control WebSocket endpoint stored in `OSMO_PARAMS`. |
-| `OSMO_MEDIA_URI` | `/wsdr/osmo/media` | Media WebSocket endpoint stored in `OSMO_PARAMS`. |
-| `OSMO_ABIS_OML_URI` | `/wsdr/osmo/abis_oml` | ABIS OML WebSocket endpoint stored in `OSMO_PARAMS`. |
-| `OSMO_ABIS_RSL_URI` | `/wsdr/osmo/abis_rsl` | ABIS RSL WebSocket endpoint stored in `OSMO_PARAMS`. |
+| `OSMO_TCP_HLR_URI` / `OSMO_TCP_HLR_PORT` | `localhost` / `4258` | HLR VTY endpoint used by stats. |
+| `OSMO_TCP_BSC_URI` / `OSMO_TCP_BSC_PORT` | `localhost` / `4242` | BSC VTY endpoint used by REST configuration and stats. |
 
-The WebSocket gateways are currently registered on the default `/wsdr/osmo/*` paths.
+The host NestJS application chooses its listening port. The WebSocket gateways
+use the fixed `/wsdr/osmo/*` paths documented in [docs/api.md](docs/api.md).
 
 ### Stats / Monitoring
 
@@ -157,6 +152,11 @@ The WebSocket gateways are currently registered on the default `/wsdr/osmo/*` pa
 | --- | --- | --- |
 | `STATS_ENABLED` | `true` | Enables periodic stats collection when at least one writer is configured. |
 | `STATS_INTERVAL_MS` | `10000` | Stats polling interval in milliseconds. |
+| `OSMO_TCP_BSC_URI` / `OSMO_TCP_BSC_PORT` | `localhost` / `4242` | BSC stats VTY endpoint. |
+| `OSMO_TCP_HLR_URI` / `OSMO_TCP_HLR_PORT` | `localhost` / `4258` | HLR stats VTY endpoint. |
+| `OSMO_TCP_MGW_URI` / `OSMO_TCP_MGW_PORT` | `localhost` / `4243` | MGW stats VTY endpoint. |
+| `OSMO_TCP_MSC_URI` / `OSMO_TCP_MSC_PORT` | `localhost` / `4254` | MSC stats VTY endpoint. |
+| `OSMO_TCP_STP_URI` / `OSMO_TCP_STP_PORT` | `localhost` / `4239` | STP stats VTY endpoint. |
 | `INFLUXDB_URL` | unset | Enables the InfluxDB writer. |
 | `INFLUXDB_ORG` | unset | InfluxDB organization. |
 | `INFLUXDB_TOKEN` | unset | InfluxDB token. |

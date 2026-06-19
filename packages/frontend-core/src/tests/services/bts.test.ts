@@ -26,6 +26,12 @@ describe('bts service', () => {
         expect(res).toBe(data);
     });
 
+    it('getBts includes instanceId when provided', async () => {
+        vi.mocked(apiFetch).mockResolvedValue({ id: 'bts1' });
+        await getBts('tab 1');
+        expect(vi.mocked(apiFetch)).toHaveBeenCalledWith('/api/v1/osmo/bts?instanceId=tab%201');
+    });
+
     it('updateBts sends PUT with JSON body when config provided and returns response', async () => {
         const cfg = { band: GSMBand.GSM_900, arfcn: 12 };
         const resp = { success: true };

@@ -28,7 +28,6 @@ export abstract class OsmoTrxManager {
     abstract close(): Promise<void>;
     abstract getBtsStats(group: BtsStatsGroup): Promise<string>;
     abstract setParameter(param: string, value: any): Promise<void>;
-    abstract sendCommand(cmd: string): Promise<Record<string, any>>;
     abstract startWorker(params: Partial<OsmoTrxWorkerParams>): Promise<void>;
     abstract stopWorker(): Promise<void>;
     abstract start(): Promise<void>;
@@ -116,13 +115,6 @@ export class OsmoTrxManagerWorker extends OsmoTrxManager {
         return ret;
     }
 
-    async sendCommand(cmd: string): Promise<Record<string, any>> {
-        if (!this._worker) throw new Error('OsmoTrxManager: worker is not running');
-        const [id, ret] = this._promiseHelper.createPromise<Record<string, any>>()
-        this._worker.postMessage({ type: 'SEND_COMMAND', id: id, cmd: cmd });
-        return ret;
-    }
-
     async start(params: Partial<OsmoTrxWorkerParams> = {}): Promise<void> {
         if (!this._worker) throw new Error('OsmoTrxManager: worker is not running');
         const [id, ret] = this._promiseHelper.createPromise<void>()
@@ -146,10 +138,15 @@ export class OsmoTrxManagerWorker extends OsmoTrxManager {
 
     async stopWorker(): Promise<void> {
         if (this._worker !== undefined) {
+            const worker = this._worker;
             const [id, ret] = this._promiseHelper.createPromise<void>()
-            this._worker.postMessage({ type: 'STOP', id: id });
-            this._worker.terminate();
-            return ret;
+            worker.postMessage({ type: 'STOP', id: id });
+            try {
+                await ret;
+            } finally {
+                worker.terminate();
+                this._worker = undefined;
+            }
         }
     }
 
@@ -186,7 +183,7 @@ export class OsmoTrxManagerWorker extends OsmoTrxManager {
             case 'START':
             case 'STOP':
                 this.onChangeParameter('worker_started', msg.type === 'START' ? true : false);
-                break;
+                // Fall through to complete the request promise.
             case 'OPEN_USB':
             case 'OPEN_BTS':
             case 'OPEN_WS':
@@ -194,7 +191,6 @@ export class OsmoTrxManagerWorker extends OsmoTrxManager {
             case 'CLOSE_USB':
             case 'CLOSE_WS':
             case 'GET_BTS_STATS':
-            case 'SEND_COMMAND':
             case 'SET_PARAMETER':
                 if (promise) {
                     if (msg.res === 'ok') {

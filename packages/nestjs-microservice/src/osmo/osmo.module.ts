@@ -41,16 +41,16 @@ import { AuthModule, JwtAuthGuard } from '@websdr/nestjs-microservice/auth';
                 ];
 
                 return {
-                    port: parseNumber('OSMO_SERVER_PORT', osmoDefaultParams.port),
+                    port: osmoDefaultParams.port,
                     services: serviceConfigs.map(cfg => ({
                         serviceUri: parseString(cfg.envUriKey, osmoDefaultParams.services[cfg.defaultKey]?.serviceUri ?? ''),
                         servicePort: parseNumber(cfg.envPortKey, osmoDefaultParams.services[cfg.defaultKey]?.servicePort ?? 0),
                     })),
-                    controlUri: parseString('OSMO_CONTROL_URI', osmoDefaultParams.controlUri),
-                    abisOmlUri: parseString('OSMO_ABIS_OML_URI', osmoDefaultParams.abisOmlUri),
-                    abisRslUri: parseString('OSMO_ABIS_RSL_URI', osmoDefaultParams.abisRslUri),
-                    mediaUri: parseString('OSMO_MEDIA_URI', osmoDefaultParams.mediaUri),
-                    poolSize: parseNumber('OSMO_WORKER_POOL_SIZE', osmoDefaultParams.poolSize),
+                    controlUri: osmoDefaultParams.controlUri,
+                    abisOmlUri: osmoDefaultParams.abisOmlUri,
+                    abisRslUri: osmoDefaultParams.abisRslUri,
+                    mediaUri: osmoDefaultParams.mediaUri,
+                    poolSize: osmoDefaultParams.poolSize,
                 };
             },
         },

@@ -1,6 +1,6 @@
 {
     "name": "@osmoweb/backend-core",
-    "version": "0.6.3",
+    "version": "0.6.4",
     "description": "This is the core backend package for OsmoWeb",
     "author": "Timur Davydov <dtv.comp@gmail.com>",
     "license": "MIT",
@@ -24,12 +24,12 @@
         "postpack": "rm -f ./LICENSE"
     },
     "dependencies": {
-        "@osmoweb/core": "^0.6.3",
-        "@websdr/core": "^0.6.1",
+        "@osmoweb/core": "^0.6.4",
+        "@websdr/core": "^0.6.2",
         "ws": "^8.21.0"
     },
     "devDependencies": {
-        "@types/node": "^25.6.0",
+        "@types/node": "^26.0.0",
         "@types/ws": "^8.18.1"
     },
     "exports": {

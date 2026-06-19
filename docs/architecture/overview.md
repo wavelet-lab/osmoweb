@@ -113,7 +113,8 @@ In other words:
 
 * **`backend-core`** provides the Osmocom integration layer:
 
-  * WebSocket ⇄ TCP/UDP bridging (runtime transport and control/status)
+  * WebSocket ⇄ TCP/UDP bridging for OML, RSL, and Osmux runtime traffic
+  * In-process WebSocket control messages for BTS assignment discovery
   * Osmocom control via VTY
   * Osmocom statistics collection via VTY
   * BTS configuration logic and Osmocom service management
@@ -140,12 +141,10 @@ The web backend is deployed as a set of **NestJS microservices**, split across t
 
 3. **BTS settings service (REST API)** — manage base-station configuration via REST
 4. **Runtime transport service (WebSocket)** — terminates WebSocket connections from browsers and uses `backend-core` to perform WebSocket ⇄ TCP/UDP bridging
-5. **Osmocom service control service (VTY)** — operational control of `osmo-*` services via VTY (telnet)
+5. **Osmocom service control library (VTY)** — operational control of `osmo-*` services via VTY (telnet)
 6. **Osmocom statistics service (VTY)** — collect runtime status/metrics via VTY (telnet)
-
-Planned (not implemented yet, but part of the target architecture):
-
-* **Statistics storage service** — persist Osmocom statistics into a time-series database (e.g., [InfluxDB](https://www.influxdata.com/))
+7. **Statistics writers** — optionally publish collected metrics to InfluxDB
+   and/or Prometheus Pushgateway
 
 ### 3.4 Runtime Transport Bridge (WebSocket ⇄ TCP/UDP)
 
@@ -153,7 +152,8 @@ Browser-based BTS/TRX components cannot use UDP and TCP directly, so the backend
 
 * Accepts WebSocket connections from browser-based `osmo-bts`
 * Supports **binary WebSocket frames** for Osmocom data traffic
-* Supports **text WebSocket frames** for control/configuration parameters
+* Supports **text WebSocket frames** for BTS assignment discovery and media
+  BTS selection
 * Translates traffic to/from UDP and TCP sockets expected by native [Osmocom](https://osmocom.org/) services
 
 Targets are fully configurable:
@@ -228,22 +228,19 @@ Operational control and statistics collection are performed via **VTY (telnet)**
 * VTY control microservice → `osmo-*` VTY ports
 * VTY statistics microservice → `osmo-*` VTY ports
 
-Planned:
-
-* Statistics storage microservice → time-series DB (e.g., [InfluxDB](https://www.influxdata.com/))
+Collected statistics can be published to InfluxDB or Prometheus Pushgateway.
 
 ### 5.3 Protocol Mapping
 
-| Segment                         | Transport                | Purpose                                    |
-| ------------------------------- | ------------------------ | ------------------------------------------ |
-| Frontend ↔ SDR                  | WebUSB                   | SDR access, device selection/control       |
-| Browser ↔ Backend               | WebSocket (binary)       | Runtime traffic (e.g., OML/RSL, media)     |
-| Browser ↔ Backend               | WebSocket (text)         | Control / parameters                        |
-| Bridge ↔ Osmocom (BSC)          | TCP                      | Abis OML/RSL + control/status (configurable) |
-| Bridge ↔ Osmocom (HLR)          | TCP                      | Control/status (configurable)              |
-| Bridge ↔ Osmocom (MGW)          | UDP                      | Osmux media (configurable)                 |
-| Backend control/stats ↔ Osmocom | VTY (telnet)             | Operations plane: control & statistics     |
-| Stats storage (planned)         | Ingestion protocol (TBD) | Persist metrics/events to TSDB             |
+| Segment                         | Transport        | Purpose                                         |
+| ------------------------------- | ---------------- | ----------------------------------------------- |
+| Frontend ↔ SDR                  | WebUSB           | SDR access, device selection/control            |
+| Browser ↔ Backend               | WebSocket binary | OML, RSL, and Osmux runtime traffic             |
+| Browser ↔ Backend               | WebSocket text   | BTS assignment discovery and media BTS selection |
+| Bridge ↔ Osmocom (BSC)          | TCP              | Abis OML/RSL                                    |
+| Bridge ↔ Osmocom (MGW)          | UDP              | Osmux media                                     |
+| Backend control/stats ↔ Osmocom | VTY (telnet)     | Operations plane: control and statistics        |
+| Stats service ↔ metrics stores  | HTTP             | InfluxDB line protocol or Pushgateway exposition |
 
 ### 5.4 Gateway transport mapping
 
@@ -253,16 +250,18 @@ At the backend, the gateway translates this traffic into native transports towar
 
 | Logical interface | What is carried | Backend-side transport | Browser ↔ gateway framing |
 |---|---|---|---|
-| **HLR** | Subscriber data access, authentication requests, subscriber state queries | TCP | WebSocket **text** |
-| **BSC (control/status)** | Network control, state queries, configuration and operational commands | TCP | WebSocket **text** |
+| **Control** | Process-local BTS assignment list | None | WebSocket **text** |
 | **RSL** | Radio Signalling Link: channel activation, paging, measurement reports, radio resource control | TCP | WebSocket **binary** |
 | **OML** | Operation & Maintenance: BTS configuration, supervision, alarms, lifecycle control | TCP | WebSocket **binary** |
-| **Media (Osmux)** | Voice user-plane traffic (multiplexed voice frames) | UDP | WebSocket **binary** (and text where applicable) |
+| **Media (Osmux)** | BTS selection followed by multiplexed voice frames | UDP | WebSocket **text** selection and **binary** media |
 
 Notes:
-- Each GSM interface is mapped to a dedicated WebSocket endpoint between the browser-based BTS and the backend gateway.
+- Each implemented interface is mapped to a dedicated WebSocket endpoint
+  between the browser-based BTS and the backend gateway.
 - “WebSocket text/binary” refers to the WebSocket frame type used by the gateway, not to GSM protocol semantics.
-- The gateway translates WebSocket-framed traffic into native TCP or UDP connections expected by Osmocom services.
+- OML, RSL, and media traffic is translated into the native TCP or UDP
+  connections expected by Osmocom services. The control endpoint does not
+  currently open BSC or HLR TCP connections.
 
 ---
 
@@ -368,4 +367,7 @@ See diagrams:
 
 This architecture enables a browser-native GSM BTS/TRX runtime using WebAssembly with SDR access via WebUSB, while preserving compatibility with native [Osmocom](https://osmocom.org/) services.
 
-All backend logic is implemented in `backend-core` and exposed via a set of NestJS microservices (REST/WS), including runtime transport bridging (WebSocket ⇄ TCP/UDP) and operational control/statistics via VTY, with planned statistics persistence (e.g., InfluxDB).
+Backend logic is implemented in `backend-core` and exposed through the NestJS
+integration package, including REST BTS configuration, WebSocket runtime
+transport bridging, operational control/statistics via VTY, and optional
+InfluxDB or Prometheus Pushgateway statistics writers.

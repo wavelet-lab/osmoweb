@@ -1,4 +1,5 @@
 import { BscController } from '@osmoweb/backend-core/osmoctrl';
+import { GSMBand } from '@osmoweb/core';
 
 async function testBscController() {
     const bsc = new BscController('localhost', 4242, false);
@@ -21,7 +22,7 @@ async function testBscController() {
         await bsc.addBts(testBtsId, {
             type: 'osmo-bts',
             description: `Test BTS ${testBtsId} from BSC test app variant 1`,
-            band: "GSM900",
+            band: GSMBand.GSM_900,
             unitId: { site: 1801, bts: testBtsId },
             lac: 1001,
             ci: 0,
@@ -35,7 +36,7 @@ async function testBscController() {
         await bsc.updateBts(testBtsId, {
             type: 'osmo-bts',
             description: `Test BTS ${testBtsId} from BSC test app variant 2`,
-            band: "DSC1800",
+            band: GSMBand.DCS_1800,
             unitId: { site: 1802, bts: testBtsId },
             lac: 1002,
             ci: 1,

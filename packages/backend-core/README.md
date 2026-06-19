@@ -148,30 +148,10 @@ wss.on('connection', async (ws, req) => {
 server.listen(osmoDefaultParams.port);
 ```
 
-### BTS pool configuration (`bts-config.json`)
-
-Some controllers (e.g. the Control/Media flows) use a BTS pool loaded from a JSON file in the **current working directory**.
-
-Expected shape:
-
-```json
-{
-  "bts": [
-    {
-      "id": 0,
-      "band": "DCS1800",
-      "ipa": "127.0.0.1",
-      "arfcn": 871,
-      "cell_identity": 6969,
-      "osmux_port": 10000
-    }
-  ]
-}
-```
-
 ## osmo (BTS assignment)
 
 `BtsManager` is a small helper to allocate and reuse BTS ids for client sessions.
+Assignments are kept in process memory.
 
 ```ts
 import { BtsManager } from '@osmoweb/backend-core/osmo';

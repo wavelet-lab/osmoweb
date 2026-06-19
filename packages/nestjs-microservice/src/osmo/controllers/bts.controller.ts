@@ -1,6 +1,6 @@
 import {
     Controller, Get, Put, Delete, Body, Inject, HttpException, HttpStatus,
-    UseGuards, Req
+    UseGuards, UsePipes, ValidationPipe, Req, Query
 } from '@nestjs/common';
 import { JwtAuthGuard } from '@websdr/nestjs-microservice/auth';
 import type { OsmoParams } from '@osmoweb/backend-core';
@@ -10,11 +10,16 @@ import {
 } from '@osmoweb/backend-core';
 import type { BscBtsConfig } from '@osmoweb/backend-core';
 import type { AuthRequest } from '@websdr/nestjs-microservice/auth';
-import { UpdateBtsDto } from '@/osmo/dto/update-bts.dto';
+import { ReleaseBtsDto, UpdateBtsDto } from '@/osmo/dto/update-bts.dto';
 import { OSMO_PARAMS } from '@/osmo/tokens';
 import { GSMBand, gsmArfcnToFrequency } from '@osmoweb/core';
 
 @UseGuards(JwtAuthGuard)
+@UsePipes(new ValidationPipe({
+    transform: true,
+    whitelist: true,
+    forbidNonWhitelisted: true,
+}))
 @Controller('api/v1/osmo/bts')
 export class BtsController {
     protected readonly bsc: BscController;
@@ -28,17 +33,17 @@ export class BtsController {
     }
 
     @Get()
-    async getBts(@Req() req: AuthRequest) {
+    async getBts(@Req() req: AuthRequest, @Query('instanceId') instanceId?: string) {
         const uid = this.getUserUuid(req);
         this.btsManager.cleanupExpiredAssignments();
-        this.btsManager.markSeen(uid);
-        const bts = this.btsManager.getByUuid(uid);
+        this.btsManager.markSeen(uid, Date.now(), instanceId);
+        const bts = this.btsManager.getByUuid(uid, instanceId);
         if (!bts) throw new HttpException('No BTS assigned to user', HttpStatus.NOT_FOUND);
         return this.btsManager.toBtsConfig(bts);
     }
 
     @Delete()
-    async releaseBts(@Req() req: AuthRequest, @Body() body?: Pick<UpdateBtsDto, 'instanceId'>) {
+    async releaseBts(@Req() req: AuthRequest, @Body() body?: ReleaseBtsDto) {
         const uid = this.getUserUuid(req);
         const released = this.btsManager.releaseByUuid(uid, body?.instanceId);
         if (!released) throw new HttpException('No BTS assigned to user', HttpStatus.NOT_FOUND);
