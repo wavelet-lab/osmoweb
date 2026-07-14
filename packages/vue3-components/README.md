@@ -159,6 +159,18 @@ then fall back to the package primary color tokens:
 For component-level focus customization, override `--input-focus-border` and
 `--input-focus-shadow` on a wrapper element.
 
+Clear buttons use the shared `--control-clear-*` tokens from the underlying
+WebSDR component styles:
+
+```scss
+:root {
+  --control-clear-size: 1.25rem;
+  --control-clear-icon-size: 0.875rem;
+  --control-clear-radius: 0.1875rem;
+  --control-clear-hover-bg: var(--primary-bg-light, rgba(59, 130, 246, 0.1));
+}
+```
+
 #### Corporate Branding
 ```scss
 :root {
