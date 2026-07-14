@@ -140,6 +140,25 @@ import '@osmoweb/vue3-components/styles/index.css';
 
 To theme components, override the CSS custom properties defined in `variables.css` in your app’s global CSS.
 
+Focus styles use the shared `--input-focus-border` and `--input-focus-shadow`
+tokens. By default these tokens follow app-level focus variables when present,
+then fall back to the package primary color tokens:
+
+```scss
+:root {
+  --app-focus-color: #007bff;
+  --app-focus-ring: 0 0 0 0.1875rem rgba(0, 123, 255, 0.18);
+}
+
+[data-theme="dark"] {
+  --app-focus-color: #4dabf7;
+  --app-focus-ring: 0 0 0 0.1875rem rgba(77, 171, 247, 0.34);
+}
+```
+
+For component-level focus customization, override `--input-focus-border` and
+`--input-focus-shadow` on a wrapper element.
+
 #### Corporate Branding
 ```scss
 :root {
