@@ -1,6 +1,6 @@
 {
     "name": "@osmoweb/vue3-components",
-    "version": "0.6.5",
+    "version": "0.6.6",
     "description": "This is a Vue 3 components package for OsmoWeb",
     "author": "Timur Davydov <dtv.comp@gmail.com>",
     "license": "MIT",
@@ -32,9 +32,9 @@
         "postpack": "rm -f ./LICENSE"
     },
     "dependencies": {
-        "@osmoweb/core": "^0.6.5",
-        "@osmoweb/frontend-core": "^0.6.5",
-        "@websdr/vue3-components": "^0.6.3"
+        "@osmoweb/core": "^0.6.6",
+        "@osmoweb/frontend-core": "^0.6.6",
+        "@websdr/vue3-components": "^0.6.4"
     },
     "devDependencies": {
         "@vitejs/plugin-vue": "^6.0.7",
